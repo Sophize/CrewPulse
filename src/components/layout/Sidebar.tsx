@@ -1,17 +1,3 @@
-// components/layout/Sidebar.tsx
-//
-// Dashboard sidebar rendered inside Mantine's AppShell.Navbar.
-// Responsibilities:
-//   1. Brand logo mark + name
-//   2. Navigation links grouped by section (Main / Admin)
-//   3. Active route highlight via useRouter
-//   4. User identity footer
-//   5. Mobile: rendered inside AppShell.Navbar which becomes
-//      a drawer when the burger is toggled
-//
-// Does NOT manage its own open/close state — that lives in
-// DashboardLayout so the TopBar burger can share it.
-
 import { useRouter } from "next/router";
 import Link from "next/link";
 import {
@@ -47,10 +33,7 @@ import {
   type SidebarLink,
 } from "@/lib/constants";
 
-// ── Icon map ──────────────────────────────────────────────────────
-// Maps iconName strings from SIDEBAR_LINKS to actual Tabler
-// icon components. Avoids dynamic imports and keeps the bundle
-// tree-shakeable — only icons referenced here are included.
+
 const ICON_MAP: Record<
   string,
   React.ComponentType<{ size?: number | string; stroke?: number }>
@@ -69,7 +52,6 @@ function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
   return <Icon size={size} stroke={1.5} />;
 }
 
-// ── Logo mark ─────────────────────────────────────────────────────
 function LogoMark() {
   return (
     <ThemeIcon
@@ -84,7 +66,6 @@ function LogoMark() {
   );
 }
 
-// ── Single nav item ───────────────────────────────────────────────
 interface NavItemProps {
   link: SidebarLink;
   isActive: boolean;
@@ -130,7 +111,6 @@ function NavItem({ link, isActive, onClick }: NavItemProps) {
   );
 }
 
-// ── Section group ─────────────────────────────────────────────────
 interface NavSectionProps {
   label: string;
   links: SidebarLink[];
@@ -171,9 +151,7 @@ function NavSection({
   );
 }
 
-// ── User footer ───────────────────────────────────────────────────
-// Displays a static placeholder until Firebase auth is wired.
-// Replace MOCK_CURRENT_USER with the real auth user object later.
+
 function UserFooter() {
   return (
     <Box px="sm" py="sm">
@@ -212,22 +190,16 @@ function UserFooter() {
   );
 }
 
-// ── Sidebar props ─────────────────────────────────────────────────
 export interface SidebarProps {
-  /** Controls mobile drawer open state — passed from DashboardLayout */
   opened: boolean;
-  /** Called when a nav link is clicked on mobile to close the drawer */
   onClose: () => void;
 }
 
-// ── Sidebar ───────────────────────────────────────────────────────
 export function Sidebar({ opened: _opened, onClose }: SidebarProps) {
   const router = useRouter();
 
-  // Exact match for active route. Extend to startsWith for nested routes.
   const activeHref = router.pathname;
 
-  // Partition links into their display sections.
   const mainLinks = SIDEBAR_LINKS.filter((l) => l.section === "main");
   const adminLinks = SIDEBAR_LINKS.filter((l) => l.section === "admin");
 
@@ -240,7 +212,6 @@ export function Sidebar({ opened: _opened, onClose }: SidebarProps) {
         borderRight: "1px solid var(--mantine-color-default-border)",
       }}
     >
-      {/* ── Logo ──────────────────────────────────────────────── */}
       <Box
         px="sm"
         py="md"
@@ -262,7 +233,6 @@ export function Sidebar({ opened: _opened, onClose }: SidebarProps) {
         </Group>
       </Box>
 
-      {/* ── Navigation ────────────────────────────────────────── */}
       <ScrollArea style={{ flex: 1 }} px="xs" py="sm">
         <Stack gap="lg">
           <NavSection
@@ -281,7 +251,6 @@ export function Sidebar({ opened: _opened, onClose }: SidebarProps) {
         </Stack>
       </ScrollArea>
 
-      {/* ── User footer ───────────────────────────────────────── */}
       <Box
         style={{
           borderTop: "1px solid var(--mantine-color-default-border)",

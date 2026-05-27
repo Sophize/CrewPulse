@@ -2,13 +2,10 @@ import { Stack, ThemeIcon, Text, Box } from "@mantine/core";
 import type { MantineColor } from "@mantine/core";
 
 interface EmptyStateProps {
-  /** Tabler icon component. Pass the component itself: icon={IconUsers} */
   icon: React.ComponentType<{ size?: number | string; stroke?: number }>;
   title: string;
   description?: string;
-  /** Optional CTA — a Button or Anchor node */
   action?: React.ReactNode;
-  /** Icon tint color. Default: "gray" */
   color?: MantineColor;
 }
 

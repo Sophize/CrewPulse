@@ -1,7 +1,3 @@
-// Single entry point for all shared types.
-// Import from "@/types" throughout the app — never import from sub-files
-// directly, so re-exporting or restructuring later is painless.
-
 export type { UserRole, User, UserSummary } from "./user";
 
 export type { UploadStatus, Upload, UploadRow } from "./upload";
@@ -12,3 +8,13 @@ export type {
   WeekSummary,
   DeptStat,
 } from "./timesheet";
+
+export type { DashboardStats } from "./dashboard";
+
+export type { ActivityEvent, ActivityType } from "./activity";
+
+export type {
+  AnalyticsData,
+  WeeklyTrendPoint,
+  PeakSubmissionHour,
+} from "./analytics";

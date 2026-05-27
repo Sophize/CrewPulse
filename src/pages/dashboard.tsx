@@ -1,5 +1,4 @@
-import { Grid, Stack } from "@mantine/core";
-import { IconCalendar } from "@tabler/icons-react";
+import { Alert, Grid, Stack } from "@mantine/core";
 
 import { DashboardLayout } from "@/components/layout";
 
@@ -10,11 +9,14 @@ import { RecentUploadsTable } from "@/features/dashboard/components/RecentUpload
 import { DeptComplianceBar } from "@/features/dashboard/components/DeptComplianceBar";
 import { ActivityFeed } from "@/features/dashboard/components/ActivityFeed";
 
-import { MOCK_STATS, MOCK_CURRENT_UPLOADS } from "@/mock";
+import { getErrorMessage } from "@/api/errors";
+import { useActivityFeed } from "@/hooks/useActivityFeed";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 export default function DashboardPage() {
-  const stats = MOCK_STATS;
-  const uploads = MOCK_CURRENT_UPLOADS;
+  const statsQuery = useDashboardStats();
+  const activityQuery = useActivityFeed();
+  const stats = statsQuery.data;
 
   return (
     <DashboardLayout title="Dashboard" breadcrumbs={[{ label: "Dashboard" }]}>
@@ -27,24 +29,32 @@ export default function DashboardPage() {
         }
       />
 
-      {/* ── Stats row ─────────────────────────────────────────── */}
-      <StatsRow stats={stats} />
+      {(statsQuery.isError || activityQuery.isError) && (
+        <Alert color="red" mb="md" title="Unable to load dashboard data">
+          {getErrorMessage(statsQuery.error ?? activityQuery.error)}
+        </Alert>
+      )}
 
-      {/* ── Main content grid ─────────────────────────────────── */}
+      {stats && <StatsRow stats={stats} />}
+
       <Grid mt="lg">
         {/* Left: recent uploads — wider column */}
         <Grid.Col span={{ base: 12, md: 7 }}>
-          <RecentUploadsTable uploads={stats.recentUploads} isLoading={false} />
+          <RecentUploadsTable
+            uploads={stats?.recentUploads ?? []}
+            isLoading={statsQuery.isLoading}
+          />
         </Grid.Col>
 
-        {/* Right: dept compliance + activity feed stacked */}
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Stack gap="lg">
             <DeptComplianceBar
-              deptStats={stats.deptCompliance}
-              isLoading={false}
+              deptStats={stats?.deptCompliance ?? []}
+              isLoading={statsQuery.isLoading}
             />
-            <ActivityFeed />
+            <ActivityFeed
+              events={activityQuery.isLoading ? [] : (activityQuery.data ?? [])}
+            />
           </Stack>
         </Grid.Col>
       </Grid>

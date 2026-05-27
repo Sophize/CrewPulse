@@ -5,7 +5,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  createdAt: string; // ISO 8601 string — serialized from Prisma Date
+  createdAt: string;
 }
 
 export interface UserSummary {

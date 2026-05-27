@@ -1,16 +1,3 @@
-// pages/settings.tsx
-//
-// Settings page — static form sections with no backend yet.
-// All inputs are controlled but local-state only.
-// Phase 4: wire each section to a PATCH /api/settings endpoint.
-//
-// Sections:
-//   1. Profile
-//   2. Notifications
-//   3. Appearance
-//   4. Company configuration
-//   5. Security
-
 import { useState } from "react";
 import React from "react";
 import {
@@ -48,8 +35,6 @@ import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
 import { DashboardLayout } from "@/components/layout";
 import { PageHeader } from "@/components/ui";
 
-// ── Section wrapper ───────────────────────────────────────────────
-// Consistent card layout for every settings section.
 function SettingsSection({
   icon,
   color,
@@ -65,7 +50,6 @@ function SettingsSection({
 }) {
   return (
     <Paper withBorder radius="sm" p={0} style={{ overflow: "hidden" }}>
-      {/* Section header */}
       <Box
         px="lg"
         py="md"
@@ -96,7 +80,6 @@ function SettingsSection({
           </Box>
         </Group>
       </Box>
-      {/* Section content */}
       <Box px="lg" py="md">
         {children}
       </Box>
@@ -104,7 +87,6 @@ function SettingsSection({
   );
 }
 
-// Fixed version without the broken render pattern above
 function Section({
   icon: Icon,
   color,
@@ -148,7 +130,6 @@ function Section({
   );
 }
 
-// ── 1. Profile section ────────────────────────────────────────────
 function ProfileSection() {
   const [name, setName] = useState("James Dorsey");
   const [email, setEmail] = useState("james.dorsey@crewpulse.io");
@@ -168,7 +149,6 @@ function ProfileSection() {
       description="Your personal information and account details."
     >
       <Stack gap="md">
-        {/* Avatar row */}
         <Group gap="md" align="flex-end">
           <Avatar size={64} radius="xl" color="blue" variant="filled">
             JD
@@ -231,7 +211,6 @@ function ProfileSection() {
   );
 }
 
-// ── 2. Notifications section ──────────────────────────────────────
 interface NotifPref {
   id: string;
   label: string;
@@ -312,7 +291,6 @@ function NotificationsSection() {
   );
 }
 
-// ── 3. Appearance section ─────────────────────────────────────────
 function AppearanceSection() {
   const { setColorScheme } = useMantineColorScheme();
   const computed = useComputedColorScheme("light", {
@@ -386,7 +364,6 @@ function AppearanceSection() {
   );
 }
 
-// ── 4. Company configuration ──────────────────────────────────────
 function CompanySection() {
   return (
     <Section
@@ -477,7 +454,6 @@ function CompanySection() {
   );
 }
 
-// ── 5. Security section ───────────────────────────────────────────
 function SecuritySection() {
   return (
     <Section
@@ -567,7 +543,6 @@ function SecuritySection() {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────
 export default function SettingsPage() {
   return (
     <DashboardLayout title="Settings" breadcrumbs={[{ label: "Settings" }]}>

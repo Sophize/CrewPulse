@@ -13,7 +13,8 @@ export { MOCK_TIMESHEETS, MOCK_WEEK_SUMMARY } from "./timesheets";
 
 import { MOCK_EMPLOYEES, MOCK_DEPT_MAP } from "./users";
 import { MOCK_CURRENT_UPLOADS } from "./uploads";
-import type { DeptStat } from "@/types";
+import type { DashboardStats } from "@/types/dashboard";
+import type { DeptStat } from "@/types/timesheet";
 
 // ── Derived summary object ────────────────────────────────────────
 // Consumed by the 4-up stats row on Dashboard and Admin pages.
@@ -71,7 +72,7 @@ const recentUploads = [...MOCK_CURRENT_UPLOADS]
   )
   .slice(0, 5);
 
-export const MOCK_STATS = {
+export const MOCK_STATS: DashboardStats = {
   totalEmployees,
   updatedCount,
   lateCount,
@@ -82,6 +83,4 @@ export const MOCK_STATS = {
   complianceRateNum: complianceRate,
   deptCompliance,
   recentUploads,
-} as const;
-
-export type MockStats = typeof MOCK_STATS;
+};

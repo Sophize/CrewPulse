@@ -1,13 +1,3 @@
-// features/dashboard/components/RecentUploadsTable.tsx
-//
-// Compact table showing the 5 most recent upload events.
-// Used on the dashboard left column for a quick status sweep.
-//
-// Columns: Employee · Status · File · Uploaded
-//
-// Uses Mantine Table (not TanStack Table — too small to need sorting).
-// TanStack Table is reserved for the full /uploads page.
-
 import {
   Table,
   Text,
@@ -34,7 +24,6 @@ interface RecentUploadsTableProps {
   isLoading?: boolean;
 }
 
-// ── Table header ──────────────────────────────────────────────────
 function TableHead() {
   return (
     <Table.Thead>
@@ -49,13 +38,11 @@ function TableHead() {
   );
 }
 
-// ── Single data row ───────────────────────────────────────────────
 function UploadRow({ upload }: { upload: UploadRow }) {
   const hasFile = Boolean(upload.fileName && upload.uploadedAt);
 
   return (
     <Table.Tr>
-      {/* Employee */}
       <Table.Td>
         <Group gap="sm" wrap="nowrap">
           <Avatar size={28} radius="xl" color="blue" variant="light">
@@ -67,12 +54,10 @@ function UploadRow({ upload }: { upload: UploadRow }) {
         </Group>
       </Table.Td>
 
-      {/* Status */}
       <Table.Td>
         <StatusBadge status={upload.status} />
       </Table.Td>
 
-      {/* Filename — hidden on mobile */}
       <Table.Td visibleFrom="sm">
         {hasFile ? (
           <Group gap={6} wrap="nowrap">
@@ -92,14 +77,12 @@ function UploadRow({ upload }: { upload: UploadRow }) {
         )}
       </Table.Td>
 
-      {/* Relative timestamp */}
       <Table.Td>
         <Text size="xs" c="dimmed">
           {hasFile ? formatRelativeTime(upload.uploadedAt) : "—"}
         </Text>
       </Table.Td>
 
-      {/* File size — hidden on tablet */}
       <Table.Td visibleFrom="md">
         <Text size="xs" c="dimmed">
           {formatFileSize(upload.fileSizeBytes)}
@@ -109,7 +92,6 @@ function UploadRow({ upload }: { upload: UploadRow }) {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────
 export function RecentUploadsTable({
   uploads,
   isLoading = false,

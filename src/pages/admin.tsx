@@ -1,20 +1,11 @@
-// pages/admin.tsx
-//
-// Admin overview page.
-// Layout:
-//   [4-up stat cards]
-//   [Employees table — full width]
-//   [Dept compliance card (6/12)] [Quick actions + activity (6/12)]
-
-import { useMemo } from "react";
 import {
+  Alert,
   Grid,
   Stack,
   Paper,
   Text,
   Group,
   SimpleGrid,
-  Badge,
   ThemeIcon,
   Box,
   Divider,
@@ -38,40 +29,13 @@ import {
 
 import { DashboardLayout } from "@/components/layout";
 import { PageHeader, StatCard } from "@/components/ui";
-import {
-  EmployeesTable,
-  type EmployeeRow,
-} from "@/features/admin/components/EmployeesTable";
+import { EmployeesTable } from "@/features/admin/components/EmployeesTable";
 import { DeptComplianceCard } from "@/features/admin/components/DeptComplianceCard";
 
-import {
-  MOCK_USERS,
-  MOCK_CURRENT_UPLOADS,
-  MOCK_STATS,
-  MOCK_DEPT_MAP,
-} from "@/mock";
-import type { UploadStatus } from "@/types";
+import { getErrorMessage } from "@/api/errors";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useEmployees } from "@/hooks/useEmployees";
 
-// ── Derive employee table rows from mock data ─────────────────────
-// In Phase 4 this becomes a useQuery result.
-function useEmployeeRows(): EmployeeRow[] {
-  return useMemo(() => {
-    return MOCK_USERS.filter((u) => u.role === "EMPLOYEE").map((user) => {
-      const upload = MOCK_CURRENT_UPLOADS.find((u2) => u2.userId === user.id);
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        department: MOCK_DEPT_MAP[user.id] ?? "Unknown",
-        currentStatus: (upload?.status ?? "MISSING") as UploadStatus,
-        createdAt: user.createdAt,
-      };
-    });
-  }, []);
-}
-
-// ── Quick actions panel ───────────────────────────────────────────
 function QuickActionsPanel() {
   const actions = [
     { icon: IconMail, label: "Send reminder to all pending", color: "orange" },
@@ -118,7 +82,6 @@ function QuickActionsPanel() {
   );
 }
 
-// ── Recent admin activity ─────────────────────────────────────────
 interface AdminEvent {
   icon: React.ComponentType<{ size?: number | string; stroke?: number }>;
   color: string;
@@ -197,10 +160,12 @@ function AdminActivityPanel() {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const employeeRows = useEmployeeRows();
-  const stats = MOCK_STATS;
+  const employeesQuery = useEmployees();
+  const statsQuery = useDashboardStats();
+  const employeeRows = employeesQuery.data?.rows ?? [];
+  const employeeSummary = employeesQuery.data;
+  const stats = statsQuery.data;
 
   return (
     <DashboardLayout title="Admin" breadcrumbs={[{ label: "Admin" }]}>
@@ -218,25 +183,30 @@ export default function AdminPage() {
         }
       />
 
-      {/* ── Stat cards ─────────────────────────────────────────── */}
+      {(employeesQuery.isError || statsQuery.isError) && (
+        <Alert color="red" mb="md" title="Unable to load admin data">
+          {getErrorMessage(employeesQuery.error ?? statsQuery.error)}
+        </Alert>
+      )}
+
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md" mb="lg">
         <StatCard
           label="Total users"
-          value={MOCK_USERS.length}
-          note={`${MOCK_USERS.filter((u) => u.role === "ADMIN").length} admins · ${MOCK_USERS.filter((u) => u.role === "EMPLOYEE").length} employees`}
+          value={employeeSummary?.totalUsers ?? 0}
+          note={`${employeeSummary?.adminCount ?? 0} admins · ${employeeSummary?.employeeCount ?? 0} employees`}
           color="blue"
           icon={IconUsers}
         />
         <StatCard
           label="Pending actions"
-          value={stats.missingLateCount}
+          value={stats?.missingLateCount ?? 0}
           note="Require attention now"
           color="red"
           icon={IconAlertTriangle}
         />
         <StatCard
           label="Compliance rate"
-          value={stats.complianceRate}
+          value={stats?.complianceRate ?? "—"}
           note="↑ 4% from last week"
           color="green"
           icon={IconChartBar}
@@ -250,7 +220,6 @@ export default function AdminPage() {
         />
       </SimpleGrid>
 
-      {/* ── Employees table ─────────────────────────────────────── */}
       <Box mb="xl">
         <Group justify="space-between" mb="sm">
           <Text fw={600} size="sm">
@@ -269,13 +238,15 @@ export default function AdminPage() {
             </Tooltip>
           </Group>
         </Group>
-        <EmployeesTable rows={employeeRows} isLoading={false} />
+        <EmployeesTable
+          rows={employeeRows}
+          isLoading={employeesQuery.isLoading}
+        />
       </Box>
 
-      {/* ── Bottom two-column grid ──────────────────────────────── */}
       <Grid mb="lg">
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <DeptComplianceCard deptStats={stats.deptCompliance} />
+          <DeptComplianceCard deptStats={stats?.deptCompliance ?? []} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Stack gap="md">

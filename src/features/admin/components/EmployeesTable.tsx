@@ -1,12 +1,3 @@
-// features/admin/components/EmployeesTable.tsx
-//
-// Full employee list for the admin page.
-// Uses TanStack Table v8 for sorting and column management.
-// Simple Mantine Table renders the output — no virtualization yet
-// (needed at 500+ rows; mock has 10).
-//
-// Columns: Avatar+Name · Email · Department · Role · This week · Joined · Actions
-
 import { useMemo, useState } from "react";
 import {
   Table,
@@ -46,11 +37,8 @@ import {
 
 import { StatusBadge, EmptyState, LoadingRows } from "@/components/ui";
 import { formatDate, getInitials } from "@/lib/formatters";
-import type { User, UploadStatus } from "@/types";
-import { MOCK_DEPT_MAP } from "@/mock";
+import type { UploadStatus } from "@/types";
 
-// ── Row shape ─────────────────────────────────────────────────────
-// Flat row combining User + their current-week status.
 export interface EmployeeRow {
   id: string;
   name: string;
@@ -61,14 +49,12 @@ export interface EmployeeRow {
   createdAt: string;
 }
 
-// ── Sort indicator icon ───────────────────────────────────────────
 function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
   if (sorted === "asc") return <IconChevronUp size={13} stroke={2} />;
   if (sorted === "desc") return <IconChevronDown size={13} stroke={2} />;
   return <IconSelector size={13} stroke={1.5} style={{ opacity: 0.4 }} />;
 }
 
-// ── Sortable header cell ──────────────────────────────────────────
 function SortableHeader({
   label,
   sorted,
@@ -100,10 +86,8 @@ function SortableHeader({
   );
 }
 
-// ── Column helper ─────────────────────────────────────────────────
 const col = createColumnHelper<EmployeeRow>();
 
-// ── Column definitions ────────────────────────────────────────────
 const columns = [
   col.accessor("name", {
     header: "Employee",
@@ -172,7 +156,6 @@ const columns = [
     ),
   }),
 
-  // Actions column — no accessor, stable ID
   col.display({
     id: "actions",
     header: "",
@@ -213,7 +196,6 @@ const columns = [
   }),
 ];
 
-// ── Department filter options ─────────────────────────────────────
 const DEPT_OPTIONS = [
   { value: "", label: "All departments" },
   { value: "Engineering", label: "Engineering" },
@@ -230,26 +212,22 @@ const STATUS_OPTIONS = [
   { value: "MISSING", label: "Missing" },
 ];
 
-// ── Props ─────────────────────────────────────────────────────────
 interface EmployeesTableProps {
   rows: EmployeeRow[];
   isLoading?: boolean;
 }
 
-// ── Main component ────────────────────────────────────────────────
 export function EmployeesTable({
   rows,
   isLoading = false,
 }: EmployeesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "currentStatus", desc: false }, // Default: problem employees first
+    { id: "currentStatus", desc: false },
   ]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [deptFilter, setDeptFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  // Apply dept + status as column filters
   const activeFilters: ColumnFiltersState = useMemo(() => {
     const filters: ColumnFiltersState = [];
     if (deptFilter) filters.push({ id: "department", value: deptFilter });
@@ -264,7 +242,6 @@ export function EmployeesTable({
     state: { sorting, globalFilter, columnFilters: activeFilters },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -274,7 +251,6 @@ export function EmployeesTable({
 
   return (
     <Stack gap="sm">
-      {/* ── Toolbar ─────────────────────────────────────────────── */}
       <Group gap="sm" wrap="wrap">
         <TextInput
           placeholder="Search employees…"
@@ -304,7 +280,6 @@ export function EmployeesTable({
         />
       </Group>
 
-      {/* ── Table ───────────────────────────────────────────────── */}
       <Paper withBorder radius="sm" style={{ overflow: "hidden" }}>
         <Table highlightOnHover>
           <Table.Thead style={{ background: "var(--mantine-color-gray-0)" }}>
@@ -376,7 +351,6 @@ export function EmployeesTable({
           </Table.Tbody>
         </Table>
 
-        {/* Footer row count */}
         {!isLoading && (
           <Box
             px="md"

@@ -1,16 +1,5 @@
-// pages/analytics.tsx
-//
-// Analytics overview — Mantine-only, no chart libraries.
-// Simulates charts using Progress bars, Grid layouts, and
-// styled Paper components. Recharts/Nivo can drop in Phase 5
-// replacing the placeholder sections without changing the page shape.
-//
-// Layout:
-//   [4 KPI cards]
-//   [Submission trend (7/12)] [Top stats column (5/12)]
-//   [Dept performance table full-width]
-
 import {
+  Alert,
   SimpleGrid,
   Grid,
   Paper,
@@ -22,7 +11,6 @@ import {
   Stack,
   Divider,
   ThemeIcon,
-  rem,
   Table,
   RingProgress,
   Center,
@@ -31,7 +19,6 @@ import {
   IconTrendingUp,
   IconTrendingDown,
   IconCalendar,
-  IconUsers,
   IconClock,
   IconChartBar,
   IconCircleCheck,
@@ -40,29 +27,18 @@ import {
 
 import { DashboardLayout } from "@/components/layout";
 import { PageHeader, StatCard } from "@/components/ui";
-import { MOCK_STATS } from "@/mock";
+import { getErrorMessage } from "@/api/errors";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { getRateColor } from "@/lib/constants";
+import type { DashboardStats } from "@/types/dashboard";
+import type { PeakSubmissionHour, WeeklyTrendPoint } from "@/types/analytics";
 
-// ── Mock weekly trend data ────────────────────────────────────────
-const WEEKLY_TREND = [
-  { week: "Wk 17", rate: 71, submitted: 71 },
-  { week: "Wk 18", rate: 76, submitted: 76 },
-  { week: "Wk 19", rate: 68, submitted: 68 },
-  { week: "Wk 20", rate: 80, submitted: 80 },
-  { week: "Wk 21", rate: 70, submitted: 70 }, // current
-];
-
-const PEAK_SUBMISSION_HOURS = [
-  { hour: "8–9 AM", pct: 22 },
-  { hour: "9–10 AM", pct: 45 },
-  { hour: "10–11 AM", pct: 18 },
-  { hour: "11–12 PM", pct: 8 },
-  { hour: "After 6PM", pct: 7 },
-];
-
-// ── Submission trend bar chart (Mantine Progress) ─────────────────
-function SubmissionTrendChart() {
-  const max = Math.max(...WEEKLY_TREND.map((w) => w.rate));
+function SubmissionTrendChart({
+  weeklyTrend,
+}: {
+  weeklyTrend: WeeklyTrendPoint[];
+}) {
+  const max = Math.max(...weeklyTrend.map((w) => w.rate), 1);
 
   return (
     <Stack gap={0}>
@@ -71,9 +47,9 @@ function SubmissionTrendChart() {
       </Text>
       <Paper withBorder radius="sm" p="md">
         <Stack gap="sm">
-          {WEEKLY_TREND.map((w, i) => {
-            const isCurrent = i === WEEKLY_TREND.length - 1;
-            const prev = WEEKLY_TREND[i - 1];
+          {weeklyTrend.map((w, i) => {
+            const isCurrent = i === weeklyTrend.length - 1;
+            const prev = weeklyTrend[i - 1];
             const delta = prev ? w.rate - prev.rate : 0;
             const color = getRateColor(w.rate);
 
@@ -146,8 +122,8 @@ function SubmissionTrendChart() {
           </Text>
           <Text size="xs" fw={600}>
             {Math.round(
-              WEEKLY_TREND.reduce((s, w) => s + w.rate, 0) /
-                WEEKLY_TREND.length,
+              weeklyTrend.reduce((s, w) => s + w.rate, 0) /
+                Math.max(weeklyTrend.length, 1),
             )}
             %
           </Text>
@@ -157,8 +133,13 @@ function SubmissionTrendChart() {
   );
 }
 
-// ── Compliance ring ───────────────────────────────────────────────
-function ComplianceRing({ rate }: { rate: number }) {
+function ComplianceRing({
+  rate,
+  stats,
+}: {
+  rate: number;
+  stats: DashboardStats;
+}) {
   const color = getRateColor(rate);
   return (
     <Stack gap={0}>
@@ -191,16 +172,16 @@ function ComplianceRing({ rate }: { rate: number }) {
           {[
             {
               label: "Updated",
-              value: MOCK_STATS.updatedCount,
+              value: stats.updatedCount,
               color: "green",
             },
             {
               label: "Pending",
-              value: MOCK_STATS.pendingCount,
+              value: stats.pendingCount,
               color: "orange",
             },
-            { label: "Late", value: MOCK_STATS.lateCount, color: "red" },
-            { label: "Missing", value: MOCK_STATS.missingCount, color: "gray" },
+            { label: "Late", value: stats.lateCount, color: "red" },
+            { label: "Missing", value: stats.missingCount, color: "gray" },
           ].map((item) => (
             <Group key={item.label} justify="space-between">
               <Group gap={6}>
@@ -228,9 +209,12 @@ function ComplianceRing({ rate }: { rate: number }) {
   );
 }
 
-// ── Peak submission hours ─────────────────────────────────────────
-function PeakHoursPanel() {
-  const max = Math.max(...PEAK_SUBMISSION_HOURS.map((h) => h.pct));
+function PeakHoursPanel({
+  peakSubmissionHours,
+}: {
+  peakSubmissionHours: PeakSubmissionHour[];
+}) {
+  const max = Math.max(...peakSubmissionHours.map((h) => h.pct), 1);
 
   return (
     <Stack gap={0}>
@@ -239,7 +223,7 @@ function PeakHoursPanel() {
       </Text>
       <Paper withBorder radius="sm" p="md">
         <Stack gap="sm">
-          {PEAK_SUBMISSION_HOURS.map((h) => (
+          {peakSubmissionHours.map((h) => (
             <Box key={h.hour}>
               <Group justify="space-between" mb={4}>
                 <Text size="xs" c="dimmed">
@@ -263,17 +247,14 @@ function PeakHoursPanel() {
   );
 }
 
-// ── Department performance table ──────────────────────────────────
-function DeptPerformanceTable() {
-  const stats = MOCK_STATS;
+function DeptPerformanceTable({
+  stats,
+  previousDepartmentRates,
+}: {
+  stats: DashboardStats;
+  previousDepartmentRates: Record<string, number>;
+}) {
   const sorted = [...stats.deptCompliance].sort((a, b) => b.rate - a.rate);
-
-  const MOCK_PREV: Record<string, number> = {
-    Engineering: 80,
-    Design: 70,
-    Marketing: 68,
-    Sales: 48,
-  };
 
   return (
     <Stack gap={0}>
@@ -307,8 +288,9 @@ function DeptPerformanceTable() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {sorted.map((dept, i) => {
-              const prev = MOCK_PREV[dept.department] ?? dept.rate;
+            {sorted.map((dept) => {
+              const prev =
+                previousDepartmentRates[dept.department] ?? dept.rate;
               const delta = dept.rate - prev;
               const color = getRateColor(dept.rate);
 
@@ -409,10 +391,11 @@ function DeptPerformanceTable() {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
-  const stats = MOCK_STATS;
-  const complianceNum = stats.complianceRateNum;
+  const analyticsQuery = useAnalytics();
+  const analytics = analyticsQuery.data;
+  const stats = analytics?.stats;
+  const complianceNum = stats?.complianceRateNum ?? 0;
 
   return (
     <DashboardLayout title="Analytics" breadcrumbs={[{ label: "Analytics" }]}>
@@ -421,11 +404,16 @@ export default function AnalyticsPage() {
         subtitle="Submission trends, department performance, and compliance metrics."
       />
 
-      {/* ── KPI cards ──────────────────────────────────────────── */}
+      {analyticsQuery.isError && (
+        <Alert color="red" mb="md" title="Unable to load analytics">
+          {getErrorMessage(analyticsQuery.error)}
+        </Alert>
+      )}
+
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md" mb="lg">
         <StatCard
           label="Compliance rate"
-          value={stats.complianceRate}
+          value={stats?.complianceRate ?? "—"}
           note="↑ 4% from last week"
           color="green"
           icon={IconCircleCheck}
@@ -439,37 +427,41 @@ export default function AnalyticsPage() {
         />
         <StatCard
           label="On-time submissions"
-          value={`${stats.updatedCount}/${stats.totalEmployees}`}
+          value={stats ? `${stats.updatedCount}/${stats.totalEmployees}` : "—"}
           note="Before 6 PM deadline"
           color="teal"
           icon={IconCalendar}
         />
         <StatCard
           label="At-risk employees"
-          value={stats.missingLateCount}
+          value={stats?.missingLateCount ?? 0}
           note="Missing or late this week"
           color="red"
           icon={IconAlertTriangle}
         />
       </SimpleGrid>
 
-      {/* ── Trend + compliance ring ─────────────────────────────── */}
       <Grid mb="lg">
         <Grid.Col span={{ base: 12, md: 7 }}>
-          <SubmissionTrendChart />
+          <SubmissionTrendChart weeklyTrend={analytics?.weeklyTrend ?? []} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Stack gap="md">
-            <ComplianceRing rate={complianceNum} />
-            <PeakHoursPanel />
+            {stats && <ComplianceRing rate={complianceNum} stats={stats} />}
+            <PeakHoursPanel
+              peakSubmissionHours={analytics?.peakSubmissionHours ?? []}
+            />
           </Stack>
         </Grid.Col>
       </Grid>
 
-      {/* ── Department table ────────────────────────────────────── */}
-      <DeptPerformanceTable />
+      {stats && (
+        <DeptPerformanceTable
+          stats={stats}
+          previousDepartmentRates={analytics?.previousDepartmentRates ?? {}}
+        />
+      )}
 
-      {/* Chart library placeholder banner */}
       <Paper
         withBorder
         radius="sm"

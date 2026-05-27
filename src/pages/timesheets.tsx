@@ -1,10 +1,10 @@
 import {
+  Alert,
   SimpleGrid,
   Group,
   Button,
   Text,
   Box,
-  SegmentedControl,
   Stack,
 } from "@mantine/core";
 import {
@@ -21,9 +21,12 @@ import { DashboardLayout } from "@/components/layout";
 import { PageHeader, StatCard } from "@/components/ui";
 import { TimesheetsTable } from "@/features/timesheets/components/TimesheetsTable";
 
-import { MOCK_TIMESHEETS, MOCK_WEEK_SUMMARY } from "@/mock";
+import { getErrorMessage } from "@/api/errors";
+import { useTimesheets } from "@/hooks/useTimesheets";
+import type { TimesheetRow } from "@/types";
 
-// ── Legend for hours colour coding ───────────────────────────────
+const EMPTY_TIMESHEETS: TimesheetRow[] = [];
+
 function HoursLegend() {
   const items = [
     { color: "var(--mantine-color-green-6)", label: "≥ 40h — full week" },
@@ -53,7 +56,6 @@ function HoursLegend() {
   );
 }
 
-// ── Week navigator (static for Phase 3) ──────────────────────────
 function WeekNavigator() {
   return (
     <Group gap="xs" wrap="nowrap">
@@ -88,10 +90,10 @@ function WeekNavigator() {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────
 export default function TimesheetsPage() {
-  const summary = MOCK_WEEK_SUMMARY;
-  const timesheets = MOCK_TIMESHEETS;
+  const timesheetsQuery = useTimesheets();
+  const summary = timesheetsQuery.data?.summary;
+  const timesheets = timesheetsQuery.data?.rows ?? EMPTY_TIMESHEETS;
 
   return (
     <DashboardLayout title="Timesheets" breadcrumbs={[{ label: "Timesheets" }]}>
@@ -112,39 +114,43 @@ export default function TimesheetsPage() {
         }
       />
 
-      {/* ── Week summary cards ─────────────────────────────────── */}
+      {timesheetsQuery.isError && (
+        <Alert color="red" mb="md" title="Unable to load timesheets">
+          {getErrorMessage(timesheetsQuery.error)}
+        </Alert>
+      )}
+
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md" mb="lg">
         <StatCard
           label="Week"
-          value={summary.weekLabel}
+          value={summary?.weekLabel ?? "—"}
           note="Current active week"
           color="blue"
           icon={IconCalendar}
         />
         <StatCard
           label="Total hours logged"
-          value={`${summary.totalHoursLogged}h`}
-          note={`Across ${summary.employeeCount} employees`}
+          value={summary ? `${summary.totalHoursLogged}h` : "—"}
+          note={`Across ${summary?.employeeCount ?? 0} employees`}
           color="teal"
           icon={IconClock}
         />
         <StatCard
           label="Avg hours / person"
-          value={`${summary.averageHoursPerEmployee}h`}
+          value={summary ? `${summary.averageHoursPerEmployee}h` : "—"}
           note="Expected: 40h"
           color="blue"
           icon={IconUsers}
         />
         <StatCard
           label="Exceptions"
-          value={summary.exceptionCount}
+          value={summary?.exceptionCount ?? 0}
           note="Overtime or undertime"
-          color={summary.exceptionCount > 0 ? "orange" : "green"}
+          color={(summary?.exceptionCount ?? 0) > 0 ? "orange" : "green"}
           icon={IconAlertTriangle}
         />
       </SimpleGrid>
 
-      {/* ── Timesheets table ───────────────────────────────────── */}
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text fw={600} size="sm">
@@ -153,9 +159,11 @@ export default function TimesheetsPage() {
           <HoursLegend />
         </Group>
 
-        <TimesheetsTable rows={timesheets} isLoading={false} />
+        <TimesheetsTable
+          rows={timesheets}
+          isLoading={timesheetsQuery.isLoading}
+        />
 
-        {/* Footer note */}
         <Text size="xs" c="dimmed" ta="right">
           Hours reflect submitted data only. Missing entries shown as —
         </Text>

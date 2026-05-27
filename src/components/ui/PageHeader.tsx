@@ -3,15 +3,7 @@ import { Group, Stack, Text, Box, Divider } from "@mantine/core";
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  /**
-   * Right-side slot for action buttons, filters, or date pickers.
-   * Rendered in a Group — pass multiple elements as a fragment.
-   */
   action?: React.ReactNode;
-  /**
-   * Whether to render the bottom divider.
-   * Default: true
-   */
   withDivider?: boolean;
 }
 

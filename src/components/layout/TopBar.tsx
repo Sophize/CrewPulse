@@ -1,16 +1,3 @@
-// components/layout/TopBar.tsx
-//
-// Dashboard top navigation bar rendered inside Mantine's AppShell.Header.
-// Responsibilities:
-//   1. Mobile burger button (controls sidebar drawer open state)
-//   2. Page title + breadcrumb (title-driven — each page passes its own)
-//   3. Notification bell (static badge — real count wired later)
-//   4. Color scheme toggle (light / dark / auto)
-//   5. User avatar with dropdown stub
-//
-// TopBar is a pure presentational component — it owns no state of
-// its own. State lives in DashboardLayout and is passed as props.
-
 import {
   AppShell,
   Group,
@@ -37,18 +24,17 @@ import {
 import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
 
-// ── Breadcrumb types ──────────────────────────────────────────────
 export interface BreadcrumbItem {
   label: string;
   href?: string; // Omit for the last (current) item
 }
 
-// ── Color scheme toggle ───────────────────────────────────────────
 function ColorSchemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
   const computed = useComputedColorScheme("light", {
     getInitialValueInEffect: true,
   });
+
   const isDark = computed === "dark";
 
   return (
@@ -61,22 +47,22 @@ function ColorSchemeToggle() {
         variant="subtle"
         color="gray"
         size="md"
-        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        aria-label="Toggle color scheme"
         onClick={() => setColorScheme(isDark ? "light" : "dark")}
       >
-        {isDark ? (
+        <Box darkHidden>
           <IconSun size={18} stroke={1.5} />
-        ) : (
+        </Box>
+
+        <Box lightHidden>
           <IconMoon size={18} stroke={1.5} />
-        )}
+        </Box>
       </ActionIcon>
     </Tooltip>
   );
 }
 
-// ── Notification bell ─────────────────────────────────────────────
 function NotificationBell() {
-  // Static badge count — replace with real unread count from useQuery later.
   //   const UNREAD_COUNT = 3;
   const UNREAD_COUNT: number = 3;
 
@@ -102,7 +88,6 @@ function NotificationBell() {
   );
 }
 
-// ── Search trigger ────────────────────────────────────────────────
 function SearchButton() {
   return (
     <Tooltip label="Search (⌘K)" withArrow position="bottom">
@@ -118,30 +103,19 @@ function SearchButton() {
   );
 }
 
-// ── TopBar props ──────────────────────────────────────────────────
 export interface TopBarProps {
-  /** Page title displayed in the header — e.g. "Dashboard" */
   title: string;
-  /**
-   * Breadcrumb trail. The TopBar always prepends the app name.
-   * Pass the page-specific items only.
-   * Example: [{ label: "Uploads" }]
-   */
   breadcrumbs?: BreadcrumbItem[];
-  /** Mobile sidebar open state — passed from DashboardLayout */
   opened: boolean;
-  /** Toggles mobile sidebar — passed from DashboardLayout */
   onBurgerClick: () => void;
 }
 
-// ── TopBar ────────────────────────────────────────────────────────
 export function TopBar({
   title,
   breadcrumbs = [],
   opened,
   onBurgerClick,
 }: TopBarProps) {
-  // Full breadcrumb: [App name] / [page items...]
   const fullBreadcrumbs: BreadcrumbItem[] = [
     { label: APP_NAME, href: "/dashboard" },
     ...breadcrumbs,
@@ -157,9 +131,7 @@ export function TopBar({
       }}
     >
       <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-        {/* ── Left: burger + title ─────────────────────────────── */}
         <Group wrap="nowrap" gap="sm" style={{ flex: 1, minWidth: 0 }}>
-          {/* Burger only visible on mobile (hiddenFrom="sm" in AppShell) */}
           <Burger
             opened={opened}
             onClick={onBurgerClick}
@@ -168,9 +140,7 @@ export function TopBar({
             aria-label={opened ? "Close navigation" : "Open navigation"}
           />
 
-          {/* Title + breadcrumb stack */}
           <Box style={{ minWidth: 0 }}>
-            {/* Breadcrumb — hidden on very small screens */}
             {fullBreadcrumbs.length > 1 && (
               <Breadcrumbs
                 separator={<IconChevronRight size={12} stroke={1.5} />}
@@ -203,7 +173,6 @@ export function TopBar({
               </Breadcrumbs>
             )}
 
-            {/* Page title */}
             <Text
               fw={600}
               size="sm"
@@ -215,13 +184,11 @@ export function TopBar({
           </Box>
         </Group>
 
-        {/* ── Right: actions ───────────────────────────────────── */}
         <Group wrap="nowrap" gap={4}>
           <SearchButton />
           <ColorSchemeToggle />
           <NotificationBell />
 
-          {/* Vertical divider */}
           <Box
             w={1}
             h={20}
@@ -229,7 +196,6 @@ export function TopBar({
             style={{ background: "var(--mantine-color-default-border)" }}
           />
 
-          {/* User avatar — dropdown stub for now */}
           <Tooltip label="Account" withArrow position="bottom-end">
             <Avatar
               size={32}

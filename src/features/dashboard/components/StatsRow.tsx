@@ -1,10 +1,3 @@
-// features/dashboard/components/StatsRow.tsx
-//
-// Renders the four summary KPI cards at the top of the dashboard.
-// Data source: MOCK_STATS (swapped for useQuery result in Phase 4).
-//
-// Layout: SimpleGrid with 4 columns on desktop, 2 on tablet, 1 on mobile.
-
 import { SimpleGrid } from "@mantine/core";
 import {
   IconUsers,
@@ -14,10 +7,10 @@ import {
 } from "@tabler/icons-react";
 
 import { StatCard } from "@/components/ui";
-import type { MockStats } from "@/mock";
+import type { DashboardStats } from "@/types/dashboard";
 
 interface StatsRowProps {
-  stats: MockStats;
+  stats: DashboardStats;
 }
 
 export function StatsRow({ stats }: StatsRowProps) {

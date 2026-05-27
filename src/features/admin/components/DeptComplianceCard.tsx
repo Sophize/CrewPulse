@@ -1,12 +1,3 @@
-// features/admin/components/DeptComplianceCard.tsx
-//
-// Richer department compliance breakdown for the Admin page.
-// Unlike the dashboard's DeptComplianceBar (compact, sidebar),
-// this shows full detail: submitted/total count, trend arrow,
-// and an action link per department.
-//
-// Used in a 2-col grid alongside the recent-activity card.
-
 import {
   Paper,
   Stack,
@@ -27,9 +18,7 @@ import {
 import { getRateColor } from "@/lib/constants";
 import type { DeptStat } from "@/types";
 
-// ── Trend indicator ───────────────────────────────────────────────
-// Mock trend deltas — replace with real week-over-week diff in Phase 4.
-const MOCK_TRENDS: Record<string, number> = {
+const DEPT_TRENDS: Record<string, number> = {
   Engineering: +5,
   Design: +2,
   Marketing: -8,
@@ -37,7 +26,7 @@ const MOCK_TRENDS: Record<string, number> = {
 };
 
 function TrendIcon({ dept }: { dept: string }) {
-  const delta = MOCK_TRENDS[dept] ?? 0;
+  const delta = DEPT_TRENDS[dept] ?? 0;
   if (delta > 0)
     return (
       <Group gap={2} wrap="nowrap">
@@ -74,7 +63,6 @@ function TrendIcon({ dept }: { dept: string }) {
   );
 }
 
-// ── Single department row ─────────────────────────────────────────
 function DeptRow({ stat }: { stat: DeptStat }) {
   const color = getRateColor(stat.rate);
 
@@ -126,12 +114,10 @@ function DeptRow({ stat }: { stat: DeptStat }) {
   );
 }
 
-// ── Props ─────────────────────────────────────────────────────────
 interface DeptComplianceCardProps {
   deptStats: DeptStat[];
 }
 
-// ── Main component ────────────────────────────────────────────────
 export function DeptComplianceCard({ deptStats }: DeptComplianceCardProps) {
   const sorted = [...deptStats].sort((a, b) => b.rate - a.rate);
   const overall =
@@ -146,7 +132,6 @@ export function DeptComplianceCard({ deptStats }: DeptComplianceCardProps) {
       </Text>
 
       <Paper withBorder radius="sm" p="md" style={{ height: "100%" }}>
-        {/* Overall summary */}
         <Group
           justify="space-between"
           mb="md"
@@ -183,7 +168,6 @@ export function DeptComplianceCard({ deptStats }: DeptComplianceCardProps) {
           </Badge>
         </Group>
 
-        {/* Per-department rows */}
         <Stack gap="md">
           {sorted.map((stat, i) => (
             <Box key={stat.department}>

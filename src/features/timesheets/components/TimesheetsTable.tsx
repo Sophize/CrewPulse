@@ -1,13 +1,4 @@
-// features/timesheets/components/TimesheetsTable.tsx
-//
-// Per-employee weekly timesheet grid.
-// Columns: Employee · Dept · Mon · Tue · Wed · Thu · Fri · Total · Status
-//
-// Uses TanStack Table for column sorting.
-// Cell coloring: hours > 9h → amber warning, 0h → muted dash.
-// Total: colour-coded green (≥40h), orange (35–39h), red (<35h).
-
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   Table,
   Group,
@@ -15,7 +6,6 @@ import {
   Text,
   Badge,
   Paper,
-  Box,
   Tooltip,
   UnstyledButton,
   rem,
@@ -36,17 +26,25 @@ import {
   flexRender,
   createColumnHelper,
   type SortingState,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
 
 import { StatusBadge, EmptyState, LoadingRows } from "@/components/ui";
 import { getInitials } from "@/lib/formatters";
 import type { TimesheetRow } from "@/types";
 
-// ── Day abbreviations ─────────────────────────────────────────────
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri"] as const;
 
-// ── Cell helpers ──────────────────────────────────────────────────
-function HoursCell({ hours }: { hours: number | null }) {
+const STATUS_SORT_ORDER = {
+  MISSING: 0,
+  LATE: 1,
+  PENDING: 2,
+  UPDATED: 3,
+} as const;
+
+const EMPTY_FILTERS: ColumnFiltersState = [];
+
+const HoursCell = memo(function HoursCell({ hours }: { hours: number | null }) {
   if (hours === null) {
     return (
       <Text size="xs" c="dimmed" ta="center">
@@ -75,9 +73,9 @@ function HoursCell({ hours }: { hours: number | null }) {
       </Text>
     </Tooltip>
   );
-}
+});
 
-function TotalCell({ total }: { total: number | null }) {
+const TotalCell = memo(function TotalCell({ total }: { total: number | null }) {
   if (total === null) {
     return (
       <Text size="xs" c="dimmed" ta="center" fw={500}>
@@ -91,9 +89,8 @@ function TotalCell({ total }: { total: number | null }) {
       {total}h
     </Badge>
   );
-}
+});
 
-// ── Sort icon ─────────────────────────────────────────────────────
 function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
   if (sorted === "asc") return <IconChevronUp size={12} stroke={2} />;
   if (sorted === "desc") return <IconChevronDown size={12} stroke={2} />;
@@ -134,7 +131,6 @@ function SortableHeader({
   );
 }
 
-// ── Column helper ─────────────────────────────────────────────────
 const col = createColumnHelper<TimesheetRow>();
 
 const columns = [
@@ -163,7 +159,6 @@ const columns = [
     filterFn: "equals",
   }),
 
-  // Mon–Fri day columns (index 0–4 into the days array)
   ...([0, 1, 2, 3, 4] as const).map((dayIdx) =>
     col.display({
       id: DAY_LABELS[dayIdx],
@@ -185,13 +180,15 @@ const columns = [
     header: "Status",
     cell: (info) => <StatusBadge status={info.getValue()} />,
     sortingFn: (a, b) => {
-      const order = { MISSING: 0, LATE: 1, PENDING: 2, UPDATED: 3 };
-      return order[a.original.status] - order[b.original.status];
+      return (
+        STATUS_SORT_ORDER[a.original.status] -
+        STATUS_SORT_ORDER[b.original.status]
+      );
     },
+    filterFn: "equals",
   }),
 ];
 
-// ── Filter options ────────────────────────────────────────────────
 const DEPT_OPTIONS = [
   { value: "", label: "All departments" },
   { value: "Engineering", label: "Engineering" },
@@ -208,13 +205,11 @@ const STATUS_OPTIONS = [
   { value: "MISSING", label: "Missing" },
 ];
 
-// ── Props ─────────────────────────────────────────────────────────
 interface TimesheetsTableProps {
   rows: TimesheetRow[];
   isLoading?: boolean;
 }
 
-// ── Main component ────────────────────────────────────────────────
 export function TimesheetsTable({
   rows,
   isLoading = false,
@@ -225,14 +220,19 @@ export function TimesheetsTable({
   const [deptFilter, setDeptFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const activeFilters = [
-    ...(deptFilter ? [{ id: "department", value: deptFilter }] : []),
-    ...(statusFilter ? [{ id: "status", value: statusFilter }] : []),
-  ];
+  const activeFilters = useMemo<ColumnFiltersState>(() => {
+    if (!deptFilter && !statusFilter) return EMPTY_FILTERS;
+
+    const filters: ColumnFiltersState = [];
+    if (deptFilter) filters.push({ id: "department", value: deptFilter });
+    if (statusFilter) filters.push({ id: "status", value: statusFilter });
+    return filters;
+  }, [deptFilter, statusFilter]);
 
   const table = useReactTable({
     data: rows,
     columns,
+    getRowId: (row) => `${row.userId}:${row.weekStart}`,
     state: { sorting, columnFilters: activeFilters },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -244,7 +244,6 @@ export function TimesheetsTable({
 
   return (
     <Stack gap="sm">
-      {/* Filters toolbar */}
       <Group gap="sm">
         <Select
           data={DEPT_OPTIONS}
@@ -270,8 +269,8 @@ export function TimesheetsTable({
       </Group>
 
       <Paper withBorder radius="sm" style={{ overflow: "hidden" }}>
-        <Box style={{ overflowX: "auto" }}>
-          <Table highlightOnHover style={{ minWidth: 700 }}>
+        <Table.ScrollContainer minWidth={900}>
+          <Table highlightOnHover>
             <Table.Thead style={{ background: "var(--mantine-color-gray-0)" }}>
               {table.getHeaderGroups().map((hg) => (
                 <Table.Tr key={hg.id}>
@@ -358,7 +357,7 @@ export function TimesheetsTable({
               )}
             </Table.Tbody>
           </Table>
-        </Box>
+        </Table.ScrollContainer>
       </Paper>
     </Stack>
   );

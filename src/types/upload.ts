@@ -5,7 +5,7 @@ export type UploadStatus = "UPDATED" | "PENDING" | "LATE" | "MISSING";
 export interface Upload {
   id: string;
   fileName: string;
-  uploadedAt: string; // ISO 8601 string
+  uploadedAt: string;
   status: UploadStatus;
   userId: string;
   user: UserSummary;
