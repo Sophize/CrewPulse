@@ -1,0 +1,142 @@
+
+
+:root {
+  /* Sidebar dimensions — referenced in DashboardLayout and Sidebar */
+  --sidebar-width:           240px;
+  --sidebar-collapsed-width: 0px;
+  --topbar-height:           56px;
+
+  /* Transition speed used across layout animations */
+  --transition-speed: 200ms;
+
+  /* Subtle inner shadow for raised surfaces (light mode) */
+  --surface-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
+                    0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* Branded blue — matches STATUS_CONFIG and Mantine's "blue" */
+  --brand-50:  #E6F1FB;
+  --brand-100: #B5D4F4;
+  --brand-500: #378ADD;
+  --brand-600: #185FA5;
+  --brand-700: #0C447C;
+  --brand-900: #042C53;
+}
+
+/* ── Base reset (Mantine handles most, these fill gaps) ──────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Prevent layout shift from scrollbar appearing/disappearing */
+  overflow-y: scroll;
+  /* Prevent font size inflation on iOS */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  /* Mantine sets the background — this is a safe fallback */
+  background-color: var(--mantine-color-body);
+  /* Improve text rendering across platforms */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Focus ring ──────────────────────────────────────────────────── */
+/* Mantine provides focus-visible rings on its own components.
+   This handles plain HTML elements that escape Mantine's scope. */
+:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────────── */
+/* Applies to Webkit (Chrome, Safari, Edge) — Firefox uses scrollbar-width */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mantine-color-gray-3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-color-gray-4);
+}
+
+/* Dark mode scrollbar */
+[data-mantine-color-scheme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--mantine-color-dark-4);
+}
+
+[data-mantine-color-scheme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-color-dark-3);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mantine-color-gray-3) transparent;
+}
+
+[data-mantine-color-scheme="dark"] * {
+  scrollbar-color: var(--mantine-color-dark-4) transparent;
+}
+
+/* ── Typography helpers ──────────────────────────────────────────── */
+/* Used for screen-reader-only content (accessibility) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Truncate single-line text with ellipsis */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Layout utilities ────────────────────────────────────────────── */
+/* The main content area needs a minimum height so short pages
+   don't leave a naked footer. Mantine AppShell handles most of
+   this, but the utility is kept here as a safety net. */
+.min-content-height {
+  min-height: calc(100vh - var(--topbar-height));
+}
+
+@media print {
+  /* Hide sidebar and topbar when printing timesheet reports */
+  [data-layout="sidebar"],
+  [data-layout="topbar"] {
+    display: none !important;
+  }
+
+  [data-layout="main"] {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
