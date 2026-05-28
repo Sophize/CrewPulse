@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Table,
   Group,
@@ -8,7 +8,6 @@ import {
   Paper,
   ActionIcon,
   TextInput,
-  Select,
   Stack,
   Box,
   Tooltip,
@@ -17,12 +16,10 @@ import {
 } from "@mantine/core";
 import {
   IconSearch,
-  IconDots,
   IconChevronUp,
   IconChevronDown,
   IconSelector,
   IconMail,
-  IconEye,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -32,21 +29,31 @@ import {
   flexRender,
   createColumnHelper,
   type SortingState,
-  type ColumnFiltersState,
 } from "@tanstack/react-table";
 
-import { StatusBadge, EmptyState, LoadingRows } from "@/components/ui";
+import { EmptyState, LoadingRows } from "@/components/ui";
+import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
-import type { UploadStatus } from "@/types";
+
+const TASK_STATUS_META: Record<TaskStatus, { label: string; color: string }> = {
+  NO_TASKS: { label: "No tasks", color: "gray" },
+  IN_PROGRESS: { label: "In progress", color: "blue" },
+  COMPLETED: { label: "Completed", color: "green" },
+};
+
+const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
+  NO_TASKS: 0,
+  IN_PROGRESS: 1,
+  COMPLETED: 2,
+};
 
 export interface EmployeeRow {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "EMPLOYEE";
-  department: string;
-  currentStatus: UploadStatus;
-  createdAt: string;
+  taskStatus: TaskStatus;
+  currentLearning: string;
+  updatedAt: string;
 }
 
 function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
@@ -100,57 +107,50 @@ const columns = [
           <Text size="sm" fw={500} truncate>
             {info.getValue()}
           </Text>
+          <Text size="xs" c="dimmed" truncate>
+            {info.row.original.email}
+          </Text>
         </Box>
       </Group>
     ),
   }),
 
-  col.accessor("email", {
-    header: "Email",
-    cell: (info) => (
-      <Text size="xs" c="dimmed" truncate maw={200}>
-        {info.getValue()}
-      </Text>
-    ),
+  col.accessor("taskStatus", {
+    header: "Status",
+    cell: (info) => {
+      const meta = TASK_STATUS_META[info.getValue()];
+      return (
+        <Badge variant="light" color={meta.color} size="sm" radius="sm">
+          {meta.label}
+        </Badge>
+      );
+    },
+    sortingFn: (a, b) =>
+      TASK_STATUS_ORDER[a.original.taskStatus] -
+      TASK_STATUS_ORDER[b.original.taskStatus],
   }),
 
-  col.accessor("department", {
-    header: "Department",
-    cell: (info) => (
-      <Badge variant="outline" color="gray" size="sm" radius="sm">
-        {info.getValue()}
-      </Badge>
-    ),
-    filterFn: "equals",
-  }),
-
-  col.accessor("role", {
-    header: "Role",
-    cell: (info) => (
-      <Text size="xs" c="dimmed" tt="capitalize">
-        {info.getValue().toLowerCase()}
-      </Text>
-    ),
-  }),
-
-  col.accessor("currentStatus", {
-    header: "This week",
-    cell: (info) => <StatusBadge status={info.getValue()} />,
-    sortingFn: (a, b) => {
-      const order: Record<UploadStatus, number> = {
-        MISSING: 0,
-        LATE: 1,
-        PENDING: 2,
-        UPDATED: 3,
-      };
-      return order[a.original.currentStatus] - order[b.original.currentStatus];
+  col.accessor("currentLearning", {
+    header: "Currently learning",
+    enableSorting: false,
+    cell: (info) => {
+      const val = info.getValue();
+      return val ? (
+        <Text size="sm" truncate maw={240}>
+          {val}
+        </Text>
+      ) : (
+        <Text size="sm" c="dimmed" fs="italic">
+          —
+        </Text>
+      );
     },
   }),
 
-  col.accessor("createdAt", {
-    header: "Joined",
+  col.accessor("updatedAt", {
+    header: "Updated",
     cell: (info) => (
-      <Text size="xs" c="dimmed">
+      <Text size="xs" c="dimmed" style={{ whiteSpace: "nowrap" }}>
         {formatDate(info.getValue())}
       </Text>
     ),
@@ -159,57 +159,21 @@ const columns = [
   col.display({
     id: "actions",
     header: "",
-    cell: () => (
-      <Group gap={4} wrap="nowrap" justify="flex-end">
-        <Tooltip label="Send email" withArrow position="top">
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            aria-label="Send email"
-          >
-            <IconMail size={14} stroke={1.5} />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="View profile" withArrow position="top">
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            aria-label="View profile"
-          >
-            <IconEye size={14} stroke={1.5} />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="More actions" withArrow position="top">
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            aria-label="More actions"
-          >
-            <IconDots size={14} stroke={1.5} />
-          </ActionIcon>
-        </Tooltip>
-      </Group>
+    cell: ({ row }) => (
+      <Tooltip label="Send email" withArrow position="top">
+        <ActionIcon
+          component="a"
+          href={`mailto:${row.original.email}`}
+          variant="subtle"
+          color="gray"
+          size="sm"
+          aria-label={`Email ${row.original.name}`}
+        >
+          <IconMail size={14} stroke={1.5} />
+        </ActionIcon>
+      </Tooltip>
     ),
   }),
-];
-
-const DEPT_OPTIONS = [
-  { value: "", label: "All departments" },
-  { value: "Engineering", label: "Engineering" },
-  { value: "Design", label: "Design" },
-  { value: "Marketing", label: "Marketing" },
-  { value: "Sales", label: "Sales" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "", label: "All statuses" },
-  { value: "UPDATED", label: "Updated" },
-  { value: "PENDING", label: "Pending" },
-  { value: "LATE", label: "Late" },
-  { value: "MISSING", label: "Missing" },
 ];
 
 interface EmployeesTableProps {
@@ -222,24 +186,14 @@ export function EmployeesTable({
   isLoading = false,
 }: EmployeesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "currentStatus", desc: false },
+    { id: "taskStatus", desc: false },
   ]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [deptFilter, setDeptFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-
-  const activeFilters: ColumnFiltersState = useMemo(() => {
-    const filters: ColumnFiltersState = [];
-    if (deptFilter) filters.push({ id: "department", value: deptFilter });
-    if (statusFilter)
-      filters.push({ id: "currentStatus", value: statusFilter });
-    return filters;
-  }, [deptFilter, statusFilter]);
 
   const table = useReactTable({
     data: rows,
     columns,
-    state: { sorting, globalFilter, columnFilters: activeFilters },
+    state: { sorting, globalFilter },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -251,34 +205,13 @@ export function EmployeesTable({
 
   return (
     <Stack gap="sm">
-      <Group gap="sm" wrap="wrap">
-        <TextInput
-          placeholder="Search employees…"
-          leftSection={<IconSearch size={14} stroke={1.5} />}
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.currentTarget.value)}
-          size="sm"
-          style={{ flex: 1, minWidth: 200 }}
-        />
-        <Select
-          data={DEPT_OPTIONS}
-          value={deptFilter}
-          onChange={(v) => setDeptFilter(v ?? "")}
-          size="sm"
-          w={180}
-          placeholder="All departments"
-          clearable
-        />
-        <Select
-          data={STATUS_OPTIONS}
-          value={statusFilter}
-          onChange={(v) => setStatusFilter(v ?? "")}
-          size="sm"
-          w={150}
-          placeholder="All statuses"
-          clearable
-        />
-      </Group>
+      <TextInput
+        placeholder="Search employees..."
+        leftSection={<IconSearch size={14} stroke={1.5} />}
+        value={globalFilter}
+        onChange={(e) => setGlobalFilter(e.currentTarget.value)}
+        size="sm"
+      />
 
       <Paper withBorder radius="sm" style={{ overflow: "hidden" }}>
         <Table highlightOnHover>
@@ -323,14 +256,14 @@ export function EmployeesTable({
 
           <Table.Tbody>
             {isLoading ? (
-              <LoadingRows cols={7} rows={6} />
+              <LoadingRows cols={5} rows={5} />
             ) : visibleRows.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
+                <Table.Td colSpan={5}>
                   <EmptyState
                     icon={IconSearch}
                     title="No employees found"
-                    description="Try adjusting your search or filter criteria."
+                    description="Try a different search term."
                   />
                 </Table.Td>
               </Table.Tr>
@@ -351,7 +284,7 @@ export function EmployeesTable({
           </Table.Tbody>
         </Table>
 
-        {!isLoading && (
+        {!isLoading && visibleRows.length > 0 && (
           <Box
             px="md"
             py="xs"
@@ -361,7 +294,9 @@ export function EmployeesTable({
             }}
           >
             <Text size="xs" c="dimmed">
-              Showing {visibleRows.length} of {rows.length} employees
+              {visibleRows.length === rows.length
+                ? `${rows.length} employees`
+                : `${visibleRows.length} of ${rows.length} employees`}
             </Text>
           </Box>
         )}

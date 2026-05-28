@@ -5,18 +5,16 @@ import {
   ThemeIcon,
   Paper,
   Box,
-  Anchor,
   Divider,
   Skeleton,
 } from "@mantine/core";
 import {
-  IconUpload,
-  IconClock,
-  IconAlertCircle,
-  IconUserPlus,
   IconCheck,
+  IconEdit,
+  IconBook,
+  IconUserPlus,
+  IconRefresh,
 } from "@tabler/icons-react";
-import Link from "next/link";
 import type { ActivityEvent, ActivityType } from "@/types";
 
 const EVENT_CONFIG: Record<
@@ -26,11 +24,11 @@ const EVENT_CONFIG: Record<
     color: string;
   }
 > = {
-  upload: { icon: IconUpload, color: "green" },
-  late: { icon: IconClock, color: "orange" },
-  missing: { icon: IconAlertCircle, color: "red" },
-  joined: { icon: IconUserPlus, color: "blue" },
-  approved: { icon: IconCheck, color: "teal" },
+  completed: { icon: IconCheck, color: "green" },
+  updated: { icon: IconEdit, color: "blue" },
+  learning: { icon: IconBook, color: "violet" },
+  joined: { icon: IconUserPlus, color: "teal" },
+  status: { icon: IconRefresh, color: "orange" },
 };
 
 function relative(iso: string): string {
@@ -88,20 +86,9 @@ interface ActivityFeedProps {
 export function ActivityFeed({ events, isLoading = false }: ActivityFeedProps) {
   return (
     <Stack gap={0}>
-      <Group justify="space-between" mb="sm">
-        <Text fw={600} size="sm">
-          Recent activity
-        </Text>
-        <Anchor
-          component={Link}
-          href="/admin"
-          size="xs"
-          c="blue"
-          underline="hover"
-        >
-          View audit log →
-        </Anchor>
-      </Group>
+      <Text fw={600} size="sm" mb="sm">
+        Recent activity
+      </Text>
 
       <Paper withBorder radius="sm" p="md">
         <Stack gap={0}>

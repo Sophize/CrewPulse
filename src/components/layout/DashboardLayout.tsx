@@ -1,26 +1,3 @@
-// components/layout/DashboardLayout.tsx
-//
-// Root layout shell for all dashboard pages.
-// Composes Mantine AppShell + Sidebar + TopBar.
-//
-// Usage in a page:
-//
-//   export default function DashboardPage() {
-//     return (
-//       <DashboardLayout title="Dashboard">
-//         <p>Page content here</p>
-//       </DashboardLayout>
-//     );
-//   }
-//
-// Responsibilities:
-//   • Owns mobile sidebar open/close state
-//   • Passes open state + callbacks to Sidebar and TopBar
-//   • Renders AppShell with correct navbar/header dimensions
-//   • Sets the <title> tag via next/head
-//   • Provides the scrollable main content area
-
-import { useState } from "react";
 import Head from "next/head";
 import { AppShell, Box, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -35,28 +12,17 @@ const CONTENT_MAX_WIDTH = 1400;
 
 export interface DashboardLayoutProps {
   children: React.ReactNode;
-  
   title: string;
-  
   breadcrumbs?: BreadcrumbItem[];
-  /**
-   * Set to false to remove the default horizontal padding and
-   * max-width constraint from the content area. Useful for
-   * full-bleed table pages.
-   * @default true
-   */
   padded?: boolean;
 }
 
-// ── DashboardLayout ───────────────────────────────────────────────
 export function DashboardLayout({
   children,
   title,
   breadcrumbs,
   padded = true,
 }: DashboardLayoutProps) {
-  // useDisclosure manages the mobile sidebar drawer state.
-  // false = closed (default on mobile).
   const [opened, { toggle, close }] = useDisclosure(false);
 
   const documentTitle = `${title} — ${APP_NAME}`;
@@ -94,7 +60,6 @@ export function DashboardLayout({
             backgroundColor: "var(--mantine-color-gray-0)",
           }}
         >
-          
           <Box
             px={padded ? "xl" : 0}
             py={padded ? "lg" : 0}

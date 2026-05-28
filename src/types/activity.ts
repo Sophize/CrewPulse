@@ -1,4 +1,9 @@
-export type ActivityType = "upload" | "late" | "missing" | "joined" | "approved";
+export type ActivityType =
+  | "completed"
+  | "updated"
+  | "learning"
+  | "joined"
+  | "status";
 
 export interface ActivityEvent {
   id: string;

@@ -16,10 +16,7 @@ import {
 } from "@mantine/core";
 import {
   IconLayoutDashboard,
-  IconUpload,
-  IconCalendar,
   IconShield,
-  IconChartBar,
   IconSettings,
   IconLogout,
   IconBuildingSkyscraper,
@@ -39,10 +36,7 @@ const ICON_MAP: Record<
   React.ComponentType<{ size?: number | string; stroke?: number }>
 > = {
   "layout-dashboard": IconLayoutDashboard,
-  upload: IconUpload,
-  calendar: IconCalendar,
   shield: IconShield,
-  "chart-bar": IconChartBar,
   settings: IconSettings,
 };
 
