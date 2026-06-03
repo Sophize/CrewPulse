@@ -60,6 +60,23 @@ export function EmployeeStatusCard() {
     setHasChanges(false);
   };
 
+  function getStatusColor(status: TaskStatus) {
+    switch (status) {
+      case "NO_TASKS":
+        return "gray";
+
+      case "IN_PROGRESS":
+        return "blue";
+
+      case "COMPLETED":
+        return "green";
+
+      default:
+        return "gray";
+    }
+  }
+
+  const activeColor = getStatusColor(taskStatus);
   const isLoading = statusQuery.isLoading;
   const isSaving = updateMutation.isPending;
   const hasError = statusQuery.isError || updateMutation.isError;
@@ -91,6 +108,7 @@ export function EmployeeStatusCard() {
                 value={taskStatus}
                 onChange={handleTaskStatusChange}
                 data={TASK_STATUS_OPTIONS}
+                color={activeColor}
               />
             </div>
 

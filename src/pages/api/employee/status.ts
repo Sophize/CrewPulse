@@ -53,6 +53,8 @@ export default async function handler(
       }
 
       const sanitized = sanitizeLearningString(currentLearning);
+      const previousStatus = employee.taskStatus;
+      const previousLearning = employee.currentLearning;
 
       const updated = await prisma.user.update({
         where: { id: employee.id },
@@ -63,13 +65,33 @@ export default async function handler(
         },
       });
 
-      await prisma.activityEvent.create({
-    data: {
-      userId: employee.id,
-      type: "status",
-      message: `${employee.name} updated their status`,
-    },
-  });
+      if (previousStatus !== updated.taskStatus) {
+        const statusMessages: Record<TaskStatus, string> = {
+          NO_TASKS: "has no tasks assigned",
+          IN_PROGRESS: "started working on assigned tasks",
+          COMPLETED: "completed all assigned tasks",
+        };
+
+        await prisma.activityEvent.create({
+          data: {
+            userId: employee.id,
+            type: "status",
+            message: statusMessages[updated.taskStatus],
+          },
+        });
+      }
+
+      if (previousLearning !== updated.currentLearning) {
+        await prisma.activityEvent.create({
+          data: {
+            userId: employee.id,
+            type: "learning",
+            message: updated.currentLearning
+              ? `started learning ${updated.currentLearning}`
+              : "cleared learning topic",
+          },
+        });
+      }
 
       return sendSuccess(res, {
         taskStatus: updated.taskStatus,
