@@ -81,6 +81,28 @@ export function EmployeeStatusCard() {
   const isSaving = updateMutation.isPending;
   const hasError = statusQuery.isError || updateMutation.isError;
 
+  const errorMessage = getErrorMessage(
+    statusQuery.error ?? updateMutation.error,
+  );
+
+  const noEmployeeFound =
+    statusQuery.isError && errorMessage.includes("No employee");
+
+  if (noEmployeeFound) {
+    return (
+      <Card withBorder p="md" radius="sm">
+        <Stack gap="md">
+          <Text fw={500}>Employee Status</Text>
+
+          <Alert color="blue" title="Coming Soon">
+            Employee profile will become available once authentication and
+            employee onboarding are implemented.
+          </Alert>
+        </Stack>
+      </Card>
+    );
+  }
+
   return (
     <Card withBorder p="md" radius="sm">
       <Stack gap="md">
