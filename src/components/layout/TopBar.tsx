@@ -1,0 +1,215 @@
+import {
+  AppShell,
+  Group,
+  Burger,
+  Text,
+  ActionIcon,
+  Avatar,
+  Tooltip,
+  Breadcrumbs,
+  Anchor,
+  Indicator,
+  useMantineColorScheme,
+  useComputedColorScheme,
+  rem,
+  Box,
+} from "@mantine/core";
+import {
+  IconBell,
+  IconSearch,
+  IconSun,
+  IconMoon,
+  IconChevronRight,
+} from "@tabler/icons-react";
+import Link from "next/link";
+import { APP_NAME } from "@/lib/constants";
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string; // Omit for the last (current) item
+}
+
+function ColorSchemeToggle() {
+  const { setColorScheme } = useMantineColorScheme();
+  const computed = useComputedColorScheme("light", {
+    getInitialValueInEffect: true,
+  });
+
+  const isDark = computed === "dark";
+
+  return (
+    <Tooltip
+      label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      withArrow
+      position="bottom"
+    >
+      <ActionIcon
+        variant="subtle"
+        color="gray"
+        size="md"
+        aria-label="Toggle color scheme"
+        onClick={() => setColorScheme(isDark ? "light" : "dark")}
+      >
+        <Box darkHidden>
+          <IconSun size={18} stroke={1.5} />
+        </Box>
+
+        <Box lightHidden>
+          <IconMoon size={18} stroke={1.5} />
+        </Box>
+      </ActionIcon>
+    </Tooltip>
+  );
+}
+
+function NotificationBell() {
+  //   const UNREAD_COUNT = 3;
+  const UNREAD_COUNT: number = 3;
+
+  return (
+    <Tooltip label="Notifications" withArrow position="bottom">
+      <Indicator
+        color="red"
+        size={16}
+        label={UNREAD_COUNT > 9 ? "9+" : UNREAD_COUNT}
+        disabled={UNREAD_COUNT === 0}
+        styles={{ indicator: { fontSize: rem(10), fontWeight: 600 } }}
+      >
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          size="md"
+          aria-label={`${UNREAD_COUNT} unread notifications`}
+        >
+          <IconBell size={18} stroke={1.5} />
+        </ActionIcon>
+      </Indicator>
+    </Tooltip>
+  );
+}
+
+function SearchButton() {
+  return (
+    <Tooltip label="Search (⌘K)" withArrow position="bottom">
+      <ActionIcon
+        variant="subtle"
+        color="gray"
+        size="md"
+        aria-label="Open search"
+      >
+        <IconSearch size={18} stroke={1.5} />
+      </ActionIcon>
+    </Tooltip>
+  );
+}
+
+export interface TopBarProps {
+  title: string;
+  breadcrumbs?: BreadcrumbItem[];
+  opened: boolean;
+  onBurgerClick: () => void;
+}
+
+export function TopBar({
+  title,
+  breadcrumbs = [],
+  opened,
+  onBurgerClick,
+}: TopBarProps) {
+  const fullBreadcrumbs: BreadcrumbItem[] = [
+    { label: APP_NAME, href: "/dashboard" },
+    ...breadcrumbs,
+  ];
+
+  return (
+    <AppShell.Header
+      data-layout="topbar"
+      style={{
+        borderBottom: "1px solid var(--mantine-color-default-border)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+        <Group wrap="nowrap" gap="sm" style={{ flex: 1, minWidth: 0 }}>
+          <Burger
+            opened={opened}
+            onClick={onBurgerClick}
+            hiddenFrom="sm"
+            size="sm"
+            aria-label={opened ? "Close navigation" : "Open navigation"}
+          />
+
+          <Box style={{ minWidth: 0 }}>
+            {fullBreadcrumbs.length > 1 && (
+              <Breadcrumbs
+                separator={<IconChevronRight size={12} stroke={1.5} />}
+                separatorMargin={4}
+                visibleFrom="sm"
+                styles={{
+                  root: { flexWrap: "nowrap", gap: 0 },
+                  breadcrumb: { fontSize: rem(12) },
+                }}
+              >
+                {fullBreadcrumbs.map((crumb, i) => {
+                  const isLast = i === fullBreadcrumbs.length - 1;
+                  return isLast ? (
+                    <Text key={crumb.label} size="xs" c="dimmed" fw={400}>
+                      {crumb.label}
+                    </Text>
+                  ) : (
+                    <Anchor
+                      key={crumb.label}
+                      component={Link}
+                      href={crumb.href ?? "#"}
+                      size="xs"
+                      c="dimmed"
+                      underline="hover"
+                    >
+                      {crumb.label}
+                    </Anchor>
+                  );
+                })}
+              </Breadcrumbs>
+            )}
+
+            <Text
+              fw={600}
+              size="sm"
+              lh={fullBreadcrumbs.length > 1 ? 1.2 : undefined}
+              truncate
+            >
+              {title}
+            </Text>
+          </Box>
+        </Group>
+
+        <Group wrap="nowrap" gap={4}>
+          <SearchButton />
+          <ColorSchemeToggle />
+          <NotificationBell />
+
+          <Box
+            w={1}
+            h={20}
+            mx={4}
+            style={{ background: "var(--mantine-color-default-border)" }}
+          />
+
+          <Tooltip label="Account" withArrow position="bottom-end">
+            <Avatar
+              size={32}
+              radius="xl"
+              color="blue"
+              variant="filled"
+              style={{ cursor: "pointer" }}
+              aria-label="Open account menu"
+            >
+              JD
+            </Avatar>
+          </Tooltip>
+        </Group>
+      </Group>
+    </AppShell.Header>
+  );
+}
