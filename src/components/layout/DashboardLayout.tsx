@@ -57,7 +57,6 @@ export function DashboardLayout({
           data-layout="main"
           style={{
             minHeight: `calc(100vh - ${rem(TOPBAR_HEIGHT)})`,
-            // backgroundColor: "var(--mantine-color-gray-0)",
             backgroundColor: "var(--mantine-color-body)",
           }}
         >

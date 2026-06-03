@@ -1,13 +1,3 @@
-// src/context/AuthContext.tsx
-//
-// Authentication context for managing user state across the app.
-// Provides current user, loading state, and auth functions.
-//
-// Architecture:
-// - Listens to Firebase auth state changes
-// - Syncs user with PostgreSQL via API
-// - Provides context to entire app via AuthProvider
-
 import React, { createContext, useEffect, useState, useCallback } from "react";
 import {
   User as FirebaseUser,
@@ -16,7 +6,6 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase/config";
 
-// ── Type definitions ────────────────────────────────────────
 export interface AuthUser {
   uid: string;
   email: string | null;
@@ -32,23 +21,19 @@ export interface AuthContextType {
   error: string | null;
 }
 
-// ── Create context ──────────────────────────────────────────
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
 
-// ── Props type ──────────────────────────────────────────────
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-// ── Provider component ──────────────────────────────────────
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Sync Firebase user with PostgreSQL ──────────────────
   const syncUserWithDatabase = useCallback(
     async (firebaseUser: FirebaseUser) => {
       try {
@@ -84,7 +69,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [],
   );
 
-  // ── Listen to Firebase auth state changes ───────────────
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
@@ -101,7 +85,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return unsubscribe;
   }, [syncUserWithDatabase]);
 
-  // ── Logout function ─────────────────────────────────────
   const logout = useCallback(async () => {
     try {
       await firebaseSignOut(auth);

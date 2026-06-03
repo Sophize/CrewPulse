@@ -70,7 +70,6 @@ function ColorSchemeToggle() {
 }
 
 function NotificationBell() {
-  //   const UNREAD_COUNT = 3;
   const UNREAD_COUNT: number = 3;
 
   return (
