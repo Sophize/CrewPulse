@@ -17,6 +17,7 @@ import "@mantine/dates/styles.css";
 import "@/styles/globals.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/context/AuthContext";
 
 const brandBlue: MantineColorsTuple = [
   "#E6F1FB", // 0 — lightest
@@ -37,6 +38,7 @@ const theme = createTheme({
   },
 
   primaryColor: "blue",
+  black: "#121212",
   primaryShade: { light: 6, dark: 5 },
 
   defaultRadius: "sm",
@@ -70,7 +72,7 @@ const theme = createTheme({
 
     Paper: {
       defaultProps: {
-        shadow: "none",
+        shadow: "sm",
         withBorder: true,
       },
     },
@@ -136,7 +138,7 @@ export default function CrewPulseApp({ Component, pageProps }: AppProps) {
         <title>CrewPulse</title>
         <meta
           name="description"
-          content="Enterprise timesheet management platform"
+          content="Employee Activity & Timesheet Management Platform"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -146,7 +148,9 @@ export default function CrewPulseApp({ Component, pageProps }: AppProps) {
           <ModalsProvider>
             <Notifications />
 
-            <Component {...pageProps} />
+            <AuthProvider>
+              <Component {...pageProps} />
+            </AuthProvider>
           </ModalsProvider>
         </MantineProvider>
       </QueryClientProvider>

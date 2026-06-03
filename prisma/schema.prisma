@@ -20,6 +20,9 @@ enum TaskStatus {
 
 model User {
   id              String     @id @default(uuid())
+
+  firebaseUid     String?    @unique
+  
   name            String
   email           String     @unique
   role            UserRole   @default(EMPLOYEE)

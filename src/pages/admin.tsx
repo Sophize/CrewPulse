@@ -9,6 +9,7 @@ import { ActivityFeed } from "@/features/dashboard/components/ActivityFeed";
 import { getErrorMessage } from "@/api/errors";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 export default function AdminPage() {
   const employeesQuery = useEmployees();
@@ -17,6 +18,7 @@ export default function AdminPage() {
   const employeeRows = employeesQuery.data?.rows ?? [];
 
   return (
+    <AuthGuard adminOnly>
     <DashboardLayout title="Team Overview" breadcrumbs={[{ label: "Admin" }]}>
       <PageHeader
         title="Team Overview"
@@ -65,5 +67,7 @@ export default function AdminPage() {
         </Grid.Col>
       </Grid>
     </DashboardLayout>
+    </AuthGuard>
+
   );
 }
