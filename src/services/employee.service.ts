@@ -1,6 +1,7 @@
 import { TaskStatus } from "@prisma/client";
 
 import { fetchJson } from "@/api/client";
+import { auth } from "@/firebase/config";
 
 export interface EmployeeStatusResponse {
   taskStatus: TaskStatus;
@@ -19,10 +20,27 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+async function getAuthHeaders() {
+  const token = await auth.currentUser?.getIdToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function getEmployeeStatus() {
-  const response = await fetchJson<
-    ApiResponse<EmployeeStatusResponse>
-  >("/api/employee/status");
+  const headers = await getAuthHeaders();
+
+  const response = await fetchJson<ApiResponse<EmployeeStatusResponse>>(
+    "/api/employee/status",
+    {
+      headers,
+    },
+  );
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to fetch employee status");
@@ -31,15 +49,16 @@ export async function getEmployeeStatus() {
   return response.data;
 }
 
-export async function updateEmployeeStatus(
-  input: UpdateEmployeeStatusInput,
-) {
-  const response = await fetchJson<
-    ApiResponse<EmployeeStatusResponse>
-  >("/api/employee/status", {
-    method: "PUT",
-    body: JSON.stringify(input),
-  });
+export async function updateEmployeeStatus(input: UpdateEmployeeStatusInput) {
+  const headers = await getAuthHeaders();
+  const response = await fetchJson<ApiResponse<EmployeeStatusResponse>>(
+    "/api/employee/status",
+    {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(input),
+    },
+  );
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to update employee status");

@@ -1,12 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import type { TaskStatus } from "@prisma/client";
+
 import { prisma } from "../../../lib/prisma";
 import { sendSuccess, sendError } from "../../../utils/api";
+import type { ApiResponse } from "../../../utils/api";
 import {
   validateTaskStatus,
   sanitizeLearningString,
 } from "../../../utils/employee";
-import type { ApiResponse } from "../../../utils/api";
-import type { TaskStatus } from "@prisma/client";
+
+import { getAuthenticatedUser } from "@/lib/auth";
 
 interface StatusResponse {
   taskStatus: string;
@@ -19,45 +22,37 @@ export default async function handler(
   res: NextApiResponse<ApiResponse<StatusResponse>>,
 ) {
   try {
-    const employee = await prisma.user.findFirst({
-      where: { role: "EMPLOYEE" },
-      orderBy: { createdAt: "asc" },
-    });
-
-    if (!employee) {
-      return sendError(res, "No employee found in database", 404);
-    }
+    const employee = await getAuthenticatedUser(req);
 
     if (req.method === "GET") {
-      const user = await prisma.user.findUnique({
-        where: { id: employee.id },
-      });
-
-      if (!user) {
-        return sendError(res, "User not found", 404);
-      }
-
       return sendSuccess(res, {
-        taskStatus: user.taskStatus,
-        currentLearning: user.currentLearning,
-        updatedAt: user.updatedAt.toISOString(),
+        taskStatus: employee.taskStatus,
+        currentLearning: employee.currentLearning,
+        updatedAt: employee.updatedAt.toISOString(),
       });
     }
 
     if (req.method === "PUT") {
-      const { taskStatus, currentLearning } = req.body;
+      const body =
+        typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+      const { taskStatus, currentLearning } = body;
 
       const validation = validateTaskStatus(taskStatus);
+
       if (!validation.valid) {
         return sendError(res, validation.error!, 400);
       }
 
       const sanitized = sanitizeLearningString(currentLearning);
+
       const previousStatus = employee.taskStatus;
       const previousLearning = employee.currentLearning;
 
       const updated = await prisma.user.update({
-        where: { id: employee.id },
+        where: {
+          id: employee.id,
+        },
         data: {
           taskStatus: taskStatus as TaskStatus,
           currentLearning: sanitized,
@@ -101,9 +96,11 @@ export default async function handler(
     }
 
     res.setHeader("Allow", ["GET", "PUT"]);
+
     return sendError(res, "Method not allowed", 405);
   } catch (error) {
     console.error("Employee status API error:", error);
+
     return sendError(res, "Internal server error", 500);
   }
 }
