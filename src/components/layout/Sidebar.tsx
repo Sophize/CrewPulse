@@ -30,6 +30,7 @@ import {
   type SidebarLink,
 } from "@/lib/constants";
 
+import { useAuth } from "@/hooks/useAuth";
 
 const ICON_MAP: Record<
   string,
@@ -145,25 +146,51 @@ function NavSection({
   );
 }
 
-
 function UserFooter() {
+  const router = useRouter();
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.replace("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
     <Box px="sm" py="sm">
       <Group wrap="nowrap" gap="sm">
-        <Avatar size={34} radius="xl" color="blue" variant="filled">
-          JD
-        </Avatar>
-        <Box style={{ flex: 1, overflow: "hidden" }}>
-          <Text size="sm" fw={500} truncate>
-            James Dorsey
-          </Text>
-          <Text size="xs" c="dimmed" truncate>
-            Administrator
-          </Text>
+        <Box
+          onClick={() => router.push("/settings")}
+          style={{
+            flex: 1,
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            cursor: "pointer",
+          }}
+        >
+          <Avatar size={34} radius="xl" color="blue" variant="filled">
+            {user?.name?.charAt(0).toUpperCase() || "U"}
+          </Avatar>
+
+          <Box style={{ overflow: "hidden" }}>
+            <Text size="sm" fw={500} truncate>
+              {user?.name || "User"}
+            </Text>
+
+            <Text size="xs" c="dimmed" truncate>
+              {user?.role || "EMPLOYEE"}
+            </Text>
+          </Box>
         </Box>
         <Tooltip label="Sign out" position="right" withArrow>
           <Box
             component="button"
+            onClick={handleLogout}
             style={{
               background: "none",
               border: "none",
@@ -191,11 +218,15 @@ export interface SidebarProps {
 
 export function Sidebar({ opened: _opened, onClose }: SidebarProps) {
   const router = useRouter();
+  const { user } = useAuth();
 
   const activeHref = router.pathname;
 
   const mainLinks = SIDEBAR_LINKS.filter((l) => l.section === "main");
-  const adminLinks = SIDEBAR_LINKS.filter((l) => l.section === "admin");
+  const adminLinks =
+    user?.role === "ADMIN"
+      ? SIDEBAR_LINKS.filter((l) => l.section === "admin")
+      : [];
 
   return (
     <AppShell.Navbar

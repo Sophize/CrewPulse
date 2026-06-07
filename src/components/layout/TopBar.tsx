@@ -13,6 +13,9 @@ import {
   useComputedColorScheme,
   rem,
   Box,
+  Menu,
+  Badge,
+  Stack,
 } from "@mantine/core";
 import {
   IconBell,
@@ -20,9 +23,13 @@ import {
   IconSun,
   IconMoon,
   IconChevronRight,
+  IconSettings,
+  IconLogout,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 
 export interface BreadcrumbItem {
   label: string;
@@ -63,7 +70,6 @@ function ColorSchemeToggle() {
 }
 
 function NotificationBell() {
-  //   const UNREAD_COUNT = 3;
   const UNREAD_COUNT: number = 3;
 
   return (
@@ -116,6 +122,14 @@ export function TopBar({
   opened,
   onBurgerClick,
 }: TopBarProps) {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
+
   const fullBreadcrumbs: BreadcrumbItem[] = [
     { label: APP_NAME, href: "/dashboard" },
     ...breadcrumbs,
@@ -196,18 +210,60 @@ export function TopBar({
             style={{ background: "var(--mantine-color-default-border)" }}
           />
 
-          <Tooltip label="Account" withArrow position="bottom-end">
-            <Avatar
-              size={32}
-              radius="xl"
-              color="blue"
-              variant="filled"
-              style={{ cursor: "pointer" }}
-              aria-label="Open account menu"
-            >
-              JD
-            </Avatar>
-          </Tooltip>
+          <Menu shadow="md" width={260} position="bottom-end">
+            <Menu.Target>
+              <Avatar
+                size={32}
+                radius="xl"
+                color="blue"
+                variant="filled"
+                style={{ cursor: "pointer" }}
+              >
+                {user?.name?.charAt(0).toUpperCase() ?? "U"}
+              </Avatar>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Box py="sm" px="md">
+                <Stack align="center" gap="sm">
+                  <Avatar size={56} radius="xl" color="blue" variant="filled">
+                    {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                  </Avatar>
+
+                  <Text fw={600} size="lg">
+                    {user?.name
+                      ? user.name.charAt(0).toUpperCase() + user.name.slice(1)
+                      : "User"}
+                  </Text>
+
+                  <Text size="sm" c="dimmed">
+                    {user?.email}
+                  </Text>
+
+                  <Badge size="sm" variant="light">
+                    {user?.role}
+                  </Badge>
+                </Stack>
+              </Box>
+
+              <Menu.Divider />
+
+              <Menu.Item
+                leftSection={<IconSettings size={16} />}
+                onClick={() => router.push("/settings")}
+              >
+                Settings
+              </Menu.Item>
+
+              <Menu.Item
+                color="red"
+                leftSection={<IconLogout size={16} />}
+                onClick={handleLogout}
+              >
+                Logout
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </Group>
     </AppShell.Header>

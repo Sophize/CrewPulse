@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Stack,
   Paper,
@@ -14,6 +13,9 @@ import { IconUser, IconPalette, IconLogout } from "@tabler/icons-react";
 
 import { DashboardLayout } from "@/components/layout";
 import { PageHeader } from "@/components/ui";
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 
 function Section({
   icon: Icon,
@@ -59,8 +61,7 @@ function Section({
 }
 
 function ProfileSection() {
-  const [name, setName] = useState("James Dorsey");
-  const [email, setEmail] = useState("james.dorsey@crewpulse.io");
+  const { user } = useAuth();
 
   return (
     <Section
@@ -71,30 +72,21 @@ function ProfileSection() {
       <Stack gap="md">
         <TextInput
           label="Full name"
-          value={name}
-          onChange={(e) => setName(e.currentTarget.value)}
+          value={user?.name ?? ""}
+          readOnly
           size="sm"
         />
 
-        <TextInput
-          label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.currentTarget.value)}
-          size="sm"
-        />
+        <TextInput label="Email" value={user?.email ?? ""} readOnly size="sm" />
 
         <Box>
           <Text size="sm" fw={500}>
             Role
           </Text>
           <Text size="sm" c="dimmed">
-            Administrator
+            {user?.role ?? "EMPLOYEE"}
           </Text>
         </Box>
-
-        <Group justify="flex-end">
-          <Button size="sm">Save changes</Button>
-        </Group>
       </Stack>
     </Section>
   );
@@ -122,9 +114,17 @@ function AppearanceSection() {
 }
 
 function AccountSection() {
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
+
   return (
     <Section icon={IconLogout} title="Account" description="Session management">
-      <Button color="red" variant="light" size="sm">
+      <Button color="red" variant="light" size="sm" onClick={handleLogout}>
         Logout
       </Button>
     </Section>
@@ -133,14 +133,19 @@ function AccountSection() {
 
 export default function SettingsPage() {
   return (
-    <DashboardLayout title="Settings" breadcrumbs={[{ label: "Settings" }]}>
-      <PageHeader title="Settings" subtitle="Manage your account preferences" />
+    <AuthGuard>
+      <DashboardLayout title="Settings" breadcrumbs={[{ label: "Settings" }]}>
+        <PageHeader
+          title="Settings"
+          subtitle="Manage your account preferences"
+        />
 
-      <Stack gap="md">
-        <ProfileSection />
-        <AppearanceSection />
-        <AccountSection />
-      </Stack>
-    </DashboardLayout>
+        <Stack gap="md">
+          <ProfileSection />
+          <AppearanceSection />
+          <AccountSection />
+        </Stack>
+      </DashboardLayout>
+    </AuthGuard>
   );
 }

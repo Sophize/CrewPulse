@@ -33,7 +33,6 @@ export function EmployeeStatusCard() {
   const [currentLearning, setCurrentLearning] = useState<string>("");
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Prefill form when data loads
   useEffect(() => {
     if (statusQuery.data) {
       setTaskStatus(statusQuery.data.taskStatus);
@@ -92,7 +91,9 @@ export function EmployeeStatusCard() {
     return (
       <Card withBorder p="md" radius="sm">
         <Stack gap="md">
-          <Text fw={500}>Employee Status</Text>
+          <Text fw={600} size="lg">
+            Employee Status
+          </Text>
 
           <Alert color="blue" title="Coming Soon">
             Employee profile will become available once authentication and
