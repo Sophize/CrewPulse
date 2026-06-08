@@ -5,6 +5,7 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth } from "@/firebase/config";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface AuthUser {
   uid: string;
@@ -30,6 +31,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (firebaseUser) {
           await syncUserWithDatabase(firebaseUser);
         } else {
+          queryClient.clear();
           setUser(null);
         }
       } finally {
@@ -88,6 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = useCallback(async () => {
     try {
       await firebaseSignOut(auth);
+      queryClient.clear();
       setUser(null);
       setError(null);
     } catch (err) {
