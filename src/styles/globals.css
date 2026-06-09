@@ -1,25 +1,6 @@
-
-
 :root {
   /* Sidebar dimensions — referenced in DashboardLayout and Sidebar */
-  --sidebar-width:           240px;
-  --sidebar-collapsed-width: 0px;
-  --topbar-height:           56px;
-
-  /* Transition speed used across layout animations */
-  --transition-speed: 200ms;
-
-  /* Subtle inner shadow for raised surfaces (light mode) */
-  --surface-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
-                    0 1px 2px rgba(0, 0, 0, 0.06);
-
-  /* Branded blue — matches STATUS_CONFIG and Mantine's "blue" */
-  --brand-50:  #E6F1FB;
-  --brand-100: #B5D4F4;
-  --brand-500: #378ADD;
-  --brand-600: #185FA5;
-  --brand-700: #0C447C;
-  --brand-900: #042C53;
+  --topbar-height: 56px;
 }
 
 /* ── Base reset (Mantine handles most, these fill gaps) ──────────── */

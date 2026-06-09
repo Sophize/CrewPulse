@@ -212,11 +212,10 @@ function UserFooter() {
 }
 
 export interface SidebarProps {
-  opened: boolean;
   onClose: () => void;
 }
 
-export function Sidebar({ opened: _opened, onClose }: SidebarProps) {
+export function Sidebar({ onClose }: SidebarProps) {
   const router = useRouter();
   const { user } = useAuth();
 

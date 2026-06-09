@@ -8,6 +8,7 @@ import {
   ThemeIcon,
   Box,
   Select,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconUser, IconPalette, IconLogout } from "@tabler/icons-react";
 
@@ -93,6 +94,8 @@ function ProfileSection() {
 }
 
 function AppearanceSection() {
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+
   return (
     <Section
       icon={IconPalette}
@@ -102,11 +105,16 @@ function AppearanceSection() {
       <Select
         label="Theme"
         size="sm"
-        defaultValue="light"
+        value={colorScheme}
+        onChange={(value) => {
+          if (value === "light" || value === "dark" || value === "auto") {
+            setColorScheme(value);
+          }
+        }}
         data={[
           { value: "light", label: "Light" },
           { value: "dark", label: "Dark" },
-          { value: "system", label: "System" },
+          { value: "auto", label: "System" },
         ]}
       />
     </Section>

@@ -52,7 +52,6 @@ export function EmployeeStatusCard() {
   };
 
   const handleSave = async () => {
-
     await updateMutation.mutateAsync({
       taskStatus,
       currentLearning: currentLearning || undefined,

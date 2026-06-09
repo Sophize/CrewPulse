@@ -1,4 +1,4 @@
-import { Alert, Grid, Box, Text, Group, Button } from "@mantine/core";
+import { Alert, Grid, Box, Text, Button } from "@mantine/core";
 import { IconRefresh } from "@tabler/icons-react";
 
 import { DashboardLayout } from "@/components/layout";
@@ -19,55 +19,53 @@ export default function AdminPage() {
 
   return (
     <AuthGuard adminOnly>
-    <DashboardLayout title="Team Overview" breadcrumbs={[{ label: "Admin" }]}>
-      <PageHeader
-        title="Team Overview"
-        subtitle="See what everyone is working on right now."
-        action={
-          <Button
-            size="sm"
-            leftSection={<IconRefresh size={14} stroke={1.5} />}
-            variant="light"
-            color="gray"
-            onClick={() => {
-              employeesQuery.refetch();
-              activityQuery.refetch();
-            }}
-          >
-            Refresh
-          </Button>
-        }
-      />
+      <DashboardLayout title="Team Overview" breadcrumbs={[{ label: "Admin" }]}>
+        <PageHeader
+          title="Team Overview"
+          subtitle="See what everyone is working on right now."
+          action={
+            <Button
+              size="sm"
+              leftSection={<IconRefresh size={14} stroke={1.5} />}
+              variant="light"
+              color="gray"
+              onClick={() => {
+                employeesQuery.refetch();
+                activityQuery.refetch();
+              }}
+            >
+              Refresh
+            </Button>
+          }
+        />
 
-      {(employeesQuery.isError || activityQuery.isError) && (
-        <Alert color="red" mb="md" title="Unable to load data">
-          {getErrorMessage(employeesQuery.error ?? activityQuery.error)}
-        </Alert>
-      )}
+        {(employeesQuery.isError || activityQuery.isError) && (
+          <Alert color="red" mb="md" title="Unable to load data">
+            {getErrorMessage(employeesQuery.error ?? activityQuery.error)}
+          </Alert>
+        )}
 
-      <Grid mb="lg">
-        <Grid.Col span={{ base: 12, md: 8 }}>
-          <Box>
-            <Text fw={600} size="sm" mb="sm">
-              Employees
-            </Text>
-            <EmployeesTable
-              rows={employeeRows}
-              isLoading={employeesQuery.isLoading}
+        <Grid mb="lg">
+          <Grid.Col span={{ base: 12, md: 8 }}>
+            <Box>
+              <Text fw={600} size="sm" mb="sm">
+                Employees
+              </Text>
+              <EmployeesTable
+                rows={employeeRows}
+                isLoading={employeesQuery.isLoading}
+              />
+            </Box>
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <ActivityFeed
+              events={activityQuery.isLoading ? [] : (activityQuery.data ?? [])}
+              isLoading={activityQuery.isLoading}
             />
-          </Box>
-        </Grid.Col>
-
-        {/* ── Activity feed ─────────────────────────────────────── */}
-        <Grid.Col span={{ base: 12, md: 4 }}>
-          <ActivityFeed
-            events={activityQuery.isLoading ? [] : (activityQuery.data ?? [])}
-            isLoading={activityQuery.isLoading}
-          />
-        </Grid.Col>
-      </Grid>
-    </DashboardLayout>
+          </Grid.Col>
+        </Grid>
+      </DashboardLayout>
     </AuthGuard>
-
   );
 }

@@ -14,10 +14,3 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface UserSummary {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-}

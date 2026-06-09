@@ -86,7 +86,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return unsubscribe;
-  }, [syncUserWithDatabase]);
+  }, [syncUserWithDatabase, queryClient]);
 
   const logout = useCallback(async () => {
     try {
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(err instanceof Error ? err.message : "Logout failed");
       throw err;
     }
-  }, []);
+  }, [queryClient]);
 
   const value: AuthContextType = {
     user,
