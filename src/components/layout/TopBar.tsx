@@ -70,6 +70,7 @@ function ColorSchemeToggle() {
 }
 
 function NotificationBell() {
+  // TODO: Replace with notification API data
   const UNREAD_COUNT: number = 3;
 
   return (
@@ -95,6 +96,7 @@ function NotificationBell() {
 }
 
 function SearchButton() {
+  //Todo : Implement search functionality
   return (
     <Tooltip label="Search (⌘K)" withArrow position="bottom">
       <ActionIcon

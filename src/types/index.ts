@@ -1,3 +1,3 @@
-export type { UserRole, User, UserSummary, TaskStatus } from "./user";
+export type { UserRole, User, TaskStatus } from "./user";
 
 export type { ActivityEvent, ActivityType } from "./activity";

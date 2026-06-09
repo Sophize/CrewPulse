@@ -1,4 +1,4 @@
-import type { NextApiResponse } from 'next';
+import type { NextApiResponse } from "next";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -9,7 +9,7 @@ export interface ApiResponse<T> {
 export function sendSuccess<T>(
   res: NextApiResponse<ApiResponse<T>>,
   data: T,
-  statusCode = 200
+  statusCode = 200,
 ) {
   return res.status(statusCode).json({
     success: true,
@@ -20,7 +20,7 @@ export function sendSuccess<T>(
 export function sendError(
   res: NextApiResponse<any>,
   error: string,
-  statusCode = 500
+  statusCode = 500,
 ) {
   return res.status(statusCode).json({
     success: false,

@@ -44,7 +44,7 @@ export function DashboardLayout({
         header={{ height: TOPBAR_HEIGHT }}
         padding={0}
       >
-        <Sidebar opened={opened} onClose={close} />
+        <Sidebar onClose={close} />
 
         <TopBar
           title={title}
