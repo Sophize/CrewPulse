@@ -20,7 +20,10 @@ import {
   IconLock,
   IconBuildingSkyscraper,
 } from "@tabler/icons-react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 import { auth } from "@/firebase/config";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +38,7 @@ export default function LoginPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSignup, setIsSignup] = useState(false);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -57,7 +61,11 @@ export default function LoginPage() {
         throw new Error("Password is required");
       }
 
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      if (isSignup) {
+        await createUserWithEmailAndPassword(auth, email.trim(), password);
+      } else {
+        await signInWithEmailAndPassword(auth, email.trim(), password);
+      }
 
       router.replace("/dashboard");
     } catch (err) {
@@ -116,11 +124,13 @@ export default function LoginPage() {
           <Stack gap="lg">
             <div>
               <Text size="lg" fw={500} mb="xs">
-                Welcome back
+                {isSignup ? "Create Account" : "Welcome back"}
               </Text>
 
               <Text size="sm" c="dimmed">
-                Sign in to continue
+                {isSignup
+                  ? "Create your CrewPulse account"
+                  : "Sign in to continue"}
               </Text>
             </div>
 
@@ -162,13 +172,26 @@ export default function LoginPage() {
                   loading={isLoading}
                   disabled={isLoading || !email.trim() || !password}
                 >
-                  Sign In
+                  {isSignup ? "Create Account" : "Sign In"}
+                </Button>
+
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  onClick={() => {
+                    setError(null);
+                    setIsSignup((prev) => !prev);
+                  }}
+                >
+                  {isSignup
+                    ? "Already have an account? Sign In"
+                    : "Need an account? Create one"}
                 </Button>
               </Stack>
             </form>
 
             <Text size="sm" ta="center" c="dimmed">
-              Access to CrewPulse is managed by your administrator.
+              Sign in or create an account to access CrewPulse.
             </Text>
           </Stack>
         </Paper>

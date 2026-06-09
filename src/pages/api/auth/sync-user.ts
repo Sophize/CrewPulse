@@ -47,9 +47,18 @@ export default async function handler(
     });
 
     if (!existingUser) {
-      return res.status(403).json({
-        success: false,
-        error: "User is not provisioned. Please contact your administrator.",
+      const newUser = await prisma.user.create({
+        data: {
+          firebaseUid,
+          email: normalizedEmail,
+          name: name?.trim() || normalizedEmail.split("@")[0],
+          role: UserRole.EMPLOYEE,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        role: newUser.role,
       });
     }
 
