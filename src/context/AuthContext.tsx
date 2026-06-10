@@ -19,6 +19,7 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   logout: () => Promise<void>;
+  updateUserName: (name: string) => void;
   error: string | null;
 }
 
@@ -53,11 +54,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
           throw new Error("Failed to sync user");
         }
 
-        const data: { role?: "ADMIN" | "EMPLOYEE" } = await response.json();
+        const data: {
+          role?: "ADMIN" | "EMPLOYEE";
+          name?: string;
+        } = await response.json();
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           name:
+            data.name ??
             firebaseUser.displayName ??
             firebaseUser.email?.split("@")[0] ??
             null,
@@ -100,11 +105,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [queryClient]);
 
+  const updateUserName = useCallback((name: string) => {
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            name,
+          }
+        : null,
+    );
+  }, []);
+
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: user !== null,
     logout,
+    updateUserName,
     error,
   };
 

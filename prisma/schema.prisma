@@ -29,6 +29,7 @@ model User {
 
   taskStatus      TaskStatus @default(NO_TASKS)
   currentLearning String?
+  learningDetails String?
 
   updatedAt       DateTime   @updatedAt
   createdAt       DateTime   @default(now())

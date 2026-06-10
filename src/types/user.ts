@@ -10,6 +10,7 @@ export interface User {
 
   taskStatus: TaskStatus;
   currentLearning: string | null;
+  learningDetails: string | null;
 
   createdAt: string;
   updatedAt: string;

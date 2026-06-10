@@ -9,8 +9,6 @@ import {
   Breadcrumbs,
   Anchor,
   Indicator,
-  useMantineColorScheme,
-  useComputedColorScheme,
   rem,
   Box,
   Menu,
@@ -20,8 +18,6 @@ import {
 import {
   IconBell,
   IconSearch,
-  IconSun,
-  IconMoon,
   IconChevronRight,
   IconSettings,
   IconLogout,
@@ -34,39 +30,6 @@ import { useRouter } from "next/router";
 export interface BreadcrumbItem {
   label: string;
   href?: string; // Omit for the last (current) item
-}
-
-function ColorSchemeToggle() {
-  const { setColorScheme } = useMantineColorScheme();
-  const computed = useComputedColorScheme("light", {
-    getInitialValueInEffect: true,
-  });
-
-  const isDark = computed === "dark";
-
-  return (
-    <Tooltip
-      label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      withArrow
-      position="bottom"
-    >
-      <ActionIcon
-        variant="subtle"
-        color="gray"
-        size="md"
-        aria-label="Toggle color scheme"
-        onClick={() => setColorScheme(isDark ? "light" : "dark")}
-      >
-        <Box darkHidden>
-          <IconSun size={18} stroke={1.5} />
-        </Box>
-
-        <Box lightHidden>
-          <IconMoon size={18} stroke={1.5} />
-        </Box>
-      </ActionIcon>
-    </Tooltip>
-  );
 }
 
 function NotificationBell() {
@@ -202,7 +165,6 @@ export function TopBar({
 
         <Group wrap="nowrap" gap={4}>
           <SearchButton />
-          <ColorSchemeToggle />
           <NotificationBell />
 
           <Box

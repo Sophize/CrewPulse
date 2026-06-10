@@ -30,6 +30,7 @@ export default async function handler(
         email: true,
         taskStatus: true,
         currentLearning: true,
+        learningDetails: true,
         updatedAt: true,
       },
     });
@@ -41,6 +42,7 @@ export default async function handler(
         email: employee.email,
         taskStatus: employee.taskStatus,
         currentLearning: employee.currentLearning ?? "",
+        learningDetails: employee.learningDetails ?? "",
         updatedAt: employee.updatedAt.toISOString(),
       })),
     });

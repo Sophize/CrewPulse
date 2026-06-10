@@ -18,8 +18,11 @@ export default function AdminPage() {
   const employeeRows = employeesQuery.data?.rows ?? [];
 
   return (
-    <AuthGuard adminOnly>
-      <DashboardLayout title="Team Overview" breadcrumbs={[{ label: "Admin" }]}>
+    <AuthGuard>
+      <DashboardLayout
+        title="Team Overview"
+        breadcrumbs={[{ label: "Employees" }]}
+      >
         <PageHeader
           title="Team Overview"
           subtitle="See what everyone is working on right now."
