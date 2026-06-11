@@ -33,6 +33,7 @@ export function EmployeeStatusCard() {
   const [taskStatus, setTaskStatus] = useState<TaskStatus>("NO_TASKS");
   const [currentLearning, setCurrentLearning] = useState<string>("");
   const [learningDetails, setLearningDetails] = useState("");
+  const [learningStatus, setLearningStatus] = useState<string>("");
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function EmployeeStatusCard() {
       setTaskStatus(statusQuery.data.taskStatus);
       setCurrentLearning(statusQuery.data.currentLearning ?? "");
       setLearningDetails(statusQuery.data.learningDetails ?? "");
+      setLearningStatus(statusQuery.data.learningStatus ?? "");
       setHasChanges(false);
     }
   }, [statusQuery.data]);
@@ -59,11 +61,17 @@ export function EmployeeStatusCard() {
     setHasChanges(true);
   };
 
+  const handleLearningStatusChange = (value: string) => {
+    setLearningStatus(value);
+    setHasChanges(true);
+  };
+
   const handleSave = async () => {
     await updateMutation.mutateAsync({
       taskStatus,
       currentLearning: currentLearning || undefined,
       learningDetails: learningDetails || undefined,
+      learningStatus: learningStatus || undefined,
     });
     setHasChanges(false);
   };
@@ -150,6 +158,15 @@ export function EmployeeStatusCard() {
               value={currentLearning}
               onChange={(e) => handleLearningChange(e.currentTarget.value)}
               disabled={isSaving}
+            />
+
+            <TextInput
+              label="Learning Status"
+              placeholder="e.g. Completed React Hooks, currently learning React Query"
+              value={learningStatus}
+              onChange={(e) =>
+                handleLearningStatusChange(e.currentTarget.value)
+              }
             />
 
             <Textarea

@@ -11,6 +11,7 @@ export interface User {
   taskStatus: TaskStatus;
   currentLearning: string | null;
   learningDetails: string | null;
+  learningStatus: string | null;
 
   createdAt: string;
   updatedAt: string;

@@ -52,7 +52,7 @@ export default function AdminPage() {
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Box>
               <Text fw={600} size="sm" mb="sm">
-                Employees
+                Team Members
               </Text>
               <EmployeesTable
                 rows={employeeRows}

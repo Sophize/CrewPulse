@@ -53,6 +53,7 @@ export interface EmployeeRow {
   email: string;
   taskStatus: TaskStatus;
   currentLearning: string;
+  learningStatus: string;
   learningDetails: string;
   updatedAt: string;
 }
@@ -98,7 +99,7 @@ const col = createColumnHelper<EmployeeRow>();
 
 const columns = [
   col.accessor("name", {
-    header: "Employee",
+    header: "Team Member",
     cell: (info) => (
       <Group gap="sm" wrap="nowrap">
         <Avatar size={30} radius="xl" color="blue" variant="light">
@@ -138,6 +139,7 @@ const columns = [
     cell: (info) => {
       const learning = info.getValue();
       const details = info.row.original.learningDetails;
+      const learningStatus = info.row.original.learningStatus;
 
       if (!learning) {
         return (
@@ -148,10 +150,18 @@ const columns = [
       }
 
       return (
-        <Group gap={4} wrap="nowrap">
-          <Text size="sm" truncate maw={200}>
-            {learning}
-          </Text>
+        <Group gap={4} wrap="nowrap" align="flex-start">
+          <Box style={{ minWidth: 0 }}>
+            <Text size="sm" truncate maw={200}>
+              {learning}
+            </Text>
+
+            {learningStatus && (
+              <Text size="xs" c="dimmed" truncate maw={220}>
+                {learningStatus}
+              </Text>
+            )}
+          </Box>
 
           {details && (
             <Tooltip multiline withArrow label={details}>
@@ -205,7 +215,7 @@ export function EmployeesTable({
   return (
     <Stack gap="sm">
       <TextInput
-        placeholder="Search employees..."
+        placeholder="Search team members..."
         leftSection={<IconSearch size={14} stroke={1.5} />}
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.currentTarget.value)}
@@ -294,8 +304,8 @@ export function EmployeesTable({
           >
             <Text size="xs" c="dimmed">
               {visibleRows.length === rows.length
-                ? `${rows.length} employees`
-                : `${visibleRows.length} of ${rows.length} employees`}
+                ? `${rows.length} team members`
+                : `${visibleRows.length} of ${rows.length} team members`}
             </Text>
           </Box>
         )}
