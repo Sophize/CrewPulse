@@ -16,10 +16,6 @@ export default async function handler(
 
   try {
     const employees = await prisma.user.findMany({
-      where: {
-        role: "EMPLOYEE",
-      },
-
       orderBy: {
         updatedAt: "desc",
       },
@@ -30,6 +26,8 @@ export default async function handler(
         email: true,
         taskStatus: true,
         currentLearning: true,
+        learningDetails: true,
+        learningStatus: true,
         updatedAt: true,
       },
     });
@@ -41,6 +39,8 @@ export default async function handler(
         email: employee.email,
         taskStatus: employee.taskStatus,
         currentLearning: employee.currentLearning ?? "",
+        learningDetails: employee.learningDetails ?? "",
+        learningStatus: employee.learningStatus ?? "",
         updatedAt: employee.updatedAt.toISOString(),
       })),
     });

@@ -6,12 +6,12 @@ import {
   Text,
   Badge,
   Paper,
-  ActionIcon,
   TextInput,
   Stack,
   Box,
-  Tooltip,
   UnstyledButton,
+  Tooltip,
+  ActionIcon,
   rem,
 } from "@mantine/core";
 import {
@@ -19,7 +19,7 @@ import {
   IconChevronUp,
   IconChevronDown,
   IconSelector,
-  IconMail,
+  IconInfoCircle,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -53,6 +53,8 @@ export interface EmployeeRow {
   email: string;
   taskStatus: TaskStatus;
   currentLearning: string;
+  learningStatus: string;
+  learningDetails: string;
   updatedAt: string;
 }
 
@@ -97,7 +99,7 @@ const col = createColumnHelper<EmployeeRow>();
 
 const columns = [
   col.accessor("name", {
-    header: "Employee",
+    header: "Team Member",
     cell: (info) => (
       <Group gap="sm" wrap="nowrap">
         <Avatar size={30} radius="xl" color="blue" variant="light">
@@ -133,16 +135,42 @@ const columns = [
   col.accessor("currentLearning", {
     header: "Currently learning",
     enableSorting: false,
+
     cell: (info) => {
-      const val = info.getValue();
-      return val ? (
-        <Text size="sm" truncate maw={240}>
-          {val}
-        </Text>
-      ) : (
-        <Text size="sm" c="dimmed" fs="italic">
-          —
-        </Text>
+      const learning = info.getValue();
+      const details = info.row.original.learningDetails;
+      const learningStatus = info.row.original.learningStatus;
+
+      if (!learning) {
+        return (
+          <Text size="sm" c="dimmed" fs="italic">
+            —
+          </Text>
+        );
+      }
+
+      return (
+        <Group gap={4} wrap="nowrap" align="flex-start">
+          <Box style={{ minWidth: 0 }}>
+            <Text size="sm" truncate maw={200}>
+              {learning}
+            </Text>
+
+            {learningStatus && (
+              <Text size="xs" c="dimmed" truncate maw={220}>
+                {learningStatus}
+              </Text>
+            )}
+          </Box>
+
+          {details && (
+            <Tooltip multiline withArrow label={details}>
+              <ActionIcon variant="subtle" size="sm">
+                <IconInfoCircle size={14} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+        </Group>
       );
     },
   }),
@@ -153,25 +181,6 @@ const columns = [
       <Text size="xs" c="dimmed" style={{ whiteSpace: "nowrap" }}>
         {formatDate(info.getValue())}
       </Text>
-    ),
-  }),
-
-  col.display({
-    id: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <Tooltip label="Send email" withArrow position="top">
-        <ActionIcon
-          component="a"
-          href={`mailto:${row.original.email}`}
-          variant="subtle"
-          color="gray"
-          size="sm"
-          aria-label={`Email ${row.original.name}`}
-        >
-          <IconMail size={14} stroke={1.5} />
-        </ActionIcon>
-      </Tooltip>
     ),
   }),
 ];
@@ -206,7 +215,7 @@ export function EmployeesTable({
   return (
     <Stack gap="sm">
       <TextInput
-        placeholder="Search employees..."
+        placeholder="Search team members..."
         leftSection={<IconSearch size={14} stroke={1.5} />}
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.currentTarget.value)}
@@ -256,10 +265,10 @@ export function EmployeesTable({
 
           <Table.Tbody>
             {isLoading ? (
-              <LoadingRows cols={5} rows={5} />
+              <LoadingRows cols={4} rows={5} />
             ) : visibleRows.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={4}>
                   <EmptyState
                     icon={IconSearch}
                     title="No employees found"
@@ -295,8 +304,8 @@ export function EmployeesTable({
           >
             <Text size="xs" c="dimmed">
               {visibleRows.length === rows.length
-                ? `${rows.length} employees`
-                : `${visibleRows.length} of ${rows.length} employees`}
+                ? `${rows.length} team members`
+                : `${visibleRows.length} of ${rows.length} team members`}
             </Text>
           </Box>
         )}

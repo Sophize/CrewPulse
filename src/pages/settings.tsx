@@ -17,6 +17,8 @@ import { PageHeader } from "@/components/ui";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { updateProfileName } from "@/services/profile.service";
 
 function Section({
   icon: Icon,
@@ -62,7 +64,28 @@ function Section({
 }
 
 function ProfileSection() {
-  const { user } = useAuth();
+  const { user, updateUserName } = useAuth();
+
+  const [name, setName] = useState(user?.name ?? "");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setName(user?.name ?? "");
+  }, [user]);
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+
+      await updateProfileName(name);
+
+      updateUserName(name);
+    } catch (error) {
+      console.error("Failed to update profile", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <Section
@@ -73,8 +96,8 @@ function ProfileSection() {
       <Stack gap="md">
         <TextInput
           label="Full name"
-          value={user?.name ?? ""}
-          readOnly
+          value={name}
+          onChange={(e) => setName(e.currentTarget.value)}
           size="sm"
         />
 
@@ -88,6 +111,15 @@ function ProfileSection() {
             {user?.role ?? "EMPLOYEE"}
           </Text>
         </Box>
+
+        <Button
+          size="sm"
+          onClick={handleSave}
+          loading={isSaving}
+          disabled={!name.trim() || name === user?.name}
+        >
+          Save Changes
+        </Button>
       </Stack>
     </Section>
   );

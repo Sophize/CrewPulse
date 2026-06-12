@@ -8,10 +8,8 @@ import {
   Text,
   Box,
   Avatar,
-  Divider,
   ScrollArea,
   Tooltip,
-  ThemeIcon,
   rem,
 } from "@mantine/core";
 import {
@@ -19,8 +17,8 @@ import {
   IconShield,
   IconSettings,
   IconLogout,
-  IconBuildingSkyscraper,
 } from "@tabler/icons-react";
+import Image from "next/image";
 
 import {
   SIDEBAR_LINKS,
@@ -49,15 +47,16 @@ function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
 
 function LogoMark() {
   return (
-    <ThemeIcon
-      size={32}
-      radius="sm"
-      color="blue"
-      variant="filled"
-      style={{ flexShrink: 0 }}
-    >
-      <IconBuildingSkyscraper size={18} stroke={1.5} />
-    </ThemeIcon>
+    <Image
+      src="/favicon.ico"
+      alt="CrewPulse"
+      width={32}
+      height={32}
+      style={{
+        borderRadius: 8,
+        flexShrink: 0,
+      }}
+    />
   );
 }
 
@@ -217,15 +216,10 @@ export interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const router = useRouter();
-  const { user } = useAuth();
 
   const activeHref = router.pathname;
 
   const mainLinks = SIDEBAR_LINKS.filter((l) => l.section === "main");
-  const adminLinks =
-    user?.role === "ADMIN"
-      ? SIDEBAR_LINKS.filter((l) => l.section === "admin")
-      : [];
 
   return (
     <AppShell.Navbar
@@ -262,13 +256,6 @@ export function Sidebar({ onClose }: SidebarProps) {
           <NavSection
             label={NAV_SECTION_LABELS.main}
             links={mainLinks}
-            activeHref={activeHref}
-            onLinkClick={onClose}
-          />
-          <Divider />
-          <NavSection
-            label={NAV_SECTION_LABELS.admin}
-            links={adminLinks}
             activeHref={activeHref}
             onLinkClick={onClose}
           />

@@ -6,12 +6,16 @@ import { auth } from "@/firebase/config";
 export interface EmployeeStatusResponse {
   taskStatus: TaskStatus;
   currentLearning: string | null;
+  learningDetails: string | null;
+  learningStatus: string | null;
   updatedAt: string;
 }
 
 export interface UpdateEmployeeStatusInput {
   taskStatus: TaskStatus;
   currentLearning?: string;
+  learningDetails?: string;
+  learningStatus?: string;
 }
 
 interface ApiResponse<T> {

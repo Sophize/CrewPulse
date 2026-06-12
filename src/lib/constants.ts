@@ -17,11 +17,10 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
     section: "main",
   },
   {
-    label: "Admin",
+    label: "Employees",
     href: "/admin",
     iconName: "shield",
-    section: "admin",
-    adminOnly: true,
+    section: "main",
   },
   {
     label: "Settings",

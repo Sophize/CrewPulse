@@ -14,6 +14,8 @@ import { getAuthenticatedUser } from "@/lib/auth";
 interface StatusResponse {
   taskStatus: string;
   currentLearning: string | null;
+  learningDetails: string | null;
+  learningStatus: string | null;
   updatedAt: string;
 }
 
@@ -28,6 +30,8 @@ export default async function handler(
       return sendSuccess(res, {
         taskStatus: employee.taskStatus,
         currentLearning: employee.currentLearning,
+        learningDetails: employee.learningDetails,
+        learningStatus: employee.learningStatus,
         updatedAt: employee.updatedAt.toISOString(),
       });
     }
@@ -36,7 +40,7 @@ export default async function handler(
       const body =
         typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-      const { taskStatus, currentLearning } = body;
+      const { taskStatus, currentLearning, learningDetails, learningStatus } = body;
 
       const validation = validateTaskStatus(taskStatus);
 
@@ -45,6 +49,8 @@ export default async function handler(
       }
 
       const sanitized = sanitizeLearningString(currentLearning);
+      const sanitizedLearningDetails = sanitizeLearningString(learningDetails);
+      const sanitizedLearningStatus = sanitizeLearningString(learningStatus);
 
       const previousStatus = employee.taskStatus;
       const previousLearning = employee.currentLearning;
@@ -56,6 +62,8 @@ export default async function handler(
         data: {
           taskStatus: taskStatus as TaskStatus,
           currentLearning: sanitized,
+          learningDetails: sanitizedLearningDetails,
+          learningStatus: sanitizedLearningStatus,
           updatedAt: new Date(),
         },
       });
@@ -91,6 +99,8 @@ export default async function handler(
       return sendSuccess(res, {
         taskStatus: updated.taskStatus,
         currentLearning: updated.currentLearning,
+        learningDetails: updated.learningDetails,
+        learningStatus: updated.learningStatus,
         updatedAt: updated.updatedAt.toISOString(),
       });
     }

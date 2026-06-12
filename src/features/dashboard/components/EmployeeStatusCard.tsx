@@ -6,6 +6,7 @@ import {
   Text,
   SegmentedControl,
   TextInput,
+  Textarea,
   Button,
   Alert,
   Skeleton,
@@ -31,12 +32,16 @@ export function EmployeeStatusCard() {
 
   const [taskStatus, setTaskStatus] = useState<TaskStatus>("NO_TASKS");
   const [currentLearning, setCurrentLearning] = useState<string>("");
+  const [learningDetails, setLearningDetails] = useState("");
+  const [learningStatus, setLearningStatus] = useState<string>("");
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     if (statusQuery.data) {
       setTaskStatus(statusQuery.data.taskStatus);
       setCurrentLearning(statusQuery.data.currentLearning ?? "");
+      setLearningDetails(statusQuery.data.learningDetails ?? "");
+      setLearningStatus(statusQuery.data.learningStatus ?? "");
       setHasChanges(false);
     }
   }, [statusQuery.data]);
@@ -51,10 +56,22 @@ export function EmployeeStatusCard() {
     setHasChanges(true);
   };
 
+  const handleLearningDetailsChange = (value: string) => {
+    setLearningDetails(value);
+    setHasChanges(true);
+  };
+
+  const handleLearningStatusChange = (value: string) => {
+    setLearningStatus(value);
+    setHasChanges(true);
+  };
+
   const handleSave = async () => {
     await updateMutation.mutateAsync({
       taskStatus,
       currentLearning: currentLearning || undefined,
+      learningDetails: learningDetails || undefined,
+      learningStatus: learningStatus || undefined,
     });
     setHasChanges(false);
   };
@@ -140,6 +157,27 @@ export function EmployeeStatusCard() {
               placeholder="e.g., React, AWS, Leadership"
               value={currentLearning}
               onChange={(e) => handleLearningChange(e.currentTarget.value)}
+              disabled={isSaving}
+            />
+
+            <TextInput
+              label="Learning Status"
+              placeholder="e.g. Completed React Hooks, currently learning React Query"
+              value={learningStatus}
+              onChange={(e) =>
+                handleLearningStatusChange(e.currentTarget.value)
+              }
+            />
+
+            <Textarea
+              label="Learning Details"
+              placeholder="Describe what you are learning..."
+              minRows={4}
+              autosize
+              value={learningDetails}
+              onChange={(e) =>
+                handleLearningDetailsChange(e.currentTarget.value)
+              }
               disabled={isSaving}
             />
 

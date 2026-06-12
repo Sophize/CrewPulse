@@ -12,6 +12,7 @@ interface SyncUserRequest {
 interface SyncUserResponse {
   success: boolean;
   role?: UserRole;
+  name?: string;
   error?: string;
 }
 
@@ -59,6 +60,7 @@ export default async function handler(
       return res.status(200).json({
         success: true,
         role: newUser.role,
+        name: newUser.name,
       });
     }
 
@@ -68,13 +70,14 @@ export default async function handler(
       },
       data: {
         firebaseUid,
-        name: name?.trim() || existingUser.name,
+        // name: name?.trim() || existingUser.name,
       },
     });
 
     return res.status(200).json({
       success: true,
       role: updatedUser.role,
+      name: updatedUser.name,
     });
   } catch (error) {
     console.error("[POST /api/auth/sync-user] Error:", error);
