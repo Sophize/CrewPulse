@@ -40,6 +40,14 @@ Crew Pulse is an employee management dashboard built with Next.js, TypeScript, P
 
 ---
 
+## Deployment
+
+- Vercel (Frontend + API Routes)
+- Neon PostgreSQL (Production Database)
+- Firebase Authentication
+
+---
+
 ## Prerequisites
 
 Install the following software before setting up the project:
@@ -121,6 +129,16 @@ npx prisma migrate dev
 
 ```bash
 npx prisma generate
+```
+
+---
+
+## Production Deployment
+
+After deploying schema changes, always apply Prisma migrations to the production database to keep the schema synchronized.
+
+```bash
+npx prisma migrate deploy
 ```
 
 ---
@@ -253,31 +271,6 @@ prisma/
 ├── migrations/
 └── schema.prisma
 ```
-
----
-
-## Git Workflow
-
-Create a feature branch:
-
-```bash
-git checkout -b feature/feature-name
-```
-
-Commit changes:
-
-```bash
-git add .
-git commit -m "Describe your changes"
-```
-
-Push changes:
-
-```bash
-git push origin feature/feature-name
-```
-
-Create a Pull Request for review.
 
 ---
 
