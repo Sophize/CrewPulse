@@ -13,6 +13,7 @@ import {
   Tooltip,
   ActionIcon,
   rem,
+  Button,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -20,6 +21,8 @@ import {
   IconChevronDown,
   IconSelector,
   IconInfoCircle,
+  IconSpy,
+  IconCheck,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -55,6 +58,7 @@ export interface EmployeeRow {
   currentLearning: string;
   learningStatus: string;
   learningDetails: string;
+  lastSeenAt: string | null;
   updatedAt: string;
 }
 
@@ -95,95 +99,36 @@ function SortableHeader({
   );
 }
 
+function getLastSeenMeta(lastSeenAt: string | null) {
+  if (!lastSeenAt) {
+    return null;
+  }
+
+  const days = Math.floor(
+    (Date.now() - new Date(lastSeenAt).getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (days > 7) {
+    return {
+      color: "red",
+      label: `${days}d ago`,
+    };
+  }
+
+  if (days > 3) {
+    return {
+      color: "yellow",
+      label: `${days}d ago`,
+    };
+  }
+
+  return {
+    color: "green",
+    label: days === 0 ? "Today" : `${days}d ago`,
+  };
+}
+
 const col = createColumnHelper<EmployeeRow>();
-
-const columns = [
-  col.accessor("name", {
-    header: "Team Member",
-    cell: (info) => (
-      <Group gap="sm" wrap="nowrap">
-        <Avatar size={30} radius="xl" color="blue" variant="light">
-          {getInitials(info.getValue())}
-        </Avatar>
-        <Box style={{ minWidth: 0 }}>
-          <Text size="sm" fw={500} truncate>
-            {info.getValue()}
-          </Text>
-          <Text size="xs" c="dimmed" truncate>
-            {info.row.original.email}
-          </Text>
-        </Box>
-      </Group>
-    ),
-  }),
-
-  col.accessor("taskStatus", {
-    header: "Status",
-    cell: (info) => {
-      const meta = TASK_STATUS_META[info.getValue()];
-      return (
-        <Badge variant="light" color={meta.color} size="sm" radius="sm">
-          {meta.label}
-        </Badge>
-      );
-    },
-    sortingFn: (a, b) =>
-      TASK_STATUS_ORDER[a.original.taskStatus] -
-      TASK_STATUS_ORDER[b.original.taskStatus],
-  }),
-
-  col.accessor("currentLearning", {
-    header: "Currently learning",
-    enableSorting: false,
-
-    cell: (info) => {
-      const learning = info.getValue();
-      const details = info.row.original.learningDetails;
-      const learningStatus = info.row.original.learningStatus;
-
-      if (!learning) {
-        return (
-          <Text size="sm" c="dimmed" fs="italic">
-            —
-          </Text>
-        );
-      }
-
-      return (
-        <Group gap={4} wrap="nowrap" align="flex-start">
-          <Box style={{ minWidth: 0 }}>
-            <Text size="sm" truncate maw={200}>
-              {learning}
-            </Text>
-
-            {learningStatus && (
-              <Text size="xs" c="dimmed" truncate maw={220}>
-                {learningStatus}
-              </Text>
-            )}
-          </Box>
-
-          {details && (
-            <Tooltip multiline withArrow label={details}>
-              <ActionIcon variant="subtle" size="sm">
-                <IconInfoCircle size={14} />
-              </ActionIcon>
-            </Tooltip>
-          )}
-        </Group>
-      );
-    },
-  }),
-
-  col.accessor("updatedAt", {
-    header: "Updated",
-    cell: (info) => (
-      <Text size="xs" c="dimmed" style={{ whiteSpace: "nowrap" }}>
-        {formatDate(info.getValue())}
-      </Text>
-    ),
-  }),
-];
 
 interface EmployeesTableProps {
   rows: EmployeeRow[];
@@ -198,6 +143,169 @@ export function EmployeesTable({
     { id: "taskStatus", desc: false },
   ]);
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const markSeen = async (userId: string) => {
+    await fetch("/api/admin/seen", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+      }),
+    });
+
+    window.location.reload();
+  };
+
+  const columns = [
+    col.accessor("name", {
+      header: "Team Member",
+      cell: (info) => (
+        <Group gap="sm" wrap="nowrap">
+          <Avatar size={30} radius="xl" color="blue" variant="light">
+            {getInitials(info.getValue())}
+          </Avatar>
+          <Box style={{ minWidth: 0 }}>
+            <Text size="sm" fw={500} truncate>
+              {info.getValue()}
+            </Text>
+            <Text size="xs" c="dimmed" truncate>
+              {info.row.original.email}
+            </Text>
+          </Box>
+        </Group>
+      ),
+    }),
+
+    col.accessor("taskStatus", {
+      header: "Status",
+      cell: (info) => {
+        const meta = TASK_STATUS_META[info.getValue()];
+        return (
+          <Badge variant="light" color={meta.color} size="sm" radius="sm">
+            {meta.label}
+          </Badge>
+        );
+      },
+      sortingFn: (a, b) =>
+        TASK_STATUS_ORDER[a.original.taskStatus] -
+        TASK_STATUS_ORDER[b.original.taskStatus],
+    }),
+
+    col.accessor("currentLearning", {
+      header: "Currently learning",
+      enableSorting: false,
+
+      cell: (info) => {
+        const learning = info.getValue();
+        const details = info.row.original.learningDetails;
+        const learningStatus = info.row.original.learningStatus;
+
+        if (!learning) {
+          return (
+            <Text size="sm" c="dimmed" fs="italic">
+              —
+            </Text>
+          );
+        }
+
+        return (
+          <Group gap={4} wrap="nowrap" align="flex-start">
+            <Box style={{ minWidth: 0 }}>
+              <Text size="sm" truncate maw={120}>
+                {learning}
+              </Text>
+
+              {learningStatus && (
+                <Text size="xs" c="dimmed" truncate maw={140}>
+                  {learningStatus}
+                </Text>
+              )}
+            </Box>
+
+            {details && (
+              <Tooltip multiline withArrow label={details}>
+                <ActionIcon variant="subtle" size="sm">
+                  <IconInfoCircle size={14} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Group>
+        );
+      },
+    }),
+
+    col.accessor("lastSeenAt", {
+      header: "Last Seen",
+
+      cell: (info) => {
+        const meta = getLastSeenMeta(info.getValue());
+
+        if (!meta) {
+          return (
+            <Group gap={4} wrap="nowrap">
+              <IconSpy size={14} />
+              <Text size="sm" style={{ whiteSpace: "nowrap" }}>
+                Never seen
+              </Text>
+            </Group>
+          );
+        }
+
+        return (
+          <Badge color={meta.color} variant="light">
+            {meta.label}
+          </Badge>
+        );
+      },
+    }),
+
+    col.display({
+      id: "standup",
+
+      header: "Standup",
+
+      cell: (info) => {
+        const lastSeenAt = info.row.original.lastSeenAt;
+
+        const seenToday = !!(
+          lastSeenAt &&
+          new Date(lastSeenAt).toDateString() === new Date().toDateString()
+        );
+
+        return (
+          <Tooltip label={seenToday ? "Seen Today" : "Seen during standup"}>
+            <Button
+              size="xs"
+              variant="light"
+              color={seenToday ? "green" : "blue"}
+              disabled={seenToday}
+              onClick={() => markSeen(info.row.original.id)}
+            >
+              {seenToday ? "Seen" : "Mark Seen"}
+            </Button>
+          </Tooltip>
+        );
+      },
+    }),
+
+    col.accessor("updatedAt", {
+      header: "Updated",
+      cell: (info) => (
+        <Text
+          size="xs"
+          c="dimmed"
+          style={{
+            whiteSpace: "nowrap",
+            width: 70,
+          }}
+        >
+          {formatDate(info.getValue())}
+        </Text>
+      ),
+    }),
+  ];
 
   const table = useReactTable({
     data: rows,
@@ -265,10 +373,10 @@ export function EmployeesTable({
 
           <Table.Tbody>
             {isLoading ? (
-              <LoadingRows cols={4} rows={5} />
+              <LoadingRows cols={6} rows={5} />
             ) : visibleRows.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={4}>
+                <Table.Td colSpan={6}>
                   <EmptyState
                     icon={IconSearch}
                     title="No employees found"
