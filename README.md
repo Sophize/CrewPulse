@@ -1,40 +1,319 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Crew Pulse
 
-## Getting Started
+Crew Pulse is an employee management dashboard built with Next.js, TypeScript, Prisma, PostgreSQL, Firebase Authentication, and Mantine UI.
 
-First, run the development server:
+## Features
+
+- Employee Management
+- Firebase Authentication
+- Activity Tracking
+- Learning Progress Tracking
+- Learning Status Tracking
+- Employee Status Monitoring
+- Timesheet Management
+- Last Seen Tracking
+- Admin Dashboard
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- Next.js 16
+- React 19
+- TypeScript
+- Mantine UI
+- React Query
+- React Hook Form
+- TanStack Table
+
+### Backend
+
+- Next.js API Routes
+- Prisma ORM
+- Firebase Admin SDK
+
+### Database
+
+- PostgreSQL 16+
+
+---
+
+## Prerequisites
+
+Install the following software before setting up the project:
+
+- Node.js 22 LTS
+- PostgreSQL 16.x
+- Git
+
+Verify installation:
+
+```bash
+node -v
+npm -v
+git --version
+psql --version
+```
+
+---
+
+## Installation
+
+### 1. Clone Repository
+
+```bash
+git clone <repository-url>
+cd crewpulse
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root using the values provided by the project administrator.
+
+Required environment variables:
+
+```env
+DATABASE_URL=
+
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+
+FIREBASE_PROJECT_ID=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
+```
+
+---
+
+## Database Setup
+
+### Create Database
+
+Open PostgreSQL and run:
+
+```sql
+CREATE DATABASE crewpulse;
+```
+
+### Run Prisma Migrations
+
+All database migrations are committed to the repository.
+
+Run:
+
+```bash
+npx prisma migrate dev
+```
+
+### Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+---
+
+## Running the Application
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+---
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Development
 
-## Learn More
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Starts the development server.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+### Build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+```
 
-## Deploy on Vercel
+Creates an optimized production build.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Production
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+```bash
+npm start
+```
+
+Runs the production build.
+
+### Lint
+
+```bash
+npm run lint
+```
+
+Runs ESLint checks.
+
+### Prisma Studio
+
+```bash
+npx prisma studio
+```
+
+Opens Prisma Studio for database management.
+
+---
+
+## Database Schema
+
+### User
+
+Stores employee information:
+
+- Name
+- Email
+- Role
+- Firebase UID
+- Learning Status
+- Learning Details
+- Current Learning
+- Last Seen Timestamp
+
+### Timesheet
+
+Stores weekly timesheet information:
+
+- Week Start Date
+- Total Hours
+- Categories
+- Sync Timestamp
+
+### ActivityEvent
+
+Stores employee activity records:
+
+- Event Type
+- Event Message
+- Creation Timestamp
+
+---
+
+## Database Migrations
+
+The project currently includes migrations for:
+
+- Initial schema setup
+- Activity events
+- Firebase authentication support
+- Learning details
+- Learning status
+- Last seen tracking
+
+---
+
+## Project Structure
+
+```text
+src/
+├── api/
+├── components/
+├── context/
+├── features/
+├── firebase/
+├── hooks/
+├── lib/
+├── pages/
+├── services/
+├── styles/
+├── types/
+└── utils/
+
+prisma/
+├── migrations/
+└── schema.prisma
+```
+
+---
+
+## Git Workflow
+
+Create a feature branch:
+
+```bash
+git checkout -b feature/feature-name
+```
+
+Commit changes:
+
+```bash
+git add .
+git commit -m "Describe your changes"
+```
+
+Push changes:
+
+```bash
+git push origin feature/feature-name
+```
+
+Create a Pull Request for review.
+
+---
+
+## Troubleshooting
+
+### Prisma Errors
+
+Regenerate Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+### Migration Issues
+
+Reset and reapply migrations:
+
+```bash
+npx prisma migrate reset
+```
+
+### PostgreSQL Connection Issues
+
+Verify that:
+
+- PostgreSQL is running
+- Database `crewpulse` exists
+- `DATABASE_URL` is configured correctly
+- PostgreSQL is listening on port `5432`
+
+---
+
+## Important Notes
+
+- Use PostgreSQL 16.x for local development.
+- Do not commit `.env`, `.env.local`, or `.env.production`.
+- Store required environment variables in `.env.local`.
+- Never commit Firebase credentials or database secrets to version control.
+

@@ -28,6 +28,7 @@ export default async function handler(
         currentLearning: true,
         learningDetails: true,
         learningStatus: true,
+        lastSeenAt: true,
         updatedAt: true,
       },
     });
@@ -41,6 +42,7 @@ export default async function handler(
         currentLearning: employee.currentLearning ?? "",
         learningDetails: employee.learningDetails ?? "",
         learningStatus: employee.learningStatus ?? "",
+        lastSeenAt: employee.lastSeenAt?.toISOString() ?? null,
         updatedAt: employee.updatedAt.toISOString(),
       })),
     });
