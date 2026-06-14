@@ -19,6 +19,7 @@ import {
   useUpdateEmployeeStatus,
 } from "@/hooks/useEmployeeStatus";
 import { getErrorMessage } from "@/api/errors";
+import { auth } from "@/firebase/config";
 
 const TASK_STATUS_OPTIONS: { label: string; value: TaskStatus }[] = [
   { label: "No Tasks Assigned", value: "NO_TASKS" },
@@ -35,6 +36,7 @@ export function EmployeeStatusCard() {
   const [learningDetails, setLearningDetails] = useState("");
   const [learningStatus, setLearningStatus] = useState<string>("");
   const [hasChanges, setHasChanges] = useState(false);
+  const [markingSeen, setMarkingSeen] = useState(false);
 
   useEffect(() => {
     if (statusQuery.data) {
@@ -74,6 +76,29 @@ export function EmployeeStatusCard() {
       learningStatus: learningStatus || undefined,
     });
     setHasChanges(false);
+  };
+
+  const handleMarkSeen = async () => {
+    try {
+      setMarkingSeen(true);
+
+      const token = await auth.currentUser?.getIdToken();
+
+      if (!token) {
+        throw new Error("User is not authenticated");
+      }
+
+      await fetch("/api/admin/seen", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      statusQuery.refetch();
+    } finally {
+      setMarkingSeen(false);
+    }
   };
 
   function getStatusColor(status: TaskStatus) {
@@ -189,13 +214,23 @@ export function EmployeeStatusCard() {
                 </Text>
               )}
 
-              <Button
-                onClick={handleSave}
-                loading={isSaving}
-                disabled={!hasChanges || isSaving}
-              >
-                Save
-              </Button>
+              <Group>
+                <Button
+                  variant="light"
+                  onClick={handleMarkSeen}
+                  loading={markingSeen}
+                >
+                  Seen During Standup Call
+                </Button>
+
+                <Button
+                  onClick={handleSave}
+                  loading={isSaving}
+                  disabled={!hasChanges || isSaving}
+                >
+                  Save
+                </Button>
+              </Group>
             </Group>
           </>
         )}

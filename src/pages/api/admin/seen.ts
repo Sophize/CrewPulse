@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/auth";
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,13 +16,11 @@ export default async function handler(
   }
 
   try {
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-
-    const { userId } = body;
+    const employee = await getAuthenticatedUser(req);
 
     await prisma.user.update({
       where: {
-        id: userId,
+        id: employee.id,
       },
       data: {
         lastSeenAt: new Date(),

@@ -37,6 +37,7 @@ import {
 import { EmptyState, LoadingRows } from "@/components/ui";
 import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
+import { DateView } from "@/components/DateView";
 
 const TASK_STATUS_META: Record<TaskStatus, { label: string; color: string }> = {
   NO_TASKS: { label: "No tasks", color: "gray" },
@@ -144,20 +145,6 @@ export function EmployeesTable({
   ]);
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const markSeen = async (userId: string) => {
-    await fetch("/api/admin/seen", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId,
-      }),
-    });
-
-    window.location.reload();
-  };
-
   const columns = [
     col.accessor("name", {
       header: "Team Member",
@@ -240,52 +227,35 @@ export function EmployeesTable({
       header: "Last Seen",
 
       cell: (info) => {
-        const meta = getLastSeenMeta(info.getValue());
+        const lastSeenAt = info.getValue();
 
-        if (!meta) {
+        if (!lastSeenAt) {
           return (
-            <Group gap={4} wrap="nowrap">
+            <Group gap={4}>
               <IconSpy size={14} />
-              <Text size="sm" style={{ whiteSpace: "nowrap" }}>
-                Never seen
-              </Text>
+              <Text size="sm">Never seen</Text>
             </Group>
           );
         }
 
+        const days = Math.floor(
+          (Date.now() - new Date(lastSeenAt).getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        const color = days > 7 ? "red" : days > 3 ? "yellow" : "green";
+
         return (
-          <Badge color={meta.color} variant="light">
-            {meta.label}
+          <Badge
+            color={color}
+            variant="light"
+            styles={{
+              label: {
+                textTransform: "none",
+              },
+            }}
+          >
+            <DateView timestampMs={new Date(lastSeenAt).getTime()} />
           </Badge>
-        );
-      },
-    }),
-
-    col.display({
-      id: "standup",
-
-      header: "Standup",
-
-      cell: (info) => {
-        const lastSeenAt = info.row.original.lastSeenAt;
-
-        const seenToday = !!(
-          lastSeenAt &&
-          new Date(lastSeenAt).toDateString() === new Date().toDateString()
-        );
-
-        return (
-          <Tooltip label={seenToday ? "Seen Today" : "Seen during standup"}>
-            <Button
-              size="xs"
-              variant="light"
-              color={seenToday ? "green" : "blue"}
-              disabled={seenToday}
-              onClick={() => markSeen(info.row.original.id)}
-            >
-              {seenToday ? "Seen" : "Mark Seen"}
-            </Button>
-          </Tooltip>
         );
       },
     }),

@@ -4,6 +4,7 @@ import { fetchJson } from "@/api/client";
 import { auth } from "@/firebase/config";
 
 export interface EmployeeStatusResponse {
+  id: string;
   taskStatus: TaskStatus;
   currentLearning: string | null;
   learningDetails: string | null;

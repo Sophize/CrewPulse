@@ -12,6 +12,7 @@ import {
 import { getAuthenticatedUser } from "@/lib/auth";
 
 interface StatusResponse {
+  id: string;
   taskStatus: string;
   currentLearning: string | null;
   learningDetails: string | null;
@@ -28,6 +29,7 @@ export default async function handler(
 
     if (req.method === "GET") {
       return sendSuccess(res, {
+        id: employee.id,
         taskStatus: employee.taskStatus,
         currentLearning: employee.currentLearning,
         learningDetails: employee.learningDetails,
@@ -40,7 +42,8 @@ export default async function handler(
       const body =
         typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-      const { taskStatus, currentLearning, learningDetails, learningStatus } = body;
+      const { taskStatus, currentLearning, learningDetails, learningStatus } =
+        body;
 
       const validation = validateTaskStatus(taskStatus);
 
@@ -97,6 +100,7 @@ export default async function handler(
       }
 
       return sendSuccess(res, {
+        id: updated.id,
         taskStatus: updated.taskStatus,
         currentLearning: updated.currentLearning,
         learningDetails: updated.learningDetails,
