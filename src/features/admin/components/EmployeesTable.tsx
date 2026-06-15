@@ -242,7 +242,7 @@ export function EmployeesTable({
           return (
             <Group gap={4}>
               <IconSpy size={14} />
-              <Text size="sm">Never seen</Text>
+              <Text size="sm">Never updated</Text>
             </Group>
           );
         }
@@ -269,10 +269,7 @@ export function EmployeesTable({
               }}
             >
               {updatedAt ? (
-                <>
-                  Updated{" "}
-                  <DateView timestampMs={new Date(updatedAt).getTime()} />
-                </>
+                <DateView timestampMs={new Date(updatedAt).getTime()} />
               ) : (
                 "Not Updated"
               )}
