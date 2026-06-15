@@ -13,7 +13,6 @@ import {
   Tooltip,
   ActionIcon,
   rem,
-  Button,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -22,7 +21,6 @@ import {
   IconSelector,
   IconInfoCircle,
   IconSpy,
-  IconCheck,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -98,35 +96,6 @@ function SortableHeader({
       <SortIcon sorted={sorted} />
     </UnstyledButton>
   );
-}
-
-function getLastSeenMeta(lastSeenAt: string | null) {
-  if (!lastSeenAt) {
-    return null;
-  }
-
-  const days = Math.floor(
-    (Date.now() - new Date(lastSeenAt).getTime()) / (1000 * 60 * 60 * 24),
-  );
-
-  if (days > 7) {
-    return {
-      color: "red",
-      label: `${days}d ago`,
-    };
-  }
-
-  if (days > 3) {
-    return {
-      color: "yellow",
-      label: `${days}d ago`,
-    };
-  }
-
-  return {
-    color: "green",
-    label: days === 0 ? "Today" : `${days}d ago`,
-  };
 }
 
 const col = createColumnHelper<EmployeeRow>();
