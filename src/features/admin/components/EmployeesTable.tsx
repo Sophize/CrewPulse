@@ -259,7 +259,7 @@ export function EmployeesTable({
                 Updated <DateView timestampMs={new Date(updatedAt).getTime()} />
               </>
             ) : (
-              "View"
+              "Not Updated"
             )}
           </Text>
         );
