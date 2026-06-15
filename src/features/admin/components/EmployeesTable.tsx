@@ -240,29 +240,42 @@ export function EmployeesTable({
 
         if (!url) {
           return (
-            <Text size="sm" c="dimmed" fs="italic">
-              —
-            </Text>
+            <Group gap={4}>
+              <IconSpy size={14} />
+              <Text size="sm">Never updated</Text>
+            </Group>
           );
         }
-        return (
-          <Text
-            component="a"
-            href={url}
-            target="_blank"
-            size="sm"
-            c="blue"
-            td="underline"
-          >
-            {updatedAt ? (
-              <>
-                Updated <DateView timestampMs={new Date(updatedAt).getTime()} />
-              </>
-            ) : (
-              "Not Updated"
-            )}
-          </Text>
-        );
+        if (updatedAt) {
+          const days = Math.floor(
+            (Date.now() - new Date(updatedAt).getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
+
+          const color = days > 7 ? "red" : days > 3 ? "yellow" : "green";
+          return (
+            <Badge
+              component="a"
+              href={url}
+              target="_blank"
+              size="md"
+              color={color}
+              variant="light"
+              td="underline"
+              styles={{
+                label: {
+                  textTransform: "none",
+                },
+              }}
+            >
+              {updatedAt ? (
+                <DateView timestampMs={new Date(updatedAt).getTime()} />
+              ) : (
+                "Not Updated"
+              )}
+            </Badge>
+          );
+        }
       },
     }),
 
