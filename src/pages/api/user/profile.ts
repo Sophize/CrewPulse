@@ -16,7 +16,7 @@ export default async function handler(
   try {
     const user = await getAuthenticatedUser(req);
 
-    const { name } = req.body;
+    const { name, timesheetUrl } = req.body;
 
     if (!name?.trim()) {
       return res.status(400).send("Name is required");
@@ -28,6 +28,7 @@ export default async function handler(
       },
       data: {
         name: name.trim(),
+        timesheetUrl: timesheetUrl !== undefined ? timesheetUrl : undefined,
       },
     });
 

@@ -18,7 +18,7 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { updateProfileName } from "@/services/profile.service";
+import { updateProfile } from "@/services/profile.service";
 
 function Section({
   icon: Icon,
@@ -64,22 +64,24 @@ function Section({
 }
 
 function ProfileSection() {
-  const { user, updateUserName } = useAuth();
+  const { user, updateUserProfile } = useAuth();
 
   const [name, setName] = useState(user?.name ?? "");
+  const [timesheetUrl, setTimesheetUrl] = useState(user?.timesheetUrl ?? "");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setName(user?.name ?? "");
+    setTimesheetUrl(user?.timesheetUrl ?? "");
   }, [user]);
 
   const handleSave = async () => {
     try {
       setIsSaving(true);
 
-      await updateProfileName(name);
+      await updateProfile({ name, timesheetUrl: timesheetUrl.trim() || null });
 
-      updateUserName(name);
+      updateUserProfile({ name, timesheetUrl: timesheetUrl.trim() || null });
     } catch (error) {
       console.error("Failed to update profile", error);
     } finally {
@@ -101,6 +103,14 @@ function ProfileSection() {
           size="sm"
         />
 
+        <TextInput
+          label="Timesheet URL"
+          placeholder="https://docs.google.com/spreadsheets/..."
+          value={timesheetUrl}
+          onChange={(e) => setTimesheetUrl(e.currentTarget.value)}
+          size="sm"
+        />
+
         <TextInput label="Email" value={user?.email ?? ""} readOnly size="sm" />
 
         <Box>
@@ -116,7 +126,10 @@ function ProfileSection() {
           size="sm"
           onClick={handleSave}
           loading={isSaving}
-          disabled={!name.trim() || name === user?.name}
+          disabled={
+            !name.trim() ||
+            (name === user?.name && timesheetUrl === (user?.timesheetUrl ?? ""))
+          }
         >
           Save Changes
         </Button>

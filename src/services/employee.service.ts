@@ -9,6 +9,8 @@ export interface EmployeeStatusResponse {
   currentLearning: string | null;
   learningDetails: string | null;
   learningStatus: string | null;
+  timesheetUrl: string | null;
+  timesheetUpdatedAt: string | null;
   updatedAt: string;
 }
 

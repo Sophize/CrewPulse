@@ -12,6 +12,7 @@ export interface AuthUser {
   email: string | null;
   name: string | null;
   role: "ADMIN" | "EMPLOYEE";
+  timesheetUrl: string | null;
 }
 
 export interface AuthContextType {
@@ -19,7 +20,7 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   logout: () => Promise<void>;
-  updateUserName: (name: string) => void;
+  updateUserProfile: (data: { name: string; timesheetUrl: string | null }) => void;
   error: string | null;
 }
 
@@ -57,6 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data: {
           role?: "ADMIN" | "EMPLOYEE";
           name?: string;
+          timesheetUrl?: string | null;
         } = await response.json();
         setUser({
           uid: firebaseUser.uid,
@@ -67,6 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             firebaseUser.email?.split("@")[0] ??
             null,
           role: data.role || "EMPLOYEE",
+          timesheetUrl: data.timesheetUrl ?? null,
         });
         setError(null);
       } catch (err) {
@@ -105,23 +108,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [queryClient]);
 
-  const updateUserName = useCallback((name: string) => {
-    setUser((prev) =>
-      prev
-        ? {
-            ...prev,
-            name,
-          }
-        : null,
-    );
-  }, []);
+  const updateUserProfile = useCallback(
+    (data: { name: string; timesheetUrl: string | null }) => {
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: data.name,
+              timesheetUrl: data.timesheetUrl,
+            }
+          : null,
+      );
+    },
+    [],
+  );
 
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: user !== null,
     logout,
-    updateUserName,
+    updateUserProfile,
     error,
   };
 
