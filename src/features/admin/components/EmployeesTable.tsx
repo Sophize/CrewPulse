@@ -57,6 +57,8 @@ export interface EmployeeRow {
   currentLearning: string;
   learningStatus: string;
   learningDetails: string;
+  timesheetUrl: string | null;
+  timesheetUpdatedAt: string | null;
   lastSeenAt: string | null;
   updatedAt: string;
 }
@@ -225,6 +227,41 @@ export function EmployeesTable({
           >
             <DateView timestampMs={new Date(lastSeenAt).getTime()} />
           </Badge>
+        );
+      },
+    }),
+
+    col.accessor("timesheetUrl", {
+      header: "Timesheet",
+      enableSorting: false,
+      cell: (info) => {
+        const url = info.getValue();
+        const updatedAt = info.row.original.timesheetUpdatedAt;
+
+        if (!url) {
+          return (
+            <Text size="sm" c="dimmed" fs="italic">
+              —
+            </Text>
+          );
+        }
+        return (
+          <Text
+            component="a"
+            href={url}
+            target="_blank"
+            size="sm"
+            c="blue"
+            td="underline"
+          >
+            {updatedAt ? (
+              <>
+                Updated <DateView timestampMs={new Date(updatedAt).getTime()} />
+              </>
+            ) : (
+              "View"
+            )}
+          </Text>
         );
       },
     }),

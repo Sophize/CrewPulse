@@ -17,6 +17,8 @@ interface StatusResponse {
   currentLearning: string | null;
   learningDetails: string | null;
   learningStatus: string | null;
+  timesheetUrl: string | null;
+  timesheetUpdatedAt: string | null;
   updatedAt: string;
 }
 
@@ -34,6 +36,8 @@ export default async function handler(
         currentLearning: employee.currentLearning,
         learningDetails: employee.learningDetails,
         learningStatus: employee.learningStatus,
+        timesheetUrl: employee.timesheetUrl,
+        timesheetUpdatedAt: employee.timesheetUpdatedAt?.toISOString() ?? null,
         updatedAt: employee.updatedAt.toISOString(),
       });
     }
@@ -105,6 +109,8 @@ export default async function handler(
         currentLearning: updated.currentLearning,
         learningDetails: updated.learningDetails,
         learningStatus: updated.learningStatus,
+        timesheetUrl: updated.timesheetUrl,
+        timesheetUpdatedAt: updated.timesheetUpdatedAt?.toISOString() ?? null,
         updatedAt: updated.updatedAt.toISOString(),
       });
     }

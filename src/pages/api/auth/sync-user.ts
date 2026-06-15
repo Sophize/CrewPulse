@@ -13,6 +13,7 @@ interface SyncUserResponse {
   success: boolean;
   role?: UserRole;
   name?: string;
+  timesheetUrl?: string | null;
   error?: string;
 }
 
@@ -61,6 +62,7 @@ export default async function handler(
         success: true,
         role: newUser.role,
         name: newUser.name,
+        timesheetUrl: newUser.timesheetUrl,
       });
     }
 
@@ -78,6 +80,7 @@ export default async function handler(
       success: true,
       role: updatedUser.role,
       name: updatedUser.name,
+      timesheetUrl: updatedUser.timesheetUrl,
     });
   } catch (error) {
     console.error("[POST /api/auth/sync-user] Error:", error);

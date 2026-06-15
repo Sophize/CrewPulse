@@ -37,6 +37,8 @@ export function EmployeeStatusCard() {
   const [learningStatus, setLearningStatus] = useState<string>("");
   const [hasChanges, setHasChanges] = useState(false);
   const [markingSeen, setMarkingSeen] = useState(false);
+  const [updatingTimesheet, setUpdatingTimesheet] = useState(false);
+  const [timesheetUrl, setTimesheetUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (statusQuery.data) {
@@ -44,6 +46,7 @@ export function EmployeeStatusCard() {
       setCurrentLearning(statusQuery.data.currentLearning ?? "");
       setLearningDetails(statusQuery.data.learningDetails ?? "");
       setLearningStatus(statusQuery.data.learningStatus ?? "");
+      setTimesheetUrl(statusQuery.data.timesheetUrl ?? null);
       setHasChanges(false);
     }
   }, [statusQuery.data]);
@@ -98,6 +101,29 @@ export function EmployeeStatusCard() {
       statusQuery.refetch();
     } finally {
       setMarkingSeen(false);
+    }
+  };
+
+  const handleUpdateTimesheet = async () => {
+    try {
+      setUpdatingTimesheet(true);
+
+      const token = await auth.currentUser?.getIdToken();
+
+      if (!token) {
+        throw new Error("User is not authenticated");
+      }
+
+      await fetch("/api/employee/timesheet-seen", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      statusQuery.refetch();
+    } finally {
+      setUpdatingTimesheet(false);
     }
   };
 
@@ -215,6 +241,17 @@ export function EmployeeStatusCard() {
               )}
 
               <Group>
+                {timesheetUrl && (
+                  <Button
+                    variant="light"
+                    color="teal"
+                    onClick={handleUpdateTimesheet}
+                    loading={updatingTimesheet}
+                  >
+                    Updated Timesheet
+                  </Button>
+                )}
+
                 <Button
                   variant="light"
                   onClick={handleMarkSeen}

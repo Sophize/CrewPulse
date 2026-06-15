@@ -1,6 +1,6 @@
 import { auth } from "@/firebase/config";
 
-export async function updateProfileName(name: string) {
+export async function updateProfile(data: { name: string; timesheetUrl: string | null }) {
   const token = await auth.currentUser?.getIdToken();
 
   if (!token) {
@@ -13,9 +13,7 @@ export async function updateProfileName(name: string) {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      name,
-    }),
+    body: JSON.stringify(data),
   });
 
   if (!response.ok) {
