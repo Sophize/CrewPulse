@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Stack,
   Group,
@@ -7,6 +8,7 @@ import {
   Box,
   Divider,
   Skeleton,
+  Button,
 } from "@mantine/core";
 import {
   IconCheck,
@@ -84,6 +86,10 @@ interface ActivityFeedProps {
 }
 
 export function ActivityFeed({ events, isLoading = false }: ActivityFeedProps) {
+  const [visibleCount, setVisibleCount] = useState(5);
+  const displayedEvents = events.slice(0, visibleCount);
+  const hasMore = visibleCount < events.length;
+
   return (
     <Stack gap={0}>
       <Text fw={600} size="sm" mb="sm">
@@ -110,14 +116,30 @@ export function ActivityFeed({ events, isLoading = false }: ActivityFeedProps) {
               No recent activity.
             </Text>
           ) : (
-            events.map((event, i) => (
-              <Box key={event.id}>
-                <EventItem event={event} />
-                {i < events.length - 1 && (
+            <>
+              {displayedEvents.map((event, i) => (
+                <Box key={event.id}>
+                  <EventItem event={event} />
+                  {i < displayedEvents.length - 1 && (
+                    <Divider my="sm" style={{ opacity: 0.6 }} />
+                  )}
+                </Box>
+              ))}
+              {hasMore && (
+                <>
                   <Divider my="sm" style={{ opacity: 0.6 }} />
-                )}
-              </Box>
-            ))
+                  <Button
+                    variant="light"
+                    color="gray"
+                    fullWidth
+                    onClick={() => setVisibleCount((prev) => prev + 5)}
+                    mt="xs"
+                  >
+                    Load more
+                  </Button>
+                </>
+              )}
+            </>
           )}
         </Stack>
       </Paper>

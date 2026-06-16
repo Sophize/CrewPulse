@@ -49,7 +49,7 @@ export default function AdminPage() {
         )}
 
         <Grid mb="lg">
-          <Grid.Col span={{ base: 12, md: 8 }}>
+          <Grid.Col span={12}>
             <Box>
               <Text fw={600} size="sm" mb="sm">
                 Team Members
@@ -61,7 +61,7 @@ export default function AdminPage() {
             </Box>
           </Grid.Col>
 
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={12}>
             <ActivityFeed
               events={activityQuery.isLoading ? [] : (activityQuery.data ?? [])}
               isLoading={activityQuery.isLoading}
