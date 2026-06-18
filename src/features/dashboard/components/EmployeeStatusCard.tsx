@@ -39,6 +39,7 @@ export function EmployeeStatusCard() {
   const [markingSeen, setMarkingSeen] = useState(false);
   const [updatingTimesheet, setUpdatingTimesheet] = useState(false);
   const [timesheetUrl, setTimesheetUrl] = useState<string | null>(null);
+  const [currentTask, setCurrentTask] = useState("");
 
   useEffect(() => {
     if (statusQuery.data) {
@@ -46,6 +47,7 @@ export function EmployeeStatusCard() {
       setCurrentLearning(statusQuery.data.currentLearning ?? "");
       setLearningDetails(statusQuery.data.learningDetails ?? "");
       setLearningStatus(statusQuery.data.learningStatus ?? "");
+      setCurrentTask(statusQuery.data.currentTask ?? "");
       setTimesheetUrl(statusQuery.data.timesheetUrl ?? null);
       setHasChanges(false);
     }
@@ -77,6 +79,7 @@ export function EmployeeStatusCard() {
       currentLearning: currentLearning || undefined,
       learningDetails: learningDetails || undefined,
       learningStatus: learningStatus || undefined,
+      currentTask: currentTask || undefined,
     });
     setHasChanges(false);
   };
@@ -229,6 +232,16 @@ export function EmployeeStatusCard() {
               onChange={(e) =>
                 handleLearningDetailsChange(e.currentTarget.value)
               }
+              disabled={isSaving}
+            />
+            <TextInput
+              label="Current Task"
+              placeholder="What is the current task?"
+              value={currentTask}
+              onChange={(event) => {
+                setCurrentTask(event.currentTarget.value);
+                setHasChanges(true);
+              }}
               disabled={isSaving}
             />
 

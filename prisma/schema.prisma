@@ -31,7 +31,8 @@ model User {
   currentLearning String?
   learningDetails String?
   learningStatus String?
- timesheetUrl       String?
+  currentTask String?
+  timesheetUrl       String?
   timesheetUpdatedAt DateTime?
   lastSeenAt      DateTime?
 

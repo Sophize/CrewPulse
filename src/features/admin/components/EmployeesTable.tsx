@@ -37,10 +37,57 @@ import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
 import { DateView } from "@/components/DateView";
 
-const TASK_STATUS_META: Record<TaskStatus, { label: string; color: string }> = {
-  NO_TASKS: { label: "No tasks", color: "gray" },
-  IN_PROGRESS: { label: "In progress", color: "blue" },
-  COMPLETED: { label: "Completed", color: "green" },
+const TASK_STATUS_META: Record<
+  TaskStatus,
+  { label: string; color: string; icon?: "hourglass" | "check" }
+> = {
+  NO_TASKS: {
+    label: "No tasks",
+    color: "gray",
+  },
+
+  IN_PROGRESS: {
+    label: "In progress",
+    color: "blue",
+    icon: "hourglass",
+  },
+
+  COMPLETED: {
+    label: "Completed",
+    color: "green",
+    icon: "check",
+  },
+};
+const STATUS_ICON_MAP = {
+  hourglass: (
+    <span
+      style={{
+        fontSize: "18px",
+        lineHeight: 1,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.25))",
+      }}
+    >
+      ⏳
+    </span>
+  ),
+
+  check: (
+    <span
+      style={{
+        fontSize: "18px",
+        lineHeight: 1,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.25))",
+      }}
+    >
+      ✅
+    </span>
+  ),
 };
 
 const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
@@ -57,6 +104,7 @@ export interface EmployeeRow {
   currentLearning: string;
   learningStatus: string;
   learningDetails: string;
+  currentTask?: string | null;
   timesheetUrl: string | null;
   timesheetUpdatedAt: string | null;
   lastSeenAt: string | null;
@@ -140,10 +188,28 @@ export function EmployeesTable({
       header: "Status",
       cell: (info) => {
         const meta = TASK_STATUS_META[info.getValue()];
-        return (
+        const currentTask = info.row.original.currentTask;
+
+        const statusElement = meta.icon ? (
+          STATUS_ICON_MAP[meta.icon]
+        ) : (
           <Badge variant="light" color={meta.color} size="sm" radius="sm">
-            {meta.label}
+            <Text size="xs">{meta.label}</Text>
           </Badge>
+        );
+
+        return (
+          <Group gap={8} wrap="nowrap" align="center">
+            {currentTask ? (
+              <Tooltip multiline withArrow label={currentTask}>
+                <Box style={{ cursor: "help", display: "flex" }}>
+                  {statusElement}
+                </Box>
+              </Tooltip>
+            ) : (
+              statusElement
+            )}
+          </Group>
         );
       },
       sortingFn: (a, b) =>
@@ -176,9 +242,11 @@ export function EmployeesTable({
               </Text>
 
               {learningStatus && (
-                <Text size="xs" c="dimmed" truncate maw={140}>
-                  {learningStatus}
-                </Text>
+                <Tooltip multiline withArrow label={learningStatus}>
+                  <Text size="xs" c="dimmed" truncate maw={140}>
+                    {learningStatus}
+                  </Text>
+                </Tooltip>
               )}
             </Box>
 

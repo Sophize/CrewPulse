@@ -12,6 +12,7 @@ export interface User {
   currentLearning: string | null;
   learningDetails: string | null;
   learningStatus: string | null;
+  currentTask: string | null;
   timesheetUrl: string | null;
   timesheetUpdatedAt: string | null;
 

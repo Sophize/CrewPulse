@@ -9,6 +9,7 @@ export interface EmployeeStatusResponse {
   currentLearning: string | null;
   learningDetails: string | null;
   learningStatus: string | null;
+  currentTask: string | null;
   timesheetUrl: string | null;
   timesheetUpdatedAt: string | null;
   updatedAt: string;
@@ -19,6 +20,7 @@ export interface UpdateEmployeeStatusInput {
   currentLearning?: string;
   learningDetails?: string;
   learningStatus?: string;
+  currentTask?: string;
 }
 
 interface ApiResponse<T> {
