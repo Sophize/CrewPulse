@@ -21,6 +21,9 @@ import {
   IconSelector,
   IconInfoCircle,
   IconSpy,
+  IconForbid2,
+  IconHourglass,
+  IconCheck,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -39,11 +42,12 @@ import { DateView } from "@/components/DateView";
 
 const TASK_STATUS_META: Record<
   TaskStatus,
-  { label: string; color: string; icon?: "hourglass" | "check" }
+  { label: string; color: string; icon: "hourglass" | "check" | "block" }
 > = {
   NO_TASKS: {
     label: "No tasks",
     color: "gray",
+    icon: "block",
   },
 
   IN_PROGRESS: {
@@ -59,37 +63,10 @@ const TASK_STATUS_META: Record<
   },
 };
 const STATUS_ICON_MAP = {
-  hourglass: (
-    <span
-      style={{
-        fontSize: "18px",
-        lineHeight: 1,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.25))",
-      }}
-    >
-      ⏳
-    </span>
-  ),
-
-  check: (
-    <span
-      style={{
-        fontSize: "18px",
-        lineHeight: 1,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.25))",
-      }}
-    >
-      ✅
-    </span>
-  ),
+  block: <IconForbid2 size={20} color="red" />,
+  hourglass: <IconHourglass size={20} color="orange" />,
+  check: <IconCheck size={20} color="green" />,
 };
-
 const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
   NO_TASKS: 0,
   IN_PROGRESS: 1,
@@ -189,18 +166,11 @@ export function EmployeesTable({
       cell: (info) => {
         const meta = TASK_STATUS_META[info.getValue()];
         const currentTask = info.row.original.currentTask;
-
-        const statusElement = meta.icon ? (
-          STATUS_ICON_MAP[meta.icon]
-        ) : (
-          <Badge variant="light" color={meta.color} size="sm" radius="sm">
-            <Text size="xs">{meta.label}</Text>
-          </Badge>
-        );
+        const statusElement = STATUS_ICON_MAP[meta.icon];
 
         return (
           <Group gap={8} wrap="nowrap" align="center">
-            {currentTask ? (
+            {info.getValue() !== "NO_TASKS" && currentTask ? (
               <Tooltip multiline withArrow label={currentTask}>
                 <Box style={{ cursor: "help", display: "flex" }}>
                   {statusElement}

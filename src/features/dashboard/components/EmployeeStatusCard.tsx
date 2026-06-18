@@ -74,8 +74,9 @@ export function EmployeeStatusCard() {
   };
 
   const handleSave = async () => {
+    const effectiveStatus = !currentTask.trim() ? "NO_TASKS" : taskStatus;
     await updateMutation.mutateAsync({
-      taskStatus,
+      taskStatus: effectiveStatus,
       currentLearning: currentLearning || undefined,
       learningDetails: learningDetails || undefined,
       learningStatus: learningStatus || undefined,
