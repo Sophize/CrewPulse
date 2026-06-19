@@ -18,7 +18,7 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
   },
   {
     label: "Employees",
-    href: "/admin",
+    href: "/employees",
     iconName: "shield",
     section: "main",
   },

@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
   Skeleton,
+  Divider,
 } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 import type { TaskStatus } from "@prisma/client";
@@ -22,7 +23,7 @@ import { getErrorMessage } from "@/api/errors";
 import { auth } from "@/firebase/config";
 
 const TASK_STATUS_OPTIONS: { label: string; value: TaskStatus }[] = [
-  { label: "No Tasks Assigned", value: "NO_TASKS" },
+  { label: "Block", value: "BLOCKED" },
   { label: "Tasks In Progress", value: "IN_PROGRESS" },
   { label: "All Tasks Completed", value: "COMPLETED" },
 ];
@@ -31,7 +32,7 @@ export function EmployeeStatusCard() {
   const statusQuery = useEmployeeStatus();
   const updateMutation = useUpdateEmployeeStatus();
 
-  const [taskStatus, setTaskStatus] = useState<TaskStatus>("NO_TASKS");
+  const [taskStatus, setTaskStatus] = useState<TaskStatus>("BLOCKED");
   const [currentLearning, setCurrentLearning] = useState<string>("");
   const [learningDetails, setLearningDetails] = useState("");
   const [learningStatus, setLearningStatus] = useState<string>("");
@@ -74,7 +75,7 @@ export function EmployeeStatusCard() {
   };
 
   const handleSave = async () => {
-    const effectiveStatus = !currentTask.trim() ? "NO_TASKS" : taskStatus;
+    const effectiveStatus = !currentTask.trim() ? "BLOCKED" : taskStatus;
     await updateMutation.mutateAsync({
       taskStatus: effectiveStatus,
       currentLearning: currentLearning || undefined,
@@ -133,8 +134,8 @@ export function EmployeeStatusCard() {
 
   function getStatusColor(status: TaskStatus) {
     switch (status) {
-      case "NO_TASKS":
-        return "gray";
+      case "BLOCKED":
+        return " #dc2626";
 
       case "IN_PROGRESS":
         return "blue";
@@ -206,7 +207,25 @@ export function EmployeeStatusCard() {
                 color={activeColor}
               />
             </div>
-
+            <TextInput
+              label="Current Task"
+              placeholder="What is the current task?"
+              value={currentTask}
+              onChange={(event) => {
+                setCurrentTask(event.currentTarget.value);
+                setHasChanges(true);
+              }}
+              disabled={isSaving}
+            />
+            <Divider
+              my="sm"
+              label={
+                <Text fw={600} size="md" c="dark">
+                  Learning
+                </Text>
+              }
+              labelPosition="center"
+            />{" "}
             <TextInput
               label="Currently Learning"
               placeholder="e.g., React, AWS, Leadership"
@@ -214,7 +233,6 @@ export function EmployeeStatusCard() {
               onChange={(e) => handleLearningChange(e.currentTarget.value)}
               disabled={isSaving}
             />
-
             <TextInput
               label="Learning Status"
               placeholder="e.g. Completed React Hooks, currently learning React Query"
@@ -223,7 +241,6 @@ export function EmployeeStatusCard() {
                 handleLearningStatusChange(e.currentTarget.value)
               }
             />
-
             <Textarea
               label="Learning Details"
               placeholder="Describe what you are learning..."
@@ -235,17 +252,6 @@ export function EmployeeStatusCard() {
               }
               disabled={isSaving}
             />
-            <TextInput
-              label="Current Task"
-              placeholder="What is the current task?"
-              value={currentTask}
-              onChange={(event) => {
-                setCurrentTask(event.currentTarget.value);
-                setHasChanges(true);
-              }}
-              disabled={isSaving}
-            />
-
             <Group justify="space-between" align="center">
               {statusQuery.data?.updatedAt && (
                 <Text size="xs" c="dimmed">

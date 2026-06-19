@@ -42,12 +42,12 @@ import { DateView } from "@/components/DateView";
 
 const TASK_STATUS_META: Record<
   TaskStatus,
-  { label: string; color: string; icon: "hourglass" | "check" | "block" }
+  { label: string; color: string; icon: "hourglass" | "check" | "blocked" }
 > = {
-  NO_TASKS: {
-    label: "No tasks",
-    color: "gray",
-    icon: "block",
+  BLOCKED: {
+    label: "blocked",
+    color: "red",
+    icon: "blocked",
   },
 
   IN_PROGRESS: {
@@ -63,12 +63,12 @@ const TASK_STATUS_META: Record<
   },
 };
 const STATUS_ICON_MAP = {
-  block: <IconForbid2 size={20} color="red" />,
+  blocked: <IconForbid2 size={20} color="red" />,
   hourglass: <IconHourglass size={20} color="orange" />,
   check: <IconCheck size={20} color="green" />,
 };
 const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
-  NO_TASKS: 0,
+  BLOCKED: 0,
   IN_PROGRESS: 1,
   COMPLETED: 2,
 };
@@ -170,7 +170,7 @@ export function EmployeesTable({
 
         return (
           <Group gap={8} wrap="nowrap" align="center">
-            {info.getValue() !== "NO_TASKS" && currentTask ? (
+            {info.getValue() !== "BLOCKED" && currentTask ? (
               <Tooltip multiline withArrow label={currentTask}>
                 <Box style={{ cursor: "help", display: "flex" }}>
                   {statusElement}
@@ -314,6 +314,12 @@ export function EmployeesTable({
             </Badge>
           );
         }
+        return (
+          <Group gap={4}>
+            <IconSpy size={14} />
+            <Text size="sm">Not Updated</Text>
+          </Group>
+        );
       },
     }),
 

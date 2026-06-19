@@ -1,6 +1,6 @@
 export type UserRole = "ADMIN" | "EMPLOYEE";
 
-export type TaskStatus = "NO_TASKS" | "IN_PROGRESS" | "COMPLETED";
+export type TaskStatus = "BLOCKED" | "IN_PROGRESS" | "COMPLETED";
 
 export interface User {
   id: string;
