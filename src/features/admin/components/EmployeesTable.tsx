@@ -21,6 +21,9 @@ import {
   IconSelector,
   IconInfoCircle,
   IconSpy,
+  IconForbid2,
+  IconHourglass,
+  IconCheck,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -37,14 +40,35 @@ import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
 import { DateView } from "@/components/DateView";
 
-const TASK_STATUS_META: Record<TaskStatus, { label: string; color: string }> = {
-  NO_TASKS: { label: "No tasks", color: "gray" },
-  IN_PROGRESS: { label: "In progress", color: "blue" },
-  COMPLETED: { label: "Completed", color: "green" },
-};
+const TASK_STATUS_META: Record<
+  TaskStatus,
+  { label: string; color: string; icon: "hourglass" | "check" | "blocked" }
+> = {
+  BLOCKED: {
+    label: "blocked",
+    color: "red",
+    icon: "blocked",
+  },
 
+  IN_PROGRESS: {
+    label: "In progress",
+    color: "blue",
+    icon: "hourglass",
+  },
+
+  COMPLETED: {
+    label: "Completed",
+    color: "green",
+    icon: "check",
+  },
+};
+const STATUS_ICON_MAP = {
+  blocked: <IconForbid2 size={20} color="red" />,
+  hourglass: <IconHourglass size={20} color="orange" />,
+  check: <IconCheck size={20} color="green" />,
+};
 const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
-  NO_TASKS: 0,
+  BLOCKED: 0,
   IN_PROGRESS: 1,
   COMPLETED: 2,
 };
@@ -57,6 +81,7 @@ export interface EmployeeRow {
   currentLearning: string;
   learningStatus: string;
   learningDetails: string;
+  currentTask?: string | null;
   timesheetUrl: string | null;
   timesheetUpdatedAt: string | null;
   lastSeenAt: string | null;
@@ -140,10 +165,21 @@ export function EmployeesTable({
       header: "Status",
       cell: (info) => {
         const meta = TASK_STATUS_META[info.getValue()];
+        const currentTask = info.row.original.currentTask;
+        const statusElement = STATUS_ICON_MAP[meta.icon];
+
         return (
-          <Badge variant="light" color={meta.color} size="sm" radius="sm">
-            {meta.label}
-          </Badge>
+          <Group gap={8} wrap="nowrap" align="center">
+            {info.getValue() !== "BLOCKED" && currentTask ? (
+              <Tooltip multiline withArrow label={currentTask}>
+                <Box style={{ cursor: "help", display: "flex" }}>
+                  {statusElement}
+                </Box>
+              </Tooltip>
+            ) : (
+              statusElement
+            )}
+          </Group>
         );
       },
       sortingFn: (a, b) =>
@@ -176,9 +212,11 @@ export function EmployeesTable({
               </Text>
 
               {learningStatus && (
-                <Text size="xs" c="dimmed" truncate maw={140}>
-                  {learningStatus}
-                </Text>
+                <Tooltip multiline withArrow label={learningStatus}>
+                  <Text size="xs" c="dimmed" truncate maw={140}>
+                    {learningStatus}
+                  </Text>
+                </Tooltip>
               )}
             </Box>
 
@@ -276,6 +314,12 @@ export function EmployeesTable({
             </Badge>
           );
         }
+        return (
+          <Group gap={4}>
+            <IconSpy size={14} />
+            <Text size="sm">Not Updated</Text>
+          </Group>
+        );
       },
     }),
 

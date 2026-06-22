@@ -1,4 +1,4 @@
-const VALID_TASK_STATUSES = ["NO_TASKS", "IN_PROGRESS", "COMPLETED"] as const;
+const VALID_TASK_STATUSES = ["BLOCKED", "IN_PROGRESS", "COMPLETED"] as const;
 
 interface ValidationResult {
   valid: boolean;

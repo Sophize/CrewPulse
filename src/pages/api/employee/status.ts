@@ -17,6 +17,7 @@ interface StatusResponse {
   currentLearning: string | null;
   learningDetails: string | null;
   learningStatus: string | null;
+  currentTask: string | null;
   timesheetUrl: string | null;
   timesheetUpdatedAt: string | null;
   updatedAt: string;
@@ -36,6 +37,7 @@ export default async function handler(
         currentLearning: employee.currentLearning,
         learningDetails: employee.learningDetails,
         learningStatus: employee.learningStatus,
+        currentTask: employee.currentTask,
         timesheetUrl: employee.timesheetUrl,
         timesheetUpdatedAt: employee.timesheetUpdatedAt?.toISOString() ?? null,
         updatedAt: employee.updatedAt.toISOString(),
@@ -46,8 +48,13 @@ export default async function handler(
       const body =
         typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-      const { taskStatus, currentLearning, learningDetails, learningStatus } =
-        body;
+      const {
+        taskStatus,
+        currentLearning,
+        learningDetails,
+        learningStatus,
+        currentTask,
+      } = body;
 
       const validation = validateTaskStatus(taskStatus);
 
@@ -58,6 +65,7 @@ export default async function handler(
       const sanitized = sanitizeLearningString(currentLearning);
       const sanitizedLearningDetails = sanitizeLearningString(learningDetails);
       const sanitizedLearningStatus = sanitizeLearningString(learningStatus);
+      const sanitizedCurrentTask = sanitizeLearningString(currentTask);
 
       const previousStatus = employee.taskStatus;
       const previousLearning = employee.currentLearning;
@@ -71,13 +79,14 @@ export default async function handler(
           currentLearning: sanitized,
           learningDetails: sanitizedLearningDetails,
           learningStatus: sanitizedLearningStatus,
+          currentTask: sanitizedCurrentTask,
           updatedAt: new Date(),
         },
       });
 
       if (previousStatus !== updated.taskStatus) {
         const statusMessages: Record<TaskStatus, string> = {
-          NO_TASKS: "has no tasks assigned",
+          BLOCKED: "has blocked",
           IN_PROGRESS: "started working on assigned tasks",
           COMPLETED: "completed all assigned tasks",
         };
@@ -109,6 +118,7 @@ export default async function handler(
         currentLearning: updated.currentLearning,
         learningDetails: updated.learningDetails,
         learningStatus: updated.learningStatus,
+        currentTask: updated.currentTask,
         timesheetUrl: updated.timesheetUrl,
         timesheetUpdatedAt: updated.timesheetUpdatedAt?.toISOString() ?? null,
         updatedAt: updated.updatedAt.toISOString(),

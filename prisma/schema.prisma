@@ -13,7 +13,7 @@ enum UserRole {
 }
 
 enum TaskStatus {
-  NO_TASKS
+  BLOCKED
   IN_PROGRESS
   COMPLETED
 }
@@ -27,11 +27,12 @@ model User {
   email           String     @unique
   role            UserRole   @default(EMPLOYEE)
 
-  taskStatus      TaskStatus @default(NO_TASKS)
+  taskStatus      TaskStatus @default(BLOCKED)
   currentLearning String?
   learningDetails String?
   learningStatus String?
- timesheetUrl       String?
+  currentTask String?
+  timesheetUrl       String?
   timesheetUpdatedAt DateTime?
   lastSeenAt      DateTime?
 

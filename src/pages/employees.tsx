@@ -10,13 +10,19 @@ import { getErrorMessage } from "@/api/errors";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-
+import { useState } from "react";
 export default function AdminPage() {
   const employeesQuery = useEmployees();
   const activityQuery = useActivityFeed();
-
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const employeeRows = employeesQuery.data?.rows ?? [];
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
 
+    await Promise.all([employeesQuery.refetch(), activityQuery.refetch()]);
+
+    setIsRefreshing(false);
+  };
   return (
     <AuthGuard>
       <DashboardLayout
@@ -32,12 +38,11 @@ export default function AdminPage() {
               leftSection={<IconRefresh size={14} stroke={1.5} />}
               variant="light"
               color="gray"
-              onClick={() => {
-                employeesQuery.refetch();
-                activityQuery.refetch();
-              }}
+              loading={isRefreshing}
+              disabled={isRefreshing}
+              onClick={handleRefresh}
             >
-              Refresh
+              {isRefreshing ? "Refreshing..." : "Refresh"}
             </Button>
           }
         />
