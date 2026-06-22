@@ -23,7 +23,7 @@ import { getErrorMessage } from "@/api/errors";
 import { auth } from "@/firebase/config";
 
 const TASK_STATUS_OPTIONS: { label: string; value: TaskStatus }[] = [
-  { label: "Block", value: "BLOCKED" },
+  { label: "Blocked", value: "BLOCKED" },
   { label: "Tasks In Progress", value: "IN_PROGRESS" },
   { label: "All Tasks Completed", value: "COMPLETED" },
 ];

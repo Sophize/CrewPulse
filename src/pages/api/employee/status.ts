@@ -86,7 +86,7 @@ export default async function handler(
 
       if (previousStatus !== updated.taskStatus) {
         const statusMessages: Record<TaskStatus, string> = {
-          BLOCKED: "has block",
+          BLOCKED: "has blocked",
           IN_PROGRESS: "started working on assigned tasks",
           COMPLETED: "completed all assigned tasks",
         };
