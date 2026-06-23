@@ -207,9 +207,22 @@ export function EmployeesTable({
         return (
           <Group gap={4} wrap="nowrap" align="flex-start">
             <Box style={{ minWidth: 0 }}>
-              <Text size="sm" truncate maw={120}>
-                {learning}
-              </Text>
+              <Tooltip
+                label={learning}
+                multiline
+                withArrow
+                withinPortal
+                zIndex={10000}
+              >
+                <Text
+                  size="sm"
+                  truncate
+                  maw={120}
+                  style={{ cursor: "pointer" }}
+                >
+                  {learning}
+                </Text>
+              </Tooltip>
 
               {learningStatus && (
                 <Tooltip multiline withArrow label={learningStatus}>
