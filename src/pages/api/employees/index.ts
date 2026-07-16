@@ -15,6 +15,8 @@ export default async function handler(
   }
 
   try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const employees = await prisma.user.findMany({
       orderBy: {
         updatedAt: "desc",
@@ -33,24 +35,59 @@ export default async function handler(
         timesheetUpdatedAt: true,
         lastSeenAt: true,
         updatedAt: true,
+
+        leaves: {
+          where: {
+            fromDate: {
+              lte: today,
+            },
+            toDate: {
+              gte: today,
+            },
+          },
+          orderBy: {
+            fromDate: "desc",
+          },
+          take: 1,
+          select: {
+            leaveType: true,
+            fromDate: true,
+            toDate: true,
+            reason: true,
+          },
+        },
       },
     });
 
     return res.status(200).json({
-      rows: employees.map((employee) => ({
-        id: employee.id,
-        name: employee.name,
-        email: employee.email,
-        taskStatus: employee.taskStatus,
-        currentLearning: employee.currentLearning ?? "",
-        learningDetails: employee.learningDetails ?? "",
-        learningStatus: employee.learningStatus ?? "",
-        currentTask: employee.currentTask ?? "",
-        timesheetUrl: employee.timesheetUrl,
-        timesheetUpdatedAt: employee.timesheetUpdatedAt?.toISOString() ?? null,
-        lastSeenAt: employee.lastSeenAt?.toISOString() ?? null,
-        updatedAt: employee.updatedAt.toISOString(),
-      })),
+      rows: employees.map((employee) => {
+        const activeLeave = employee.leaves[0] ?? null;
+
+        return {
+          id: employee.id,
+          name: employee.name,
+          email: employee.email,
+          taskStatus: employee.taskStatus,
+          currentLearning: employee.currentLearning ?? "",
+          learningDetails: employee.learningDetails ?? "",
+          learningStatus: employee.learningStatus ?? "",
+          currentTask: employee.currentTask ?? "",
+          timesheetUrl: employee.timesheetUrl,
+          timesheetUpdatedAt:
+            employee.timesheetUpdatedAt?.toISOString() ?? null,
+          lastSeenAt: employee.lastSeenAt?.toISOString() ?? null,
+          updatedAt: employee.updatedAt.toISOString(),
+
+          leave: activeLeave
+            ? {
+                leaveType: activeLeave.leaveType,
+                fromDate: activeLeave.fromDate.toISOString(),
+                toDate: activeLeave.toDate.toISOString(),
+                reason: activeLeave.reason,
+              }
+            : null,
+        };
+      }),
     });
   } catch (error) {
     console.error("Employees API error:", error);

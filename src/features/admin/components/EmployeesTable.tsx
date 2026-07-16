@@ -39,6 +39,7 @@ import { EmptyState, LoadingRows } from "@/components/ui";
 import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
 import { DateView } from "@/components/DateView";
+import type { LeaveType } from "@prisma/client";
 
 const TASK_STATUS_META: Record<
   TaskStatus,
@@ -73,6 +74,31 @@ const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
   COMPLETED: 2,
 };
 
+const LEAVE_META: Record<
+  LeaveType,
+  {
+    label: string;
+    color: string;
+  }
+> = {
+  SICK: {
+    label: "Sick Leave",
+    color: "red",
+  },
+  CASUAL: {
+    label: "Casual Leave",
+    color: "yellow",
+  },
+  VACATION: {
+    label: "Vacation",
+    color: "blue",
+  },
+  OPTIONAL: {
+    label: "Optional Leave",
+    color: "grape",
+  },
+};
+
 export interface EmployeeRow {
   id: string;
   name: string;
@@ -86,6 +112,13 @@ export interface EmployeeRow {
   timesheetUpdatedAt: string | null;
   lastSeenAt: string | null;
   updatedAt: string;
+
+  leave: {
+    leaveType: LeaveType;
+    fromDate: string;
+    toDate: string;
+    reason: string | null;
+  } | null;
 }
 
 function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
@@ -351,6 +384,53 @@ export function EmployeesTable({
         </Text>
       ),
     }),
+
+    col.accessor("leave", {
+      header: "Leave",
+      enableSorting: false,
+
+      cell: (info) => {
+        const leave = info.getValue();
+
+        if (!leave) {
+          return (
+            <Text size="sm" c="dimmed" fs="italic">
+              —
+            </Text>
+          );
+        }
+
+        const meta = LEAVE_META[leave.leaveType];
+
+        return (
+          <Tooltip
+            multiline
+            withArrow
+            label={
+              <>
+                <Text size="sm">
+                  {formatDate(leave.fromDate)} - {formatDate(leave.toDate)}
+                </Text>
+
+                {leave.reason && <Text size="xs">Reason: {leave.reason}</Text>}
+              </>
+            }
+          >
+            <Badge
+              color={meta.color}
+              variant="light"
+              styles={{
+                label: {
+                  textTransform: "none",
+                },
+              }}
+            >
+              {meta.label}
+            </Badge>
+          </Tooltip>
+        );
+      },
+    }),
   ];
 
   const table = useReactTable({
@@ -419,10 +499,10 @@ export function EmployeesTable({
 
           <Table.Tbody>
             {isLoading ? (
-              <LoadingRows cols={6} rows={5} />
+              <LoadingRows cols={7} rows={5} />
             ) : visibleRows.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={6}>
+                <Table.Td colSpan={7}>
                   <EmptyState
                     icon={IconSearch}
                     title="No employees found"
