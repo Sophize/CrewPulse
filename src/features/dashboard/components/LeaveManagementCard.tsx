@@ -83,7 +83,7 @@ export function LeaveManagementCard() {
   return (
     <Card withBorder p="md" radius="sm">
       <Stack gap="md">
-        <Text fw={500}>Leave Management</Text>
+        <Text fw={500}>Leave Application</Text>
 
         {error && (
           <Alert color="red" icon={<IconAlertCircle size={16} />} title="Error">
