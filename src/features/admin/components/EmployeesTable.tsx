@@ -24,6 +24,7 @@ import {
   IconForbid2,
   IconHourglass,
   IconCheck,
+  IconHistory,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -40,6 +41,7 @@ import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
 import { DateView } from "@/components/DateView";
 import type { LeaveType } from "@prisma/client";
+import { LeaveHistoryModal } from "./LeaveHistoryModal";
 
 const TASK_STATUS_META: Record<
   TaskStatus,
@@ -173,6 +175,11 @@ export function EmployeesTable({
     { id: "taskStatus", desc: false },
   ]);
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const [selectedEmployee, setSelectedEmployee] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const columns = [
     col.accessor("name", {
@@ -394,40 +401,75 @@ export function EmployeesTable({
 
         if (!leave) {
           return (
-            <Text size="sm" c="dimmed" fs="italic">
-              —
-            </Text>
+            <Group gap="xs">
+              <Text size="sm" c="dimmed" fs="italic">
+                —
+              </Text>
+
+              <Tooltip label="View Leave History">
+                <ActionIcon
+                  variant="subtle"
+                  size="sm"
+                  onClick={() =>
+                    setSelectedEmployee({
+                      id: info.row.original.id,
+                      name: info.row.original.name,
+                    })
+                  }
+                >
+                  <IconHistory size={15} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
           );
         }
 
         const meta = LEAVE_META[leave.leaveType];
 
         return (
-          <Tooltip
-            multiline
-            withArrow
-            label={
-              <>
-                <Text size="sm">
-                  {formatDate(leave.fromDate)} - {formatDate(leave.toDate)}
-                </Text>
+          <Group gap="xs">
+            <Tooltip
+              multiline
+              withArrow
+              label={
+                <>
+                  <Text size="sm">
+                    {formatDate(leave.fromDate)} - {formatDate(leave.toDate)}
+                  </Text>
 
-                {leave.reason && <Text size="xs">Reason: {leave.reason}</Text>}
-              </>
-            }
-          >
-            <Badge
-              color={meta.color}
-              variant="light"
-              styles={{
-                label: {
-                  textTransform: "none",
-                },
-              }}
+                  {leave.reason && (
+                    <Text size="xs">Reason: {leave.reason}</Text>
+                  )}
+                </>
+              }
             >
-              {meta.label}
-            </Badge>
-          </Tooltip>
+              <Badge
+                color={meta.color}
+                variant="light"
+                styles={{
+                  label: {
+                    textTransform: "none",
+                  },
+                }}
+              >
+                {meta.label}
+              </Badge>
+            </Tooltip>
+
+            <Tooltip label="View Leave History">
+              <ActionIcon
+                variant="subtle"
+                onClick={() =>
+                  setSelectedEmployee({
+                    id: info.row.original.id,
+                    name: info.row.original.name,
+                  })
+                }
+              >
+                <IconHistory size={15} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         );
       },
     }),
@@ -544,6 +586,13 @@ export function EmployeesTable({
           </Box>
         )}
       </Paper>
+
+      <LeaveHistoryModal
+        opened={selectedEmployee !== null}
+        onClose={() => setSelectedEmployee(null)}
+        userId={selectedEmployee?.id ?? ""}
+        userName={selectedEmployee?.name ?? ""}
+      />
     </Stack>
   );
 }
