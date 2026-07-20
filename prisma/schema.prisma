@@ -19,58 +19,77 @@ enum TaskStatus {
 }
 
 model User {
-  id              String     @id @default(uuid())
+  id String @id @default(uuid())
 
-  firebaseUid     String?    @unique
-  
-  name            String
-  email           String     @unique
-  role            UserRole   @default(EMPLOYEE)
+  firebaseUid String? @unique
 
-  taskStatus      TaskStatus @default(BLOCKED)
-  currentLearning String?
-  learningDetails String?
-  learningStatus String?
-  currentTask String?
+  name  String
+  email String   @unique
+  role  UserRole @default(EMPLOYEE)
+
+  taskStatus         TaskStatus @default(BLOCKED)
+  currentLearning    String?
+  learningDetails    String?
+  learningStatus     String?
+  currentTask        String?
   timesheetUrl       String?
   timesheetUpdatedAt DateTime?
-  lastSeenAt      DateTime?
+  lastSeenAt         DateTime?
 
-  updatedAt       DateTime   @updatedAt
-  createdAt       DateTime   @default(now())
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 
-  timesheets      Timesheet[]
+  timesheets     Timesheet[]
   activityEvents ActivityEvent[]
 
   @@index([updatedAt])
 }
 
 model Timesheet {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  weekStart   DateTime
-  totalHours  Float
+  weekStart  DateTime
+  totalHours Float
 
-  categories  Json     @default("{}")
+  categories Json @default("{}")
 
-  syncedAt    DateTime @default(now())
+  syncedAt DateTime @default(now())
 
   @@unique([userId, weekStart])
   @@index([weekStart])
 }
 
 model ActivityEvent {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type      String
-  message   String
+  type    String
+  message String
 
   createdAt DateTime @default(now())
 
+  @@index([createdAt])
+}
+
+model ProjectTask {
+  id    String @id @default(uuid())
+  title String
+
+  projectName String
+  taskStatus  TaskStatus
+
+  assignTask String
+
+  meetingTime    DateTime?
+  meetingPurpose String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectName])
   @@index([createdAt])
 }

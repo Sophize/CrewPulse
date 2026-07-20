@@ -31,7 +31,7 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
       { label: "FAU", href: "/projects/fau" },
       { label: "Jarret", href: "/projects/jarret" },
       { label: "Manning", href: "/projects/manning" },
-      { label: "Jason", href: "/projects/jason" },
+      { label: "Json", href: "/projects/json" },
     ],
   },
   {

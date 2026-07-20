@@ -15,10 +15,7 @@ import {
 import { IconAlertCircle } from "@tabler/icons-react";
 import type { TaskStatus } from "@prisma/client";
 
-import {
-  useEmployeeStatus,
-  useUpdateEmployeeStatus,
-} from "@/hooks/useEmployeeStatus";
+import { useEmployeeStatus, useUpdateEmployeeStatus } from "@/hooks/useEmployeeStatus";
 import { getErrorMessage } from "@/api/errors";
 import { auth } from "@/firebase/config";
 
@@ -153,12 +150,9 @@ export function EmployeeStatusCard() {
   const isSaving = updateMutation.isPending;
   const hasError = statusQuery.isError || updateMutation.isError;
 
-  const errorMessage = getErrorMessage(
-    statusQuery.error ?? updateMutation.error,
-  );
+  const errorMessage = getErrorMessage(statusQuery.error ?? updateMutation.error);
 
-  const noEmployeeFound =
-    statusQuery.isError && errorMessage.includes("No employee");
+  const noEmployeeFound = statusQuery.isError && errorMessage.includes("No employee");
 
   if (noEmployeeFound) {
     return (
@@ -169,8 +163,8 @@ export function EmployeeStatusCard() {
           </Text>
 
           <Alert color="blue" title="Coming Soon">
-            Employee profile will become available once authentication and
-            employee onboarding are implemented.
+            Employee profile will become available once authentication and employee onboarding are
+            implemented.
           </Alert>
         </Stack>
       </Card>
@@ -237,9 +231,7 @@ export function EmployeeStatusCard() {
               label="Learning Status"
               placeholder="e.g. Completed React Hooks, currently learning React Query"
               value={learningStatus}
-              onChange={(e) =>
-                handleLearningStatusChange(e.currentTarget.value)
-              }
+              onChange={(e) => handleLearningStatusChange(e.currentTarget.value)}
             />
             <Textarea
               label="Learning Details"
@@ -247,16 +239,13 @@ export function EmployeeStatusCard() {
               minRows={4}
               autosize
               value={learningDetails}
-              onChange={(e) =>
-                handleLearningDetailsChange(e.currentTarget.value)
-              }
+              onChange={(e) => handleLearningDetailsChange(e.currentTarget.value)}
               disabled={isSaving}
             />
             <Group justify="space-between" align="center">
               {statusQuery.data?.updatedAt && (
                 <Text size="xs" c="dimmed">
-                  Last saved:{" "}
-                  {new Date(statusQuery.data.updatedAt).toLocaleString()}
+                  Last saved: {new Date(statusQuery.data.updatedAt).toLocaleString()}
                 </Text>
               )}
 
@@ -272,19 +261,11 @@ export function EmployeeStatusCard() {
                   </Button>
                 )}
 
-                <Button
-                  variant="light"
-                  onClick={handleMarkSeen}
-                  loading={markingSeen}
-                >
+                <Button variant="light" onClick={handleMarkSeen} loading={markingSeen}>
                   Seen During Standup Call
                 </Button>
 
-                <Button
-                  onClick={handleSave}
-                  loading={isSaving}
-                  disabled={!hasChanges || isSaving}
-                >
+                <Button onClick={handleSave} loading={isSaving} disabled={!hasChanges || isSaving}>
                   Save
                 </Button>
               </Group>

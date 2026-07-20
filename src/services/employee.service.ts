@@ -44,12 +44,9 @@ async function getAuthHeaders() {
 export async function getEmployeeStatus() {
   const headers = await getAuthHeaders();
 
-  const response = await fetchJson<ApiResponse<EmployeeStatusResponse>>(
-    "/api/employee/status",
-    {
-      headers,
-    },
-  );
+  const response = await fetchJson<ApiResponse<EmployeeStatusResponse>>("/api/employee/status", {
+    headers,
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to fetch employee status");
@@ -60,14 +57,11 @@ export async function getEmployeeStatus() {
 
 export async function updateEmployeeStatus(input: UpdateEmployeeStatusInput) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<EmployeeStatusResponse>>(
-    "/api/employee/status",
-    {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(input),
-    },
-  );
+  const response = await fetchJson<ApiResponse<EmployeeStatusResponse>>("/api/employee/status", {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(input),
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to update employee status");
