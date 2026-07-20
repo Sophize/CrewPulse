@@ -21,9 +21,6 @@ import {
   IconSelector,
   IconInfoCircle,
   IconSpy,
-  IconForbid2,
-  IconHourglass,
-  IconCheck,
 } from "@tabler/icons-react";
 import {
   useReactTable,
@@ -40,38 +37,11 @@ import type { TaskStatus } from "@/types";
 import { formatDate, getInitials } from "@/lib/formatters";
 import { DateView } from "@/components/DateView";
 
-const TASK_STATUS_META: Record<
-  TaskStatus,
-  { label: string; color: string; icon: "hourglass" | "check" | "blocked" }
-> = {
-  BLOCKED: {
-    label: "blocked",
-    color: "red",
-    icon: "blocked",
-  },
-
-  IN_PROGRESS: {
-    label: "In progress",
-    color: "blue",
-    icon: "hourglass",
-  },
-
-  COMPLETED: {
-    label: "Completed",
-    color: "green",
-    icon: "check",
-  },
-};
-const STATUS_ICON_MAP = {
-  blocked: <IconForbid2 size={20} color="red" />,
-  hourglass: <IconHourglass size={20} color="orange" />,
-  check: <IconCheck size={20} color="green" />,
-};
-const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
-  BLOCKED: 0,
-  IN_PROGRESS: 1,
-  COMPLETED: 2,
-};
+import {
+  TASK_STATUS_META,
+  STATUS_ICON_MAP,
+  TASK_STATUS_ORDER,
+} from "@/utils/task";
 
 export interface EmployeeRow {
   id: string;

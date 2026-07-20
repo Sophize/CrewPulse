@@ -18,12 +18,7 @@ import type { TaskStatus } from "@prisma/client";
 import { useEmployeeStatus, useUpdateEmployeeStatus } from "@/hooks/useEmployeeStatus";
 import { getErrorMessage } from "@/api/errors";
 import { auth } from "@/firebase/config";
-
-const TASK_STATUS_OPTIONS: { label: string; value: TaskStatus }[] = [
-  { label: "Blocked", value: "BLOCKED" },
-  { label: "Tasks In Progress", value: "IN_PROGRESS" },
-  { label: "All Tasks Completed", value: "COMPLETED" },
-];
+import { TASK_STATUS_OPTIONS, getTaskStatusColor } from "@/utils/task";
 
 export function EmployeeStatusCard() {
   const statusQuery = useEmployeeStatus();
@@ -129,23 +124,7 @@ export function EmployeeStatusCard() {
     }
   };
 
-  function getStatusColor(status: TaskStatus) {
-    switch (status) {
-      case "BLOCKED":
-        return " #dc2626";
-
-      case "IN_PROGRESS":
-        return "blue";
-
-      case "COMPLETED":
-        return "green";
-
-      default:
-        return "gray";
-    }
-  }
-
-  const activeColor = getStatusColor(taskStatus);
+  const activeColor = getTaskStatusColor(taskStatus);
   const isLoading = statusQuery.isLoading;
   const isSaving = updateMutation.isPending;
   const hasError = statusQuery.isError || updateMutation.isError;

@@ -79,6 +79,47 @@ export async function createProjectTask(
   return response.data;
 }
 
+export interface ProjectMeeting {
+  meetingTime: string | null;
+  meetingPurpose: string | null;
+}
+
+export async function getProjectMeeting(project: string): Promise<ProjectMeeting> {
+  const headers = await getAuthHeaders();
+
+  const response = await fetchJson<{ success: boolean; data: ProjectMeeting }>(
+    `/api/project-tasks/meeting?project=${project}`,
+    { headers },
+  );
+
+  return response.data ?? { meetingTime: null, meetingPurpose: null };
+}
+
+export interface SaveMeetingInput {
+  projectName: string;
+  meetingTime?: Date | null;
+  meetingPurpose?: string;
+}
+
+export async function saveMeeting(input: SaveMeetingInput) {
+  const headers = await getAuthHeaders();
+
+  const response = await fetchJson<ApiResponse<ProjectTask>>(
+    "/api/project-tasks/meeting",
+    {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(input),
+    },
+  );
+
+  if (!response.data) {
+    throw new Error("Failed to save meeting");
+  }
+
+  return response.data;
+}
+
 export async function deleteProjectTask(id: string) {
   const headers = await getAuthHeaders();
 

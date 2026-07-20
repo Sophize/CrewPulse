@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method === "GET") {
     try {
       const project = req.query.project as string;
@@ -35,29 +38,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "POST") {
     try {
-      const { projectName, taskStatus, assignTask, meetingTime, meetingPurpose } = req.body;
+      const body =
+        typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+      const {
+        projectName,
+        taskStatus,
+        assignTask,
+        meetingTime,
+        meetingPurpose,
+      } = body;
 
       const task = await prisma.projectTask.create({
         data: {
           title: assignTask,
-          projectName,
-          taskStatus,
-          assignTask,
+          projectName: projectName,
+          taskStatus: taskStatus,
+          assignTask: assignTask,
           meetingTime: meetingTime ? new Date(meetingTime) : null,
-          meetingPurpose,
+          meetingPurpose: meetingPurpose ?? null,
         },
       });
 
-      return res.status(201).json(task);
+      return res.status(201).json({
+        success: true,
+        data: task,
+      });
     } catch (error) {
       console.error(error);
 
       return res.status(500).json({
+        success: false,
         error: "Internal server error",
       });
     }
   }
-
   res.setHeader("Allow", ["GET", "POST"]);
 
   return res.status(405).json({
