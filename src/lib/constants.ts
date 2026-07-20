@@ -2,11 +2,12 @@ export type NavSection = "main" | "admin";
 
 export interface SidebarLink {
   label: string;
-  href: string;
+  href?: string;
   iconName: string;
   section: NavSection;
   badge?: number;
   adminOnly?: boolean;
+  subLinks?: { label: string; href: string }[];
 }
 
 export const SIDEBAR_LINKS: SidebarLink[] = [
@@ -21,6 +22,17 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
     href: "/employees",
     iconName: "shield",
     section: "main",
+  },
+  {
+    label: "Project Status",
+    iconName: "briefcase",
+    section: "main",
+    subLinks: [
+      { label: "FAU", href: "/projects/fau" },
+      { label: "Jarret", href: "/projects/jarret" },
+      { label: "Manning", href: "/projects/manning" },
+      { label: "Jason", href: "/projects/jason" },
+    ],
   },
   {
     label: "Settings",

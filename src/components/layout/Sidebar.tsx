@@ -17,6 +17,7 @@ import {
   IconShield,
   IconSettings,
   IconLogout,
+  IconBriefcase,
 } from "@tabler/icons-react";
 import Image from "next/image";
 
@@ -37,6 +38,7 @@ const ICON_MAP: Record<
   "layout-dashboard": IconLayoutDashboard,
   shield: IconShield,
   settings: IconSettings,
+  briefcase: IconBriefcase,
 };
 
 function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
@@ -64,13 +66,61 @@ interface NavItemProps {
   link: SidebarLink;
   isActive: boolean;
   onClick?: () => void;
+  activeHref?: string;
 }
 
-function NavItem({ link, isActive, onClick }: NavItemProps) {
+function NavItem({ link, isActive, onClick, activeHref }: NavItemProps) {
+  if (link.subLinks && link.subLinks.length > 0) {
+    const isOpened = link.subLinks.some(sub => sub.href === activeHref);
+    return (
+      <NavLink
+        label={link.label}
+        leftSection={<NavIcon name={link.iconName} />}
+        defaultOpened={isOpened}
+        styles={{
+          root: {
+            borderRadius: "var(--mantine-radius-sm)",
+            fontWeight: 400,
+            paddingTop: rem(8),
+            paddingBottom: rem(8),
+          },
+          label: {
+            fontSize: rem(13.5),
+          },
+        }}
+      >
+        {link.subLinks.map(sub => {
+          const isSubActive = activeHref === sub.href;
+          return (
+            <NavLink
+              key={sub.href}
+              component={Link}
+              href={sub.href}
+              label={sub.label}
+              active={isSubActive}
+              onClick={onClick}
+              styles={{
+                root: {
+                  borderRadius: "var(--mantine-radius-sm)",
+                  fontWeight: isSubActive ? 500 : 400,
+                  paddingTop: rem(8),
+                  paddingBottom: rem(8),
+                },
+                label: {
+                  fontSize: rem(13.5),
+                },
+              }}
+            />
+          );
+        })}
+      </NavLink>
+    );
+  }
+
   return (
     <NavLink
       component={Link}
-      href={link.href}
+      href={link.href!}
       label={link.label}
       leftSection={<NavIcon name={link.iconName} />}
       rightSection={
@@ -135,10 +185,11 @@ function NavSection({
       </Text>
       {links.map((link) => (
         <NavItem
-          key={link.href}
+          key={link.href || link.label}
           link={link}
-          isActive={activeHref === link.href}
+          isActive={link.href ? activeHref === link.href : false}
           onClick={onLinkClick}
+          activeHref={activeHref}
         />
       ))}
     </Stack>
