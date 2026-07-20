@@ -4,6 +4,7 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import { DashboardLayout } from "@/components/layout";
 import { PageHeader } from "@/components/ui";
 import { EmployeeStatusCard } from "@/features/dashboard/components/EmployeeStatusCard";
+import { LeaveManagementCard } from "@/features/dashboard/components/LeaveManagementCard";
 
 export default function DashboardPage() {
   return (
@@ -19,6 +20,7 @@ export default function DashboardPage() {
 
         <Stack gap="lg">
           <EmployeeStatusCard />
+          <LeaveManagementCard />
         </Stack>
       </DashboardLayout>
     </AuthGuard>

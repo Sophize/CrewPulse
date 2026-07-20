@@ -18,6 +18,13 @@ enum TaskStatus {
   COMPLETED
 }
 
+enum LeaveType {
+  SICK
+  CASUAL
+  VACATION
+  OPTIONAL
+}
+
 model User {
   id              String     @id @default(uuid())
 
@@ -41,6 +48,7 @@ model User {
 
   timesheets      Timesheet[]
   activityEvents ActivityEvent[]
+  leaves         Leave[]
 
   @@index([updatedAt])
 }
@@ -73,4 +81,24 @@ model ActivityEvent {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model Leave {
+  id         String    @id @default(uuid())
+
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  leaveType  LeaveType
+
+  fromDate   DateTime
+  toDate     DateTime
+
+  reason     String?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([fromDate, toDate])
 }
