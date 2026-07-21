@@ -32,11 +32,7 @@ import {
 
 import { IconTrash } from "@tabler/icons-react";
 import { TaskStatus } from "@prisma/client";
-import {
-  TASK_STATUS_OPTIONS,
-  getTaskStatusColor,
-  getTaskStatusIcon,
-} from "@/utils/task";
+import { TASK_STATUS_OPTIONS, getTaskStatusColor, getTaskStatusIcon } from "@/utils/task";
 
 export default function ProjectStatusPage() {
   const router = useRouter();
@@ -51,11 +47,7 @@ export default function ProjectStatusPage() {
   const meetingMutation = useSaveProjectMeeting(projectId);
 
   const projectName =
-    typeof id === "string"
-      ? id === "fau"
-        ? "FAU"
-        : id.charAt(0).toUpperCase() + id.slice(1)
-      : "";
+    typeof id === "string" ? (id === "fau" ? "FAU" : id.charAt(0).toUpperCase() + id.slice(1)) : "";
 
   const [taskStatus, setTaskStatus] = useState<TaskStatus>(TaskStatus.BLOCKED);
   const [assignTask, setAssignTask] = useState("");
@@ -63,11 +55,7 @@ export default function ProjectStatusPage() {
   const [meetingPurpose, setMeetingPurpose] = useState("");
   const [historyOpened, setHistoryOpened] = useState(false);
   useEffect(() => {
-    setMeetingTime(
-      meetingQuery.data?.meetingTime
-        ? new Date(meetingQuery.data.meetingTime)
-        : null,
-    );
+    setMeetingTime(meetingQuery.data?.meetingTime ? new Date(meetingQuery.data.meetingTime) : null);
     setMeetingPurpose(meetingQuery.data?.meetingPurpose ?? "");
   }, [meetingQuery.data]);
 
@@ -172,7 +160,7 @@ export default function ProjectStatusPage() {
 
               <Group align="flex-end" wrap="nowrap">
                 <TextInput
-                  label="Assign Task"
+                  label="Client Requirements"
                   placeholder="Enter task to assign"
                   value={assignTask}
                   onChange={(e) => setAssignTask(e.currentTarget.value)}
@@ -231,14 +219,11 @@ export default function ProjectStatusPage() {
           <Card withBorder mt="lg">
             <Group justify="space-between">
               <Text fw={600}>Assigned Tasks</Text>
-
-              <Button
-                variant="light"
-                size="xs"
-                onClick={() => setHistoryOpened(true)}
-              >
-                History
-              </Button>
+              {taskQuery.data && taskQuery.data.length > 5 && (
+                <Button variant="light" size="xs" onClick={() => setHistoryOpened(true)}>
+                  More
+                </Button>
+              )}
             </Group>
 
             <Divider my="sm" />
