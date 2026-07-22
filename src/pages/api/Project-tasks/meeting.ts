@@ -67,8 +67,8 @@ export default async function handler(
         const updated = await prisma.projectTask.update({
           where: { id: target.id },
           data: {
-            meetingTime: meetingTime ? new Date(meetingTime) : null,
-            meetingPurpose: meetingPurpose ?? null,
+            ...(meetingTime !== undefined && { meetingTime: meetingTime ? new Date(meetingTime) : null }),
+            ...(meetingPurpose !== undefined && { meetingPurpose }),
           },
         });
         return res.status(200).json({ success: true, data: updated });

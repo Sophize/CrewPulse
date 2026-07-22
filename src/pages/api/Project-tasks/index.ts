@@ -18,6 +18,7 @@ export default async function handler(
       const tasks = await prisma.projectTask.findMany({
         where: {
           projectName: project,
+          assignTask: { not: "" },
         },
         orderBy: {
           createdAt: "desc",

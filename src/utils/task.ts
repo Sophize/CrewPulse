@@ -57,7 +57,4 @@ export function getTaskStatusColor(status: TaskStatus | string) {
   }
 }
 
-export function getTaskStatusIcon(status: TaskStatus | string) {
-  const key = TASK_STATUS_META[status as TaskStatus]?.icon ?? "blocked";
-  return STATUS_ICON_MAP[key];
-}
+

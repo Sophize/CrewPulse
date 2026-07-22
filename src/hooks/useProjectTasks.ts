@@ -4,6 +4,7 @@ import { queryKeys } from "@/api/queryKeys";
 import {
   createProjectTask,
   deleteProjectTask,
+  updateProjectTask,
   getProjectTasks,
   getProjectMeeting,
   saveMeeting,
@@ -65,6 +66,20 @@ export function useSaveProjectMeeting(project: string) {
       });
       queryClient.invalidateQueries({
         queryKey: ["project-meeting", project],
+      });
+    },
+  });
+}
+
+export function useUpdateProjectTask(project: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...input }: { id: string; taskStatus?: import("@prisma/client").TaskStatus; assignTask?: string; meetingTime?: Date | null; meetingPurpose?: string; }) => updateProjectTask(id, input),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projectTasks(project),
       });
     },
   });

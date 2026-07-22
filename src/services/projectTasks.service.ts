@@ -128,3 +128,27 @@ export async function deleteProjectTask(id: string) {
     headers,
   });
 }
+
+export async function updateProjectTask(
+  id: string,
+  input: {
+    taskStatus?: TaskStatus;
+    assignTask?: string;
+    meetingTime?: Date | null;
+    meetingPurpose?: string;
+  }
+) {
+  const headers = await getAuthHeaders();
+
+  const response = await fetchJson<ApiResponse<ProjectTask>>(`/api/project-tasks/${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(input),
+  });
+
+  if (!response.data) {
+    throw new Error("Failed to update task");
+  }
+
+  return response.data;
+}
