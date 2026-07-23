@@ -102,3 +102,26 @@ model Leave {
   @@index([userId])
   @@index([fromDate, toDate])
 }
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks     Task[]
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  taskDescription String
+  status      TaskStatus @default(BLOCKED)
+
+  projectId   String
+ project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+}

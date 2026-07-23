@@ -7,6 +7,7 @@ export interface SidebarLink {
   section: NavSection;
   badge?: number;
   adminOnly?: boolean;
+  hasChildren?: boolean;
 }
 
 export const SIDEBAR_LINKS: SidebarLink[] = [
@@ -21,6 +22,13 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
     href: "/employees",
     iconName: "shield",
     section: "main",
+  },
+  {
+    label: "Project Status",
+    href: "/projects",
+    iconName: "folder",
+    section: "main",
+    hasChildren: true,
   },
   {
     label: "Settings",

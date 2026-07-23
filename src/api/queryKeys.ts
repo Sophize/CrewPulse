@@ -4,4 +4,6 @@ export const queryKeys = {
   timesheets: ["timesheets"] as const,
   activityFeed: ["activity-feed"] as const,
   employeeStatus: ["employee-status"] as const,
+  projects: ["projects"] as const,
+  projectTasks: (projectId: string) => ["project-tasks", projectId] as const,
 };

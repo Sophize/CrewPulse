@@ -11,12 +11,15 @@ import {
   ScrollArea,
   Tooltip,
   rem,
+  Skeleton,
 } from "@mantine/core";
 import {
   IconLayoutDashboard,
   IconShield,
   IconSettings,
   IconLogout,
+  IconFolder,
+  IconChevronDown,
 } from "@tabler/icons-react";
 import Image from "next/image";
 
@@ -29,6 +32,7 @@ import {
 } from "@/lib/constants";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useProjects } from "@/hooks/useProjectTasks";
 
 const ICON_MAP: Record<
   string,
@@ -37,6 +41,7 @@ const ICON_MAP: Record<
   "layout-dashboard": IconLayoutDashboard,
   shield: IconShield,
   settings: IconSettings,
+  folder: IconFolder,
 };
 
 function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
@@ -63,10 +68,82 @@ function LogoMark() {
 interface NavItemProps {
   link: SidebarLink;
   isActive: boolean;
+  activeHref: string;
   onClick?: () => void;
 }
 
-function NavItem({ link, isActive, onClick }: NavItemProps) {
+function NavItem({ link, isActive, activeHref, onClick }: NavItemProps) {
+  const projectsQuery = useProjects();
+  if (link.hasChildren) {
+    const isProjectSection = activeHref.startsWith("/projects");
+    const projects = projectsQuery.data ?? [];
+    const isLoading = projectsQuery.isLoading;
+
+    return (
+      <NavLink
+        label={link.label}
+        leftSection={<NavIcon name={link.iconName} />}
+        rightSection={
+          <IconChevronDown
+            size={14}
+            stroke={1.5}
+            style={{
+              transition: "transform 200ms ease",
+            }}
+          />
+        }
+        defaultOpened={isProjectSection}
+        active={isProjectSection}
+        styles={{
+          root: {
+            borderRadius: "var(--mantine-radius-sm)",
+            fontWeight: isProjectSection ? 500 : 400,
+            paddingTop: rem(8),
+            paddingBottom: rem(8),
+          },
+          label: { fontSize: rem(13.5) },
+        }}
+      >
+        {isLoading
+          ? Array.from({ length: 3 }).map((_, i) => (
+              <NavLink
+                key={i}
+                label={<Skeleton height={12} width={80} />}
+                styles={{
+                  root: {
+                    borderRadius: "var(--mantine-radius-sm)",
+                    paddingTop: rem(6),
+                    paddingBottom: rem(6),
+                  },
+                }}
+              />
+            ))
+          : projects.map((project) => {
+              const href = `/projects/${project.id}`;
+              const childActive = activeHref === href;
+              return (
+                <NavLink
+                  key={project.id}
+                  component={Link}
+                  href={href}
+                  label={project.name}
+                  active={childActive}
+                  onClick={onClick}
+                  styles={{
+                    root: {
+                      borderRadius: "var(--mantine-radius-sm)",
+                      fontWeight: childActive ? 500 : 400,
+                      paddingTop: rem(6),
+                      paddingBottom: rem(6),
+                    },
+                    label: { fontSize: rem(13) },
+                  }}
+                />
+              );
+            })}
+      </NavLink>
+    );
+  }
   return (
     <NavLink
       component={Link}
@@ -138,6 +215,7 @@ function NavSection({
           key={link.href}
           link={link}
           isActive={activeHref === link.href}
+          activeHref={activeHref}
           onClick={onLinkClick}
         />
       ))}
@@ -217,7 +295,8 @@ export interface SidebarProps {
 export function Sidebar({ onClose }: SidebarProps) {
   const router = useRouter();
 
-  const activeHref = router.pathname;
+  const activeHref =
+    router.pathname === "/projects/[id]" ? router.asPath : router.pathname;
 
   const mainLinks = SIDEBAR_LINKS.filter((l) => l.section === "main");
 
