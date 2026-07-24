@@ -128,7 +128,10 @@ function NavItem({ link, isActive, activeHref, onClick }: NavItemProps) {
                   href={href}
                   label={project.name}
                   active={childActive}
-                  onClick={onClick}
+                  onClick={(e) => {
+                    if (childActive) e.preventDefault();
+                    onClick?.();
+                  }}
                   styles={{
                     root: {
                       borderRadius: "var(--mantine-radius-sm)",
@@ -166,7 +169,10 @@ function NavItem({ link, isActive, activeHref, onClick }: NavItemProps) {
         ) : undefined
       }
       active={isActive}
-      onClick={onClick}
+      onClick={(e) => {
+        if (isActive) e.preventDefault();
+        onClick?.();
+      }}
       styles={{
         root: {
           borderRadius: "var(--mantine-radius-sm)",
