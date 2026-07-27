@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 
-import { Badge, Loader, Modal, Stack, Text, Divider, Box } from "@mantine/core";
+import {
+  Badge,
+  Loader,
+  Modal,
+  Stack,
+  Text,
+  Divider,
+  Box,
+  SimpleGrid,
+  Paper,
+} from "@mantine/core";
 import { formatDate } from "@/lib/formatters";
 import type { LeaveType } from "@prisma/client";
 
@@ -9,6 +19,7 @@ type Leave = {
   leaveType: LeaveType;
   fromDate: string;
   toDate: string;
+  isHalfDay: boolean;
   reason: string | null;
 };
 
@@ -44,6 +55,39 @@ const LEAVE_META: Record<
   },
 };
 
+function getLeaveDays(leave: Leave) {
+  const from = new Date(leave.fromDate);
+
+  if (leave.isHalfDay) {
+    const day = from.getDay();
+    const isWeekend = day === 0 || day === 6;
+
+    return isWeekend ? 0 : 0.5;
+  }
+
+  const to = new Date(leave.toDate);
+
+  let leaveDays = 0;
+  const currentDate = new Date(from);
+
+  while (currentDate <= to) {
+    const day = currentDate.getDay();
+    const isWeekend = day === 0 || day === 6;
+
+    if (!isWeekend) {
+      leaveDays++;
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return leaveDays;
+}
+
+function formatLeaveDays(days: number) {
+  return `${days} ${days === 1 ? "day" : "days"}`;
+}
+
 export function LeaveHistoryModal({
   opened,
   onClose,
@@ -52,6 +96,20 @@ export function LeaveHistoryModal({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [leaves, setLeaves] = useState<Leave[]>([]);
+
+  const leaveSummary = leaves.reduce<Record<LeaveType, number>>(
+    (summary, leave) => {
+      summary[leave.leaveType] += getLeaveDays(leave);
+
+      return summary;
+    },
+    {
+      SICK: 0,
+      CASUAL: 0,
+      VACATION: 0,
+      OPTIONAL: 0,
+    },
+  );
 
   useEffect(() => {
     if (!opened) return;
@@ -83,6 +141,34 @@ export function LeaveHistoryModal({
         </Stack>
       ) : (
         <Stack>
+          {leaves.length > 0 && (
+            <>
+              <SimpleGrid cols={4}>
+                {Object.entries(LEAVE_META).map(([type, meta]) => (
+                  <Paper key={type} withBorder p="sm">
+                    <Badge
+                      color={meta.color}
+                      variant="light"
+                      size="sm"
+                      styles={{
+                        label: {
+                          textTransform: "none",
+                        },
+                      }}
+                    >
+                      {meta.label}
+                    </Badge>
+
+                    <Text fw={600} size="lg" mt={4}>
+                      {formatLeaveDays(leaveSummary[type as LeaveType])}
+                    </Text>
+                  </Paper>
+                ))}
+              </SimpleGrid>
+
+              <Divider />
+            </>
+          )}
           {leaves.length === 0 ? (
             <Text>No leave history.</Text>
           ) : (
@@ -103,6 +189,12 @@ export function LeaveHistoryModal({
                     >
                       {meta.label}
                     </Badge>
+
+                    {leave.isHalfDay && (
+                      <Text size="xs" c="dimmed">
+                        Half Day
+                      </Text>
+                    )}
 
                     <Text size="sm">
                       {formatDate(leave.fromDate)} - {formatDate(leave.toDate)}
