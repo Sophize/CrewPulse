@@ -7,6 +7,7 @@ import {
   Textarea,
   Button,
   Alert,
+  Checkbox,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { IconAlertCircle } from "@tabler/icons-react";
@@ -24,6 +25,7 @@ export function LeaveManagementCard() {
   const [leaveType, setLeaveType] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<string | null>(null);
   const [toDate, setToDate] = useState<string | null>(null);
+  const [isHalfDay, setIsHalfDay] = useState(false);
   const [reason, setReason] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -57,19 +59,21 @@ export function LeaveManagementCard() {
           leaveType,
           fromDate,
           toDate,
+          isHalfDay,
           reason,
         }),
       });
 
       if (!response.ok) {
-        const data = await response.json();
+        const message = await response.text();
 
-        throw new Error(data.error ?? "Failed to apply leave.");
+        throw new Error(message || "Failed to apply leave.");
       }
 
       setLeaveType(null);
       setFromDate(null);
       setToDate(null);
+      setIsHalfDay(false);
       setReason("");
     } catch (error) {
       setError(
@@ -104,7 +108,24 @@ export function LeaveManagementCard() {
           label="From Date"
           placeholder="Select start date"
           value={fromDate}
-          onChange={(value) => setFromDate(value)}
+          onChange={(value) => {
+            setFromDate(value);
+            setToDate(value);
+          }}
+        />
+
+        <Checkbox
+          label="Half Day"
+          checked={isHalfDay}
+          onChange={(event) => {
+            const checked = event.currentTarget.checked;
+
+            setIsHalfDay(checked);
+
+            if (checked) {
+              setToDate(fromDate);
+            }
+          }}
         />
 
         <DatePickerInput
@@ -113,6 +134,7 @@ export function LeaveManagementCard() {
           placeholder="Select end date"
           value={toDate}
           onChange={(value) => setToDate(value)}
+          disabled={isHalfDay}
         />
 
         <Textarea

@@ -554,7 +554,14 @@ export function EmployeesTable({
               </Table.Tr>
             ) : (
               visibleRows.map((row) => (
-                <Table.Tr key={row.id}>
+                <Table.Tr
+                  key={row.id}
+                  style={{
+                    backgroundColor: row.original.leave
+                      ? "var(--mantine-color-red-0)"
+                      : undefined,
+                  }}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <Table.Td key={cell.id}>
                       {flexRender(

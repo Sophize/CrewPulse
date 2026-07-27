@@ -57,6 +57,7 @@ export default async function handler(
             leaveType: true,
             fromDate: true,
             toDate: true,
+            isHalfDay: true,
             reason: true,
           },
         },
@@ -87,6 +88,7 @@ export default async function handler(
                 leaveType: activeLeave.leaveType,
                 fromDate: activeLeave.fromDate.toISOString(),
                 toDate: activeLeave.toDate.toISOString(),
+                isHalfDay: activeLeave.isHalfDay,
                 reason: activeLeave.reason,
               }
             : null,
