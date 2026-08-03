@@ -9,17 +9,13 @@ export default async function handler(
   if (req.method !== "GET") {
     res.setHeader("Allow", ["GET"]);
 
-    return res.status(405).json({
-      error: "Method not allowed",
-    });
+    return res.status(405).send("Only GET requests are allowed.");
   }
 
   const { userId } = req.query;
 
   if (typeof userId !== "string") {
-    return res.status(400).json({
-      error: "Invalid user id",
-    });
+    return res.status(422).send("Invalid user id.");
   }
 
   try {
@@ -35,6 +31,7 @@ export default async function handler(
         leaveType: true,
         fromDate: true,
         toDate: true,
+        isHalfDay: true,
         reason: true,
       },
     });
@@ -45,14 +42,13 @@ export default async function handler(
         leaveType: leave.leaveType,
         fromDate: leave.fromDate.toISOString(),
         toDate: leave.toDate.toISOString(),
+        isHalfDay: leave.isHalfDay,
         reason: leave.reason,
       })),
     });
   } catch (error) {
     console.error(error);
 
-    return res.status(500).json({
-      error: "Internal server error",
-    });
+    return res.status(500).send("Internal server error");
   }
 }

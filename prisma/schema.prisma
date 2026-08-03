@@ -93,6 +93,7 @@ model Leave {
 
   fromDate   DateTime
   toDate     DateTime
+  isHalfDay  Boolean   @default(false)
 
   reason     String?
 
