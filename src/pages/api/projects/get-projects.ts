@@ -14,22 +14,20 @@ export default async function handler(
   res: NextApiResponse<ApiResponse<ProjectResponse[]> | string>,
 ) {
   try {
-    try {
-      await getAuthenticatedUser(req);
-    } catch {
-      return res.status(401).send("Couldn't find or decode user token");
+    await getAuthenticatedUser(req);
+  } catch {
+    return res.status(401).send("Couldn't find or decode user token");
+  }
+  try {
+    if (req.method !== "GET") {
+      res.setHeader("Allow", ["GET"]);
+      return res.status(405).send("Method not allowed");
     }
-
-    if (req.method === "GET") {
-      const projects = await prisma.project.findMany({
-        orderBy: { name: "asc" },
-        select: { id: true, name: true },
-      });
-      return sendSuccess(res, projects);
-    }
-
-    res.setHeader("Allow", ["GET"]);
-    return res.status(405).send("Method not allowed");
+    const projects = await prisma.project.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    });
+    return sendSuccess(res, projects);
   } catch (error) {
     console.error("Projects API error:", error);
     return res.status(500).send("Internal server error");

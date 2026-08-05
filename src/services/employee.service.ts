@@ -1,8 +1,6 @@
 import { TaskStatus } from "@prisma/client";
 
-import { fetchJson } from "@/api/client";
-import { auth } from "@/firebase/config";
-
+import { fetchJson, getAuthHeaders } from "@/api/client";
 export interface EmployeeStatusResponse {
   id: string;
   taskStatus: TaskStatus;
@@ -27,18 +25,6 @@ interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
-}
-
-async function getAuthHeaders() {
-  const token = await auth.currentUser?.getIdToken();
-
-  if (!token) {
-    throw new Error("User is not authenticated");
-  }
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
 }
 
 export async function getEmployeeStatus() {

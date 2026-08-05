@@ -1,3 +1,4 @@
+import { auth } from "@/firebase/config";
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -67,4 +68,15 @@ export async function fetchJson<T = any>(
   }
 
   return body;
+}
+export async function getAuthHeaders() {
+  const token = await auth.currentUser?.getIdToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 }

@@ -1,5 +1,5 @@
-import { fetchJson } from "@/api/client";
-import { auth } from "@/firebase/config";
+import { fetchJson, getAuthHeaders } from "@/api/client";
+import type { Project as PrismaProject, Task as PrismaTask } from "@prisma/client";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -7,32 +7,22 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-async function getAuthHeaders() {
-  const token = await auth.currentUser?.getIdToken();
-  if (!token) throw new Error("User is not authenticated");
-  return { Authorization: `Bearer ${token}` };
-}
+export type Project = Pick<PrismaProject, "id" | "name">;
 
-export interface Project {
-  id: string;
-  name: string;
-}
-
-export interface ProjectTask {
-  id: string;
-  taskDescription: string;
-  status: string;
-  completedAt?: string | null;
-  TaskDescriptionUpdatedAt?: string | null;
+export type Task = Omit<PrismaTask, "createdAt" | "updatedAt" | "completedAt"> & {
   createdAt: string;
   updatedAt: string;
-}
+  completedAt: string | null;
+};
 
 export async function getProjects() {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<Project[]>>("/api/projects/get-projects", {
-    headers,
-  });
+  const response = await fetchJson<ApiResponse<Project[]>>(
+    "/api/projects/get-projects",
+    {
+      headers,
+    },
+  );
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to fetch projects");
   }
@@ -41,9 +31,9 @@ export async function getProjects() {
 
 export async function getProjectTasks(projectId: string) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<ProjectTask[]>>(
-    `/api/projects/manage-project-tasks?projectId=${projectId}`,
-    { headers }
+  const response = await fetchJson<ApiResponse<Task[]>>(
+    `/api/projects/get-project-tasks?projectId=${projectId}`,
+    { headers },
   );
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to fetch project tasks");
@@ -53,16 +43,16 @@ export async function getProjectTasks(projectId: string) {
 
 export async function createProjectTask(
   projectId: string,
-  taskDescription: string
+  taskDescription: string,
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<ProjectTask>>(
-    `/api/projects/manage-project-tasks`,
+  const response = await fetchJson<ApiResponse<Task>>(
+    `/api/projects/create-project-task`,
     {
       method: "POST",
       headers,
       body: JSON.stringify({ projectId, taskDescription }),
-    }
+    },
   );
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to create task");
@@ -73,16 +63,16 @@ export async function createProjectTask(
 export async function updateProjectTask(
   projectId: string,
   taskId: string,
-  updates: { taskDescription?: string; status?: string }
+  updates: { taskDescription?: string; status?: string },
 ) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<ProjectTask>>(
+  const response = await fetchJson<ApiResponse<Task>>(
     `/api/projects/update-task`,
     {
       method: "POST",
       headers,
-      body: JSON.stringify({ action: "UPDATE", projectId, taskId, ...updates }),
-    }
+      body: JSON.stringify({ projectId, taskId, ...updates }),
+    },
   );
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to update task");
@@ -93,12 +83,12 @@ export async function updateProjectTask(
 export async function deleteProjectTask(projectId: string, taskId: string) {
   const headers = await getAuthHeaders();
   const response = await fetchJson<ApiResponse<null>>(
-    `/api/projects/update-task`,
+    `/api/projects/delete-task`,
     {
       method: "POST",
       headers,
-      body: JSON.stringify({ action: "DELETE", projectId, taskId }),
-    }
+      body: JSON.stringify({ projectId, taskId }),
+    },
   );
   if (!response.success) {
     throw new Error(response.error || "Failed to delete task");

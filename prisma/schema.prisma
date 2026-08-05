@@ -121,7 +121,6 @@ model Task {
   status               TaskStatus  @default(BLOCKED)
 
   completedAt          DateTime?
-  TaskDescriptionUpdatedAt DateTime?
 
   projectId            String
   project              Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
