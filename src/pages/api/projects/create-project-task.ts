@@ -3,19 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { sendSuccess } from "@/utils/api";
 import { getAuthenticatedUser } from "@/lib/auth";
 import type { ApiResponse } from "@/utils/api";
-
-interface TaskResponse {
-  id: string;
-  taskDescription: string;
-  status: string;
-  completedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { formatTask } from "@/utils/formatters";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<TaskResponse> | string>,
+  res: NextApiResponse<ApiResponse<ReturnType<typeof formatTask>> | string>,
 ) {
   try {
     await getAuthenticatedUser(req);
@@ -63,18 +55,7 @@ export default async function handler(
       },
     });
 
-    return sendSuccess(
-      res,
-      {
-        id: task.id,
-        taskDescription: task.taskDescription,
-        status: task.status,
-        completedAt: task.completedAt ? task.completedAt.toISOString() : null,
-        createdAt: task.createdAt.toISOString(),
-        updatedAt: task.updatedAt.toISOString(),
-      },
-      201,
-    );
+    return sendSuccess(res, formatTask(task), 201);
   } catch (error) {
     console.error("Create project task API error:", error);
     return res.status(500).send("Internal server error");

@@ -3,21 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { sendSuccess } from "@/utils/api";
 import { getAuthenticatedUser } from "@/lib/auth";
 import type { ApiResponse } from "@/utils/api";
-
-interface TaskResponse {
-  id: string;
-  taskDescription: string;
-  status: string;
-  completedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { formatTask } from "@/utils/formatters";
 
 const VALID_STATUSES = ["BLOCKED", "IN_PROGRESS", "COMPLETED"] as const;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<TaskResponse> | string>,
+  res: NextApiResponse<ApiResponse<ReturnType<typeof formatTask>> | string>,
 ) {
   try {
     try {
@@ -90,16 +82,7 @@ export default async function handler(
       },
     });
 
-    return sendSuccess(res, {
-      id: updated.id,
-      taskDescription: updated.taskDescription,
-      status: updated.status,
-      completedAt: updated.completedAt
-        ? updated.completedAt.toISOString()
-        : null,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
-    });
+    return sendSuccess(res, formatTask(updated));
   } catch (error) {
     console.error("Task API error:", error);
     return res.status(500).send("Internal server error");
