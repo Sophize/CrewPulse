@@ -1,6 +1,6 @@
 import { TaskStatus } from "@prisma/client";
 
-import { fetchJson, getAuthHeaders } from "@/api/client";
+import { fetchJson, getAuthHeaders, ApiResponse } from "@/api/client";
 export interface EmployeeStatusResponse {
   id: string;
   taskStatus: TaskStatus;
@@ -21,11 +21,6 @@ export interface UpdateEmployeeStatusInput {
   currentTask?: string;
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
 
 export async function getEmployeeStatus() {
   const headers = await getAuthHeaders();

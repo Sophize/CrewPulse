@@ -10,6 +10,12 @@ export class ApiError extends Error {
   }
 }
 
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
 export interface FetchJsonOptions extends RequestInit {
   query?: Record<string, string | number | boolean | undefined>;
 }

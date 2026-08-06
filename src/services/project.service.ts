@@ -1,11 +1,5 @@
-import { fetchJson, getAuthHeaders } from "@/api/client";
+import { fetchJson, getAuthHeaders, ApiResponse } from "@/api/client";
 import type { Project as PrismaProject, Task as PrismaTask } from "@prisma/client";
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
 
 export type Project = Pick<PrismaProject, "id" | "name">;
 
@@ -32,8 +26,8 @@ export async function getProjects() {
 export async function getProjectTasks(projectId: string) {
   const headers = await getAuthHeaders();
   const response = await fetchJson<ApiResponse<Task[]>>(
-    `/api/projects/get-project-tasks?projectId=${projectId}`,
-    { headers },
+    "/api/projects/get-project-tasks",
+    { headers, query: { projectId } },
   );
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to fetch project tasks");
