@@ -1,3 +1,4 @@
+import { auth } from "@/firebase/config";
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -7,6 +8,12 @@ export class ApiError extends Error {
     super(message || `HTTP ${status}`);
     this.name = "ApiError";
   }
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
 export interface FetchJsonOptions extends RequestInit {
@@ -67,4 +74,15 @@ export async function fetchJson<T = any>(
   }
 
   return body;
+}
+export async function getAuthHeaders() {
+  const token = await auth.currentUser?.getIdToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 }
