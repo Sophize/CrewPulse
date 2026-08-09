@@ -7,30 +7,133 @@ export interface Holiday {
 }
 
 export const MANDATORY_HOLIDAYS: Holiday[] = [
-  { date: "Jan 26", day: "Sunday",    holiday: "Republic Day", type: "MANDATORY" },
-  { date: "Mar 14", day: "Friday",    holiday: "Holi", type: "MANDATORY" },
-  { date: "Apr 14", day: "Monday",    holiday: "Dr. Ambedkar Jayanti", type: "MANDATORY" },
-  { date: "Apr 18", day: "Friday",    holiday: "Good Friday", type: "MANDATORY" },
-  { date: "May 1",  day: "Thursday",  holiday: "Maharashtra Day", type: "MANDATORY" },
-  { date: "Aug 15", day: "Friday",    holiday: "Independence Day", type: "MANDATORY" },
-  { date: "Oct 2",  day: "Thursday",  holiday: "Gandhi Jayanti", type: "MANDATORY" },
-  { date: "Oct 20", day: "Monday",    holiday: "Dussehra", type: "MANDATORY" },
-  { date: "Nov 5",  day: "Wednesday", holiday: "Diwali (Laxmi Puja)", type: "MANDATORY" },
-  { date: "Dec 25", day: "Thursday",  holiday: "Christmas", type: "MANDATORY" },
+  {
+    date: "Jan 1",
+    day: "Thursday",
+    holiday: "New Year’s Day",
+    type: "MANDATORY",
+  },
+  { date: "Jan 26", day: "Monday", holiday: "Republic Day", type: "MANDATORY" },
+  {
+    date: "May 1",
+    day: "Friday",
+    holiday: "May Day/Budh Purnima",
+    type: "MANDATORY",
+  },
+  {
+    date: "Aug 15",
+    day: "Saturday",
+    holiday: "Independence Day",
+    type: "MANDATORY",
+  },
+  {
+    date: "Aug 28",
+    day: "Friday",
+    holiday: "Rakshabandhan (Only North India)",
+    type: "MANDATORY",
+  },
+  {
+    date: "Oct 2",
+    day: "Friday",
+    holiday: "Gandhi Jayanti",
+    type: "MANDATORY",
+  },
+  { date: "Oct 20", day: "Tuesday", holiday: "Dussehra", type: "MANDATORY" },
+  {
+    date: "Nov 9",
+    day: "Monday",
+    holiday: "Diwali (Laxmi Puja)",
+    type: "MANDATORY",
+  },
+  { date: "Nov 10", day: "Tuesday", holiday: "Diwali", type: "MANDATORY" },
 ];
 
 export const OPTIONAL_HOLIDAYS: Holiday[] = [
-  { date: "Jan 14", day: "Tuesday",   holiday: "Makar Sankranti / Pongal", type: "OPTIONAL" },
-  { date: "Mar 31", day: "Monday",    holiday: "Id-ul-Fitr (Eid)", type: "OPTIONAL" },
-  { date: "Apr 10", day: "Thursday",  holiday: "Mahavir Jayanti", type: "OPTIONAL" },
-  { date: "May 12", day: "Monday",    holiday: "Buddha Purnima", type: "OPTIONAL" },
-  { date: "Jun 7",  day: "Saturday",  holiday: "Id-ul-Zuha (Bakri Eid)", type: "OPTIONAL" },
-  { date: "Aug 9",  day: "Saturday",  holiday: "Muharram", type: "OPTIONAL" },
-  { date: "Aug 16", day: "Saturday",  holiday: "Parsi New Year", type: "OPTIONAL" },
-  { date: "Sep 5",  day: "Friday",    holiday: "Ganesh Chaturthi", type: "OPTIONAL" },
-  { date: "Oct 3",  day: "Friday",    holiday: "Navratri (1st day)", type: "OPTIONAL" },
-  { date: "Nov 5",  day: "Wednesday", holiday: "Diwali (Naraka Chaturdashi)", note: "alt day", type: "OPTIONAL" },
-  { date: "Nov 15", day: "Saturday",  holiday: "Guru Nanak Jayanti", type: "OPTIONAL" },
+  {
+    date: "Jan 14",
+    day: "Wednesday",
+    holiday: "Makar Sankranti / Pongal",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Feb 15",
+    day: "Sunday",
+    holiday: "Maha Shivratri",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Mar 4",
+    day: "Wednesday",
+    holiday: "Holi",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Mar 31",
+    day: "Tuesday",
+    holiday: "Mahavir Jayanti",
+    type: "OPTIONAL",
+  },
+  {
+    date: "April 3",
+    day: "Friday",
+    holiday: "Good Friday",
+    type: "OPTIONAL",
+  },
+  {
+    date: "April 14",
+    day: "Tuesday",
+    holiday: "Ambedkar Jayanti",
+    type: "OPTIONAL",
+  },
+
+  {
+    date: "Sep  4",
+    day: "Friday",
+    holiday: "Janmashtami",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Sep 14",
+    day: "Monday",
+    holiday: "Ganesh Chaturthi",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Oct 21",
+    day: "Wednesday",
+    holiday: "Dasami",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Nov 13",
+    day: "Friday",
+    holiday: "Chhath Puja",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Nov 16",
+    day: "Monday",
+    holiday: "Chhath Puja",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Nov 24",
+    day: "Tuesday",
+    holiday: "Guru Nanak Jayanti",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Dec 25",
+    day: "Friday",
+    holiday: "Christmas",
+    type: "OPTIONAL",
+  },
+  {
+    date: "Dec 31",
+    day: "Thursday",
+    holiday: "New Year eve",
+    type: "OPTIONAL",
+  },
 ];
 
 export const ALL_HOLIDAYS: Holiday[] = [

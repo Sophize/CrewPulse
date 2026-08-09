@@ -7,6 +7,7 @@ import {
   Group,
   Card,
   SimpleGrid,
+  Button,
 } from "@mantine/core";
 
 import { AuthGuard } from "@/components/auth/AuthGuard";
@@ -43,7 +44,21 @@ export default function LeavesPage() {
   return (
     <AuthGuard>
       <DashboardLayout title="Holidays" breadcrumbs={[{ label: "Holidays" }]}>
-        <PageHeader title="Holidays" subtitle="2026 holiday calendar " />
+        <PageHeader
+          title="Holidays"
+          subtitle="2026 holiday calendar "
+          action={
+            <Button
+              component="a"
+              href="https://drive.google.com/drive/folders/1xpo3PbdGrjJ-njUKp8dqEOL-xPymVLjq"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="light"
+            >
+              View Holiday Doc
+            </Button>
+          }
+        />
 
         <Stack gap="xl">
           <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl">

@@ -209,9 +209,9 @@ export default function ProjectPage() {
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th style={{ width: 130 }}>DATE</Table.Th>
-                  <Table.Th>TASK DESCRIPTION</Table.Th>
-                  <Table.Th style={{ width: 150 }}>STATUS</Table.Th>
+                  <Table.Th style={{ width: 300 }}>DATE</Table.Th>
+                  <Table.Th style={{ width: 500 }}>TASK DESCRIPTION</Table.Th>
+                  <Table.Th>STATUS</Table.Th>
                   <Table.Th style={{ width: 100, textAlign: "right" }}>
                     ACTIONS
                   </Table.Th>
