@@ -10,10 +10,14 @@ import {
   Box,
   SimpleGrid,
   Paper,
+  Group,
+  Button,
+  ActionIcon,
 } from "@mantine/core";
+import { IconTrash } from "@tabler/icons-react";
 import { formatDate } from "@/lib/formatters";
 import type { LeaveType } from "@prisma/client";
-
+import { getLeaveHistory, cancelLeave } from "@/services/leave.service";
 type Leave = {
   id: string;
   leaveType: LeaveType;
@@ -96,6 +100,22 @@ export function LeaveHistoryModal({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [leaves, setLeaves] = useState<Leave[]>([]);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const handleCancelLeave = async (leaveId: string) => {
+    try {
+      setCancellingId(leaveId);
+
+      await cancelLeave(leaveId);
+
+      setLeaves((prev) => prev.filter((l) => l.id !== leaveId));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to cancel leave");
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   const leaveSummary = leaves.reduce<Record<LeaveType, number>>(
     (summary, leave) => {
@@ -114,18 +134,21 @@ export function LeaveHistoryModal({
   useEffect(() => {
     if (!opened) return;
 
-    setLoading(true);
+    const loadLeaves = async () => {
+      try {
+        setLoading(true);
 
-    fetch(`/api/leaves/${userId}`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch leave history");
-        }
-        return res.json();
-      })
-      .then((data) => setLeaves(data.rows))
-      .catch(() => setLeaves([]))
-      .finally(() => setLoading(false));
+        const data = await getLeaveHistory(userId);
+
+        setLeaves(data.rows);
+      } catch {
+        setLeaves([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLeaves();
   }, [opened, userId]);
 
   return (
@@ -177,35 +200,72 @@ export function LeaveHistoryModal({
 
               return (
                 <Box key={leave.id}>
-                  <Stack gap={4}>
-                    <Badge
-                      color={meta.color}
-                      variant="light"
-                      styles={{
-                        label: {
-                          textTransform: "none",
-                        },
-                      }}
-                    >
-                      {meta.label}
-                    </Badge>
+                  <Group justify="space-between" align="center">
+                    <Stack gap={4}>
+                      <Badge
+                        color={meta.color}
+                        variant="light"
+                        styles={{
+                          label: {
+                            textTransform: "none",
+                          },
+                        }}
+                      >
+                        {meta.label}
+                      </Badge>
 
-                    {leave.isHalfDay && (
-                      <Text size="xs" c="dimmed">
-                        Half Day
+                      {leave.isHalfDay && (
+                        <Text size="xs" c="dimmed">
+                          Half Day
+                        </Text>
+                      )}
+
+                      <Text size="sm">
+                        {formatDate(leave.fromDate)} -{" "}
+                        {formatDate(leave.toDate)}
                       </Text>
-                    )}
 
-                    <Text size="sm">
-                      {formatDate(leave.fromDate)} - {formatDate(leave.toDate)}
-                    </Text>
+                      {leave.reason && (
+                        <Text size="sm" c="dimmed">
+                          {leave.reason}
+                        </Text>
+                      )}
+                    </Stack>
 
-                    {leave.reason && (
-                      <Text size="sm" c="dimmed">
-                        {leave.reason}
-                      </Text>
-                    )}
-                  </Stack>
+                    {new Date(leave.fromDate) > new Date() &&
+                      (confirmingId === leave.id ? (
+                        <Group gap="xs">
+                          <Text size="xs" c="dimmed">
+                            Are you sure?
+                          </Text>
+                          <Button
+                            size="compact-xs"
+                            color="red"
+                            loading={cancellingId === leave.id}
+                            onClick={() => handleCancelLeave(leave.id)}
+                          >
+                            Yes
+                          </Button>
+                          <Button
+                            size="compact-xs"
+                            variant="default"
+                            onClick={() => setConfirmingId(null)}
+                            disabled={cancellingId === leave.id}
+                          >
+                            No
+                          </Button>
+                        </Group>
+                      ) : (
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="md"
+                          onClick={() => setConfirmingId(leave.id)}
+                        >
+                          <IconTrash size={18} />
+                        </ActionIcon>
+                      ))}
+                  </Group>
 
                   {index < leaves.length - 1 && <Divider my="sm" />}
                 </Box>
