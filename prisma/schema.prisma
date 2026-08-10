@@ -112,6 +112,7 @@ model Project {
   updatedAt DateTime @updatedAt
 
   tasks     Task[]
+   meetingSchedules MeetingSchedule[] 
 }
 
 model Task {
@@ -129,4 +130,17 @@ model Task {
   updatedAt            DateTime @updatedAt
 
   @@index([projectId])
+}
+
+model MeetingSchedule {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  clientTimeZone  String   
+  scheduledAt     DateTime 
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@index([projectId])
+  @@index([scheduledAt]) 
 }
