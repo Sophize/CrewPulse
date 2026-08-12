@@ -23,12 +23,19 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
     iconName: "shield",
     section: "main",
   },
+
   {
     label: "Project Status",
     href: "/projects",
     iconName: "folder",
     section: "main",
     hasChildren: true,
+  },
+  {
+    label: "Holidays",
+    href: "/holidays",
+    iconName: "calender",
+    section: "main",
   },
   {
     label: "Settings",
