@@ -18,10 +18,8 @@ export function useMeetings(projectId: string) {
 export function useCreateMeeting(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: {
-      clientTimeZone: string;
-      scheduledAt: string;
-    }) => createMeeting({ projectId, ...data }),
+    mutationFn: (data: { clientTimeZone: string; scheduledAt: string }) =>
+      createMeeting({ projectId, ...data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.meetingSchedules(projectId),

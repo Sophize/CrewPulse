@@ -50,16 +50,18 @@ export default async function handler(
     const formatted = meetings.map((m) => ({
       id: m.id,
       clientTimeZone: m.clientTimeZone,
-      scheduledAt: m.scheduledAt.toISOString(),
-      scheduledAtIST: m.scheduledAt.toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
+      scheduledAt: m.scheduledAt?.toISOString() ?? "",
+      scheduledAtIST: m.scheduledAt
+        ? m.scheduledAt.toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })
+        : "",
       createdAt: m.createdAt.toISOString(),
       updatedAt: m.updatedAt.toISOString(),
     }));
