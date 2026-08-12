@@ -11,10 +11,10 @@ export type MeetingSchedule = {
 
 export async function getMeetings(projectId: string) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<MeetingSchedule[]>>(
-    "/api/meetings/get-meetings",
-    { headers, query: { projectId } },
-  );
+  const response = await fetchJson<ApiResponse<MeetingSchedule[]>>("/api/meetings/get-meetings", {
+    headers,
+    query: { projectId },
+  });
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to fetch meetings");
   }
@@ -27,14 +27,11 @@ export async function createMeeting(data: {
   scheduledAt: string;
 }) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<MeetingSchedule>>(
-    "/api/meetings/create-meeting",
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    },
-  );
+  const response = await fetchJson<ApiResponse<MeetingSchedule>>("/api/meetings/create-meeting", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to create meeting");
   }
@@ -48,14 +45,11 @@ export async function updateMeeting(data: {
   scheduledAt?: string;
 }) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<MeetingSchedule>>(
-    "/api/meetings/update-meeting",
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    },
-  );
+  const response = await fetchJson<ApiResponse<MeetingSchedule>>("/api/meetings/update-meeting", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to update meeting");
   }
@@ -64,15 +58,30 @@ export async function updateMeeting(data: {
 
 export async function deleteMeeting(meetingId: string, projectId: string) {
   const headers = await getAuthHeaders();
-  const response = await fetchJson<ApiResponse<null>>(
-    "/api/meetings/delete-meeting",
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ meetingId, projectId }),
-    },
-  );
+  const response = await fetchJson<ApiResponse<null>>("/api/meetings/delete-meeting", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ meetingId, projectId }),
+  });
   if (!response.success) {
     throw new Error(response.error || "Failed to delete meeting");
+  }
+}
+
+export async function updateMeetingScheduleConfig(data: {
+  projectId: string;
+  automatic: boolean;
+  dayOfWeek: number;
+  meetingTime: string;
+  clientTimeZone: string;
+}) {
+  const headers = await getAuthHeaders();
+  const response = await fetchJson<ApiResponse<null>>("/api/meetings/update-schedule-config", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error || "Failed to update meeting schedule config");
   }
 }

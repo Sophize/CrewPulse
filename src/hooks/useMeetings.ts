@@ -5,6 +5,7 @@ import {
   createMeeting,
   updateMeeting,
   deleteMeeting,
+  updateMeetingScheduleConfig,
 } from "@/services/meeting.service";
 
 export function useMeetings(projectId: string) {
@@ -18,10 +19,8 @@ export function useMeetings(projectId: string) {
 export function useCreateMeeting(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: {
-      clientTimeZone: string;
-      scheduledAt: string;
-    }) => createMeeting({ projectId, ...data }),
+    mutationFn: (data: { clientTimeZone: string; scheduledAt: string }) =>
+      createMeeting({ projectId, ...data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.meetingSchedules(projectId),
@@ -33,11 +32,8 @@ export function useCreateMeeting(projectId: string) {
 export function useUpdateMeeting(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: {
-      meetingId: string;
-      clientTimeZone?: string;
-      scheduledAt?: string;
-    }) => updateMeeting({ projectId, ...data }),
+    mutationFn: (data: { meetingId: string; clientTimeZone?: string; scheduledAt?: string }) =>
+      updateMeeting({ projectId, ...data }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.meetingSchedules(projectId),
@@ -50,6 +46,29 @@ export function useDeleteMeeting(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (meetingId: string) => deleteMeeting(meetingId, projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.meetingSchedules(projectId),
+      });
+    },
+  });
+}
+
+export function useUpdateMeetingScheduleConfig(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      automatic: boolean;
+      dayOfWeek: number;
+      meetingTime: string;
+      clientTimeZone: string;
+    }) =>
+      updateMeetingScheduleConfig({
+        projectId,
+        ...data,
+      }),
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.meetingSchedules(projectId),
