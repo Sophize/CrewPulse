@@ -159,6 +159,19 @@ function MeetingSchedulesSection({
     setEditingId(null);
   };
 
+  const DISPLAY_TIMEZONE = "Asia/Kolkata";
+
+  function formatMeetingTime(dateStr: string) {
+    return new Date(dateStr).toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: DISPLAY_TIMEZONE,
+    });
+  }
+
   return (
     <Box mt="xl">
       <Paper p="lg" mb="lg" withBorder radius="md">
@@ -170,22 +183,24 @@ function MeetingSchedulesSection({
         </Group>
         <form onSubmit={handleCreate}>
           <Stack gap="sm">
-            <Group grow>
+            <Group align="flex-end">
               <Select
                 label="Client Timezone"
                 data={TIMEZONE_OPTIONS}
                 value={newTZ}
                 onChange={(val) => val && setNewTZ(val)}
+                style={{ flex: 1 }}
               />
+
               <TextInput
                 label="Date & Time (in client timezone)"
                 type="datetime-local"
                 value={newDateTime}
                 onChange={(e) => setNewDateTime(e.currentTarget.value)}
                 required
+                style={{ flex: 1 }}
               />
-            </Group>
-            <Group>
+
               <Button
                 type="submit"
                 leftSection={<IconDeviceFloppy size={16} />}
@@ -222,7 +237,7 @@ function MeetingSchedulesSection({
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>CLIENT TIMEZONE</Table.Th>
-                <Table.Th>SCHEDULED (IST)</Table.Th>
+                <Table.Th>SCHEDULED TIME</Table.Th>
                 <Table.Th style={{ width: 100, textAlign: "right" }}>
                   ACTIONS
                 </Table.Th>
@@ -266,7 +281,9 @@ function MeetingSchedulesSection({
                           size="xs"
                         />
                       ) : (
-                        <Text size="sm">{m.scheduledAtIST}</Text>
+                        <Text size="sm">
+                          {formatMeetingTime(m.scheduledAt)}
+                        </Text>
                       )}
                     </Table.Td>
 
