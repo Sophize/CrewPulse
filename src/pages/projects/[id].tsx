@@ -46,7 +46,7 @@ import {
 } from "@/hooks/useMeetings";
 const TIMEZONE_OPTIONS = [
   { value: "Europe/Berlin", label: "Europe/Berlin (CET)" },
-  { value: "Europe/London", label: "Europe/London (GMT)" },
+  // { value: "Europe/London", label: "Europe/London (GMT)" },
   { value: "UTC", label: "UTC" },
   { value: "Asia/Kolkata", label: "Asia/Kolkata (IST)" },
 ];

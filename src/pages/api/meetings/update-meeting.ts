@@ -29,19 +29,10 @@ export default async function handler(
     }
 
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const { meetingId, projectId, clientTimeZone, scheduledAt } = body;
+    const { meetingId, clientTimeZone, scheduledAt } = body;
 
-    if (!meetingId || !projectId) {
-      return res.status(422).send("meetingId and projectId are required");
-    }
-
-    const existing = await prisma.meetingSchedule.findFirst({
-      where: { id: String(meetingId), projectId: String(projectId) },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      return res.status(404).send("Meeting not found");
+    if (!meetingId) {
+      return res.status(422).send("meetingId is required");
     }
 
     const updated = await prisma.meetingSchedule.update({

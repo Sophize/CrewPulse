@@ -41,15 +41,6 @@ export default async function handler(
       return res.status(422).send("scheduledAt is required");
     }
 
-    const project = await prisma.project.findUnique({
-      where: { id: String(projectId) },
-      select: { id: true },
-    });
-
-    if (!project) {
-      return res.status(404).send("Project not found");
-    }
-
     const meeting = await prisma.meetingSchedule.create({
       data: {
         projectId: String(projectId),
