@@ -1,0 +1,63 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma";
+import { sendSuccess } from "@/utils/api";
+import { getAuthenticatedUser } from "@/lib/auth";
+import type { ApiResponse } from "@/utils/api";
+
+export type UpdateMeetingResponse = {
+  id: string;
+  clientTimeZone: string;
+  scheduledAt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ApiResponse<UpdateMeetingResponse> | string>,
+) {
+  try {
+    await getAuthenticatedUser(req);
+  } catch {
+    return res.status(401).send("Couldn't find user token");
+  }
+
+  try {
+    if (req.method !== "POST") {
+      res.setHeader("Allow", ["POST"]);
+      return res.status(405).send("Method not allowed");
+    }
+
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    const { meetingId, clientTimeZone, scheduledAt } = body;
+    if (!meetingId) {
+      return res.status(422).send("meetingId is required");
+    }
+    const updated = await prisma.meetingSchedule.update({
+      where: { id: String(meetingId) },
+      data: {
+        ...(clientTimeZone?.trim()
+          ? { clientTimeZone: clientTimeZone.trim() }
+          : {}),
+        ...(scheduledAt ? { scheduledAt: new Date(scheduledAt) } : {}),
+      },
+      select: {
+        id: true,
+        clientTimeZone: true,
+        scheduledAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return sendSuccess(res, {
+      ...updated,
+      scheduledAt: updated.scheduledAt ? new Date(updated.scheduledAt).toISOString() : "",
+      createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : "",
+      updatedAt: updated.updatedAt ? new Date(updated.updatedAt).toISOString() : "",
+    });
+  } catch (error) {
+    console.error("Update meeting API error:", error);
+    return res.status(500).send("Internal server error");
+  }
+}
