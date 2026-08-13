@@ -4,18 +4,21 @@ import { sendSuccess } from "@/utils/api";
 import { getAuthenticatedUser } from "@/lib/auth";
 import type { ApiResponse } from "@/utils/api";
 
-export type MeetingResponse = {
+export type MeetingScheduleResponse = {
   id: string;
+  projectId: string;
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+  meetingTime: string;
   clientTimeZone: string;
-  scheduledAt: string;
-  scheduledAtIST: string;
+  daysOfWeek: number[];
+  datesOfMonth: number[];
   createdAt: string;
   updatedAt: string;
 };
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<MeetingResponse[]> | string>,
+  res: NextApiResponse<ApiResponse<MeetingScheduleResponse[]> | string>,
 ) {
   try {
     await getAuthenticatedUser(req);
@@ -35,40 +38,36 @@ export default async function handler(
       return res.status(422).send("projectId is required");
     }
 
-    const meetings = await prisma.meetingSchedule.findMany({
-      where: { projectId: String(projectId) },
-      orderBy: { scheduledAt: "asc" },
+    const schedules = await prisma.meetingSchedule.findMany({
+      where: {
+        projectId: String(projectId),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
       select: {
         id: true,
+        projectId: true,
+        frequency: true,
+        meetingTime: true,
         clientTimeZone: true,
-        scheduledAt: true,
+        daysOfWeek: true,
+        datesOfMonth: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
-    const formatted = meetings.map((m) => ({
-      id: m.id,
-      clientTimeZone: m.clientTimeZone ?? "",
-      scheduledAt: m.scheduledAt ? new Date(m.scheduledAt).toISOString() : "",
-      scheduledAtIST: m.scheduledAt
-        ? new Date(m.scheduledAt).toLocaleString("en-IN", {
-            timeZone: "Asia/Kolkata",
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })
-        : "",
-      createdAt: m.createdAt ? new Date(m.createdAt).toISOString() : "",
-      updatedAt: m.updatedAt ? new Date(m.updatedAt).toISOString() : "",
-    }));
-
-    return sendSuccess(res, formatted);
+    return sendSuccess(
+      res,
+      schedules.map((schedule) => ({
+        ...schedule,
+        createdAt: schedule.createdAt.toISOString(),
+        updatedAt: schedule.updatedAt.toISOString(),
+      })),
+    );
   } catch (error) {
-    console.error("Get meetings API error:", error);
+    console.error("Get meeting schedules API error:", error);
     return res.status(500).send("Internal server error");
   }
 }

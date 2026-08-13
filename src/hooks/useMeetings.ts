@@ -17,9 +17,20 @@ export function useMeetings(projectId: string) {
 
 export function useCreateMeeting(projectId: string) {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (data: { clientTimeZone: string; scheduledAt: string }) =>
-      createMeeting({ projectId, ...data }),
+    mutationFn: (data: {
+      frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+      meetingTime: string;
+      clientTimeZone: string;
+      daysOfWeek: number[];
+      datesOfMonth: number[];
+    }) =>
+      createMeeting({
+        projectId,
+        ...data,
+      }),
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.meetingSchedules(projectId),
@@ -30,12 +41,21 @@ export function useCreateMeeting(projectId: string) {
 
 export function useUpdateMeeting(projectId: string) {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: {
       meetingId: string;
-      clientTimeZone?: string;
-      scheduledAt?: string;
-    }) => updateMeeting({ projectId, ...data }),
+      frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+      meetingTime: string;
+      clientTimeZone: string;
+      daysOfWeek: number[];
+      datesOfMonth: number[];
+    }) =>
+      updateMeeting({
+        projectId,
+        ...data,
+      }),
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.meetingSchedules(projectId),

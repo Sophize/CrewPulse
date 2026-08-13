@@ -6,8 +6,12 @@ import type { ApiResponse } from "@/utils/api";
 
 export type UpdateMeetingResponse = {
   id: string;
+  projectId: string;
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+  meetingTime: string;
   clientTimeZone: string;
-  scheduledAt: string;
+  daysOfWeek: number[];
+  datesOfMonth: number[];
   createdAt: string;
   updatedAt: string;
 };
@@ -29,22 +33,74 @@ export default async function handler(
     }
 
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const { meetingId, clientTimeZone, scheduledAt } = body;
-    if (!meetingId) {
-      return res.status(422).send("meetingId is required");
+
+    const {
+      meetingId,
+      projectId,
+      frequency,
+      meetingTime,
+      clientTimeZone,
+      daysOfWeek = [],
+      datesOfMonth = [],
+    } = body;
+
+    if (!meetingId || !projectId) {
+      return res.status(422).send("meetingId and projectId are required");
     }
-    const updated = await prisma.meetingSchedule.update({
-      where: { id: String(meetingId) },
-      data: {
-        ...(clientTimeZone?.trim()
-          ? { clientTimeZone: clientTimeZone.trim() }
-          : {}),
-        ...(scheduledAt ? { scheduledAt: new Date(scheduledAt) } : {}),
+
+    if (!["DAILY", "WEEKLY", "MONTHLY"].includes(frequency)) {
+      return res.status(422).send("Invalid frequency");
+    }
+
+    if (!meetingTime?.trim()) {
+      return res.status(422).send("meetingTime is required");
+    }
+
+    if (!clientTimeZone?.trim()) {
+      return res.status(422).send("clientTimeZone is required");
+    }
+
+    if (frequency === "WEEKLY" && daysOfWeek.length === 0) {
+      return res.status(422).send("Select at least one day");
+    }
+
+    if (frequency === "MONTHLY" && datesOfMonth.length === 0) {
+      return res.status(422).send("Select at least one date");
+    }
+
+    const existing = await prisma.meetingSchedule.findFirst({
+      where: {
+        id: String(meetingId),
+        projectId: String(projectId),
       },
       select: {
         id: true,
+      },
+    });
+
+    if (!existing) {
+      return res.status(404).send("Meeting schedule not found");
+    }
+
+    const updated = await prisma.meetingSchedule.update({
+      where: {
+        id: String(meetingId),
+      },
+      data: {
+        frequency,
+        meetingTime: meetingTime.trim(),
+        clientTimeZone: clientTimeZone.trim(),
+        daysOfWeek,
+        datesOfMonth,
+      },
+      select: {
+        id: true,
+        projectId: true,
+        frequency: true,
+        meetingTime: true,
         clientTimeZone: true,
-        scheduledAt: true,
+        daysOfWeek: true,
+        datesOfMonth: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -52,12 +108,11 @@ export default async function handler(
 
     return sendSuccess(res, {
       ...updated,
-      scheduledAt: updated.scheduledAt ? new Date(updated.scheduledAt).toISOString() : "",
-      createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : "",
-      updatedAt: updated.updatedAt ? new Date(updated.updatedAt).toISOString() : "",
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
     });
   } catch (error) {
-    console.error("Update meeting API error:", error);
+    console.error("Update meeting schedule API error:", error);
     return res.status(500).send("Internal server error");
   }
 }

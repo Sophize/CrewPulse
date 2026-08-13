@@ -6,8 +6,12 @@ import type { ApiResponse } from "@/utils/api";
 
 export type CreateMeetingResponse = {
   id: string;
+  projectId: string;
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+  meetingTime: string;
   clientTimeZone: string;
-  scheduledAt: string;
+  daysOfWeek: number[];
+  datesOfMonth: number[];
   createdAt: string;
   updatedAt: string;
 };
@@ -29,27 +33,78 @@ export default async function handler(
     }
 
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const { projectId, clientTimeZone, scheduledAt } = body;
+
+    const {
+      projectId,
+      frequency,
+      meetingTime,
+      clientTimeZone,
+      daysOfWeek = [],
+      datesOfMonth = [],
+    } = body;
 
     if (!projectId) {
       return res.status(422).send("projectId is required");
     }
+
+    if (!["DAILY", "WEEKLY", "MONTHLY"].includes(frequency)) {
+      return res.status(422).send("Invalid frequency");
+    }
+
+    if (!meetingTime?.trim()) {
+      return res.status(422).send("meetingTime is required");
+    }
+
     if (!clientTimeZone?.trim()) {
       return res.status(422).send("clientTimeZone is required");
     }
-    if (!scheduledAt) {
-      return res.status(422).send("scheduledAt is required");
+
+    if (!Array.isArray(daysOfWeek)) {
+      return res.status(422).send("daysOfWeek must be an array");
     }
-    const meeting = await prisma.meetingSchedule.create({
-      data: {
-        projectId: String(projectId),
-        clientTimeZone: clientTimeZone.trim(),
-        scheduledAt: new Date(scheduledAt),
+
+    if (!Array.isArray(datesOfMonth)) {
+      return res.status(422).send("datesOfMonth must be an array");
+    }
+
+    if (frequency === "WEEKLY" && daysOfWeek.length === 0) {
+      return res.status(422).send("Select at least one day");
+    }
+
+    if (frequency === "MONTHLY" && datesOfMonth.length === 0) {
+      return res.status(422).send("Select at least one date");
+    }
+
+    const project = await prisma.project.findUnique({
+      where: {
+        id: String(projectId),
       },
       select: {
         id: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).send("Project not found");
+    }
+
+    const schedule = await prisma.meetingSchedule.create({
+      data: {
+        projectId: String(projectId),
+        frequency,
+        meetingTime: meetingTime.trim(),
+        clientTimeZone: clientTimeZone.trim(),
+        daysOfWeek,
+        datesOfMonth,
+      },
+      select: {
+        id: true,
+        projectId: true,
+        frequency: true,
+        meetingTime: true,
         clientTimeZone: true,
-        scheduledAt: true,
+        daysOfWeek: true,
+        datesOfMonth: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -58,15 +113,14 @@ export default async function handler(
     return sendSuccess(
       res,
       {
-        ...meeting,
-        scheduledAt: meeting.scheduledAt ? new Date(meeting.scheduledAt).toISOString() : "",
-        createdAt: meeting.createdAt ? new Date(meeting.createdAt).toISOString() : "",
-        updatedAt: meeting.updatedAt ? new Date(meeting.updatedAt).toISOString() : "",
+        ...schedule,
+        createdAt: schedule.createdAt.toISOString(),
+        updatedAt: schedule.updatedAt.toISOString(),
       },
       201,
     );
   } catch (error) {
-    console.error("Create meeting API error:", error);
+    console.error("Create meeting schedule API error:", error);
     return res.status(500).send("Internal server error");
   }
 }
