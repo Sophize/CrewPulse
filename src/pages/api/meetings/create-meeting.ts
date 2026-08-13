@@ -3,15 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { sendSuccess } from "@/utils/api";
 import { getAuthenticatedUser } from "@/lib/auth";
 import type { ApiResponse } from "@/utils/api";
+import { MeetingSchedule } from "@prisma/client";
 
-export type CreateMeetingResponse = {
-  id: string;
-  projectId: string;
-  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
-  meetingTime: string;
-  clientTimeZone: string;
-  daysOfWeek: number[];
-  datesOfMonth: number[];
+export type CreateMeetingResponse = Omit<
+  MeetingSchedule,
+  "createdAt" | "updatedAt"
+> & {
   createdAt: string;
   updatedAt: string;
 };
@@ -68,26 +65,16 @@ export default async function handler(
     }
 
     if (frequency === "WEEKLY" && daysOfWeek.length === 0) {
-      return res.status(422).send("Select at least one day");
+      return res
+        .status(422)
+        .send("Select at least one day for weekly meetings");
     }
 
     if (frequency === "MONTHLY" && datesOfMonth.length === 0) {
-      return res.status(422).send("Select at least one date");
+      return res
+        .status(422)
+        .send("Select at least one date for monthly meetings");
     }
-
-    const project = await prisma.project.findUnique({
-      where: {
-        id: String(projectId),
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!project) {
-      return res.status(404).send("Project not found");
-    }
-
     const schedule = await prisma.meetingSchedule.create({
       data: {
         projectId: String(projectId),

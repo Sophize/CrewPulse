@@ -3,15 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { sendSuccess } from "@/utils/api";
 import { getAuthenticatedUser } from "@/lib/auth";
 import type { ApiResponse } from "@/utils/api";
+import { MeetingSchedule } from "@prisma/client";
 
-export type MeetingScheduleResponse = {
-  id: string;
-  projectId: string;
-  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
-  meetingTime: string;
-  clientTimeZone: string;
-  daysOfWeek: number[];
-  datesOfMonth: number[];
+export type MeetingScheduleResponse = Omit<
+  MeetingSchedule,
+  "createdAt" | "updatedAt"
+> & {
   createdAt: string;
   updatedAt: string;
 };
