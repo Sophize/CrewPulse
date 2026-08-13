@@ -101,7 +101,8 @@ function localToUTC(localDatetime: string, clientTZ: string): string {
   if (!match) return fakeUTC.toISOString();
 
   const sign = match[1] === "+" ? 1 : -1;
-  const offsetMinutes = sign * (parseInt(match[2]) * 60 + parseInt(match[3] ?? "0"));
+  const offsetMinutes =
+    sign * (parseInt(match[2]) * 60 + parseInt(match[3] ?? "0"));
 
   const utcMs = fakeUTC.getTime() - offsetMinutes * 60 * 1000;
   return new Date(utcMs).toISOString();
@@ -174,7 +175,11 @@ function MeetingSchedulesSection({
     setNewTZ("Europe/Berlin");
   };
 
-  const handleStartEdit = (m: { id: string; clientTimeZone: string; scheduledAt: string }) => {
+  const handleStartEdit = (m: {
+    id: string;
+    clientTimeZone: string;
+    scheduledAt: string;
+  }) => {
     setEditingId(m.id);
     setEditTZ(m.clientTimeZone);
     const d = new Date(m.scheduledAt);
@@ -271,7 +276,9 @@ function MeetingSchedulesSection({
               <Button
                 type="submit"
                 leftSection={<IconDeviceFloppy size={16} />}
-                loading={createMutation.isPending || scheduleConfigMutation.isPending}
+                loading={
+                  createMutation.isPending || scheduleConfigMutation.isPending
+                }
               >
                 Save Meeting
               </Button>
@@ -311,7 +318,9 @@ function MeetingSchedulesSection({
               <Table.Tr>
                 <Table.Th>CLIENT TIMEZONE</Table.Th>
                 <Table.Th>SCHEDULED TIME</Table.Th>
-                <Table.Th style={{ width: 100, textAlign: "right" }}>ACTIONS</Table.Th>
+                <Table.Th style={{ width: 100, textAlign: "right" }}>
+                  ACTIONS
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -346,11 +355,15 @@ function MeetingSchedulesSection({
                         <TextInput
                           type="datetime-local"
                           value={editDateTime}
-                          onChange={(e) => setEditDateTime(e.currentTarget.value)}
+                          onChange={(e) =>
+                            setEditDateTime(e.currentTarget.value)
+                          }
                           size="xs"
                         />
                       ) : (
-                        <Text size="sm">{formatMeetingTime(m.scheduledAt)}</Text>
+                        <Text size="sm">
+                          {formatMeetingTime(m.scheduledAt)}
+                        </Text>
                       )}
                     </Table.Td>
 
@@ -404,7 +417,11 @@ export default function ProjectPage() {
   const { data: projects = [], isLoading: isProjectsLoading } = useProjects();
   const currentProject = projects.find((p) => p.id === projectId);
 
-  const { data: tasks = [], isLoading: isTasksLoading, error } = useProjectTasks(projectId);
+  const {
+    data: tasks = [],
+    isLoading: isTasksLoading,
+    error,
+  } = useProjectTasks(projectId);
 
   const createMutation = useCreateProjectTask(projectId);
   const updateMutation = useUpdateProjectTask(projectId);
@@ -427,7 +444,11 @@ export default function ProjectPage() {
     await deleteMutation.mutateAsync(taskId);
   };
 
-  const handleStartEdit = (taskId: string, currentText: string, currentStatus: string) => {
+  const handleStartEdit = (
+    taskId: string,
+    currentText: string,
+    currentStatus: string,
+  ) => {
     setEditingTaskId(taskId);
     setEditingText(currentText);
     setEditingStatus(currentStatus);
@@ -448,17 +469,27 @@ export default function ProjectPage() {
     <AuthGuard>
       <DashboardLayout
         title={currentProject?.name || "Project Details"}
-        breadcrumbs={[{ label: "Project Status" }, { label: currentProject?.name || "Project" }]}
+        breadcrumbs={[
+          { label: "Project Status" },
+          { label: currentProject?.name || "Project" },
+        ]}
       >
         <PageHeader
           title={
-            currentProject?.name ? `Project Status - ${currentProject.name}` : "Project Details"
+            currentProject?.name
+              ? `Project Status - ${currentProject.name}`
+              : "Project Details"
           }
           subtitle={`Manage tasks for ${currentProject?.name || "project"}`}
         />
 
         {error && (
-          <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red" mb="md">
+          <Alert
+            icon={<IconAlertCircle size={16} />}
+            title="Error"
+            color="red"
+            mb="md"
+          >
             Failed to load tasks.
           </Alert>
         )}
@@ -521,10 +552,12 @@ export default function ProjectPage() {
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th style={{ width: 130 }}>DATE</Table.Th>
-                  <Table.Th>TASK DESCRIPTION</Table.Th>
-                  <Table.Th style={{ width: 150 }}>STATUS</Table.Th>
-                  <Table.Th style={{ width: 100, textAlign: "right" }}>ACTIONS</Table.Th>
+                  <Table.Th style={{ width: 300 }}>DATE</Table.Th>
+                  <Table.Th style={{ width: 500 }}>TASK DESCRIPTION</Table.Th>
+                  <Table.Th>STATUS</Table.Th>
+                  <Table.Th style={{ width: 100, textAlign: "right" }}>
+                    ACTIONS
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -550,7 +583,9 @@ export default function ProjectPage() {
                         {editingTaskId === task.id ? (
                           <Textarea
                             value={editingText}
-                            onChange={(e) => setEditingText(e.currentTarget.value)}
+                            onChange={(e) =>
+                              setEditingText(e.currentTarget.value)
+                            }
                             autosize
                             minRows={1}
                             size="xs"
@@ -585,14 +620,19 @@ export default function ProjectPage() {
                                 : statusLabel(task.status)
                             }
                             withArrow
-                            disabled={task.status !== "COMPLETED" || !task.completedAt}
+                            disabled={
+                              task.status !== "COMPLETED" || !task.completedAt
+                            }
                           >
                             <Badge
                               color={statusColor(task.status)}
                               variant="light"
                               size="sm"
                               style={{
-                                cursor: task.status === "COMPLETED" ? "help" : "default",
+                                cursor:
+                                  task.status === "COMPLETED"
+                                    ? "help"
+                                    : "default",
                               }}
                             >
                               {statusLabel(task.status)}
@@ -617,7 +657,11 @@ export default function ProjectPage() {
                               color="gray"
                               variant="subtle"
                               onClick={() =>
-                                handleStartEdit(task.id, task.taskDescription, task.status)
+                                handleStartEdit(
+                                  task.id,
+                                  task.taskDescription,
+                                  task.status,
+                                )
                               }
                             >
                               <IconPencil size={16} />
@@ -641,7 +685,10 @@ export default function ProjectPage() {
             </Table>
           </Paper>
         )}
-        <MeetingSchedulesSection projectId={projectId} projectName={currentProject?.name} />
+        <MeetingSchedulesSection
+          projectId={projectId}
+          projectName={currentProject?.name}
+        />
       </DashboardLayout>
     </AuthGuard>
   );

@@ -3,6 +3,7 @@ import { IconRefresh } from "@tabler/icons-react";
 
 import { DashboardLayout } from "@/components/layout";
 import { PageHeader } from "@/components/ui";
+
 import { EmployeesTable } from "@/features/admin/components/EmployeesTable";
 import { ActivityFeed } from "@/features/dashboard/components/ActivityFeed";
 
@@ -11,6 +12,7 @@ import { useEmployees } from "@/hooks/useEmployees";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { useState } from "react";
+import { UpcomingHoliday } from "@/components/ui/UpcomingHoliday";
 export default function AdminPage() {
   const employeesQuery = useEmployees();
   const activityQuery = useActivityFeed();
@@ -33,17 +35,20 @@ export default function AdminPage() {
           title="Team Overview"
           subtitle="See what everyone is working on right now."
           action={
-            <Button
-              size="sm"
-              leftSection={<IconRefresh size={14} stroke={1.5} />}
-              variant="light"
-              color="gray"
-              loading={isRefreshing}
-              disabled={isRefreshing}
-              onClick={handleRefresh}
-            >
-              {isRefreshing ? "Refreshing..." : "Refresh"}
-            </Button>
+            <>
+              <UpcomingHoliday />
+              <Button
+                size="sm"
+                leftSection={<IconRefresh size={14} stroke={1.5} />}
+                variant="light"
+                color="gray"
+                loading={isRefreshing}
+                disabled={isRefreshing}
+                onClick={handleRefresh}
+              >
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </Button>
+            </>
           }
         />
 

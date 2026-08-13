@@ -20,6 +20,7 @@ import {
   IconSettings,
   IconLogout,
   IconFolder,
+  IconCoffee,
 } from "@tabler/icons-react";
 import Image from "next/image";
 
@@ -42,6 +43,7 @@ const ICON_MAP: Record<
   shield: IconShield,
   settings: IconSettings,
   folder: IconFolder,
+  calender: IconCoffee,
 };
 
 function NavIcon({ name, size = 18 }: { name: string; size?: number }) {
