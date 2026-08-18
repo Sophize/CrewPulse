@@ -1,79 +1,48 @@
+import dayjs, { type Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isSameOrBefore);
+
 export type MeetingFrequency = "DAILY" | "WEEKLY" | "MONTHLY";
 
-export function convertClientTimeToIST(timeStr: string, fromTimeZone: string): string {
+export function convertClientTimeToIST(
+  timeStr: string,
+  fromTimeZone: string,
+): string {
   if (!timeStr) return "";
-  const parts = timeStr.split(":");
-  if (parts.length < 2) return timeStr;
-  const hours = parseInt(parts[0], 10);
-  const minutes = parseInt(parts[1], 10);
-  if (isNaN(hours) || isNaN(minutes)) return timeStr;
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hh = String(hours).padStart(2, "0");
-  const mm = String(minutes).padStart(2, "0");
-
-  const isoLocalStr = `${year}-${month}-${day}T${hh}:${mm}:00`;
 
   try {
-    const targetDate = new Date(
-      new Date(isoLocalStr).toLocaleString("en-US", { timeZone: fromTimeZone }),
-    );
-    const utcDate = new Date(
-      new Date(isoLocalStr).toLocaleString("en-US", { timeZone: "UTC" }),
-    );
-    const offsetDiffMs = targetDate.getTime() - utcDate.getTime();
-    const realUtcTime = new Date(`${isoLocalStr}Z`).getTime() - offsetDiffMs;
+    const [hour, minute] = timeStr.split(":").map(Number);
 
-    return new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Kolkata",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(new Date(realUtcTime));
+    const clientTime = dayjs()
+      .tz(fromTimeZone)
+      .hour(hour)
+      .minute(minute)
+      .second(0)
+      .millisecond(0);
+
+    return clientTime.tz("Asia/Kolkata").format("HH:mm");
   } catch (err) {
     console.error("Timezone conversion error:", err);
     return timeStr;
   }
 }
 
-export function getOrdinalSuffix(date: number) {
-  if (date >= 11 && date <= 13) {
-    return "th";
-  }
-
-  switch (date % 10) {
-    case 1:
-      return "st";
-    case 2:
-      return "nd";
-    case 3:
-      return "rd";
-    default:
-      return "th";
-  }
-}
-
-export function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-
-  return d.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+export function formatDate(dateStr: string): string {
+  if (!dateStr) return "—";
+  return dayjs(dateStr).format("DD MMM YYYY");
 }
 
 export function statusColor(status: string) {
   switch (status) {
     case "COMPLETED":
       return "green";
-
     case "BLOCKED":
       return "red";
-
     case "IN_PROGRESS":
     default:
       return "blue";
@@ -84,13 +53,24 @@ export function statusLabel(status: string) {
   switch (status) {
     case "COMPLETED":
       return "Completed";
-
     case "BLOCKED":
       return "Blocked";
-
     case "IN_PROGRESS":
     default:
       return "In Progress";
+  }
+}
+
+export function frequencyLabel(frequency: MeetingFrequency) {
+  switch (frequency) {
+    case "DAILY":
+      return "Daily";
+    case "WEEKLY":
+      return "Weekly";
+    case "MONTHLY":
+      return "Monthly";
+    default:
+      return frequency;
   }
 }
 
@@ -106,101 +86,63 @@ export function getNextOccurrence(
   if (timeParts.length < 2 || timeParts.some(isNaN)) return meetingTime;
   const [meetHour, meetMin] = timeParts;
 
-  const nowIST = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-  );
+  const nowIST = dayjs().tz("Asia/Kolkata");
 
-  const formatLabel = (d: Date) => {
-    const todayIST = new Date(
-      new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
-    );
-    const tomorrowIST = new Date(todayIST);
-    tomorrowIST.setDate(tomorrowIST.getDate() + 1);
+  const applyTime = (d: Dayjs) =>
+    d.hour(meetHour).minute(meetMin).second(0).millisecond(0);
 
-    const isSameDay = (a: Date, b: Date) =>
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate();
+  const formatLabel = (d: Dayjs) => {
+    const todayIST = nowIST.startOf("day");
+    const tomorrowIST = todayIST.add(1, "day");
+    const candidateDay = d.startOf("day");
 
     const timeLabel = `${String(meetHour).padStart(2, "0")}:${String(meetMin).padStart(2, "0")}`;
 
-    if (isSameDay(d, todayIST)) return `Today, ${timeLabel}`;
-    if (isSameDay(d, tomorrowIST)) return `Tomorrow, ${timeLabel}`;
+    if (candidateDay.isSame(todayIST)) return `Today, ${timeLabel}`;
+    if (candidateDay.isSame(tomorrowIST)) return `Tomorrow, ${timeLabel}`;
 
-    return (
-      new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Asia/Kolkata",
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-      }).format(d) + `, ${timeLabel}`
-    );
+    return `${d.format("ddd, D MMM")}, ${timeLabel}`;
   };
 
   if (frequency === "DAILY") {
-    const candidate = new Date(nowIST);
-    candidate.setHours(meetHour, meetMin, 0, 0);
-    if (candidate <= nowIST) {
-      candidate.setDate(candidate.getDate() + 1);
+    let candidate = applyTime(nowIST);
+    if (candidate.isSameOrBefore(nowIST)) {
+      candidate = applyTime(nowIST.add(1, "day"));
     }
     return formatLabel(candidate);
   }
 
   if (frequency === "WEEKLY") {
-    if (daysOfWeek.length === 0) return "No days set";
+    if (!daysOfWeek || daysOfWeek.length === 0) return "No days set";
     const sortedDays = [...daysOfWeek].sort((a, b) => a - b);
-    let nearest: Date | null = null;
 
-    for (let offset = 0; offset < 8; offset++) {
-      const candidate = new Date(nowIST);
-      candidate.setDate(candidate.getDate() + offset);
-      candidate.setHours(meetHour, meetMin, 0, 0);
-      const dayOfWeek = candidate.getDay();
-
-      if (sortedDays.includes(dayOfWeek)) {
-        if (offset === 0 && candidate <= nowIST) continue;
-        nearest = candidate;
-        break;
+    for (let offset = 0; offset <= 7; offset++) {
+      const candidate = applyTime(nowIST.add(offset, "day"));
+      if (sortedDays.includes(candidate.day())) {
+        if (offset === 0 && candidate.isSameOrBefore(nowIST)) continue;
+        return formatLabel(candidate);
       }
     }
-    return nearest ? formatLabel(nearest) : "—";
+    return "—";
   }
 
   if (frequency === "MONTHLY") {
-    if (datesOfMonth.length === 0) return "No dates set";
+    if (!datesOfMonth || datesOfMonth.length === 0) return "No dates set";
     const sortedDates = [...datesOfMonth].sort((a, b) => a - b);
-    let nearest: Date | null = null;
 
     for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
       for (const dateNum of sortedDates) {
-        const candidate = new Date(nowIST);
-        candidate.setMonth(candidate.getMonth() + monthOffset);
-        candidate.setDate(dateNum);
-        candidate.setHours(meetHour, meetMin, 0, 0);
+        const base = nowIST.add(monthOffset, "month").date(dateNum);
+        if (base.date() !== dateNum) continue;
 
-        if (candidate <= nowIST) continue;
-        if (!nearest || candidate < nearest) nearest = candidate;
+        const candidate = applyTime(base);
+        if (candidate.isSameOrBefore(nowIST)) continue;
+
+        return formatLabel(candidate);
       }
-      if (nearest) break;
     }
-    return nearest ? formatLabel(nearest) : "—";
+    return "—";
   }
 
   return "—";
-}
-
-export function frequencyLabel(frequency: MeetingFrequency) {
-  switch (frequency) {
-    case "DAILY":
-      return "Daily";
-
-    case "WEEKLY":
-      return "Weekly";
-
-    case "MONTHLY":
-      return "Monthly";
-
-    default:
-      return frequency;
-  }
 }

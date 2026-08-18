@@ -30,7 +30,6 @@ import {
 import {
   MeetingFrequency,
   convertClientTimeToIST,
-  getOrdinalSuffix,
   getNextOccurrence,
   frequencyLabel,
 } from "@/utils/meetingUtils";
@@ -185,7 +184,7 @@ export function MeetingSchedulesSection({
                   placeholder="Select dates"
                   data={MONTH_DATES.map((date) => ({
                     value: String(date),
-                    label: `${date}${getOrdinalSuffix(date)}`,
+                    label: String(date),
                   }))}
                   value={newDatesOfMonth.map(String)}
                   onChange={(values) => setNewDatesOfMonth(values.map(Number))}
@@ -253,7 +252,7 @@ export function MeetingSchedulesSection({
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>FREQUENCY</Table.Th>
-                <Table.Th>NEXT OCCURRENCE</Table.Th>
+                <Table.Th>MEETING-TIME</Table.Th>
                 <Table.Th>CLIENT TIMEZONE</Table.Th>
                 <Table.Th style={{ width: 100, textAlign: "right" }}>
                   ACTIONS
