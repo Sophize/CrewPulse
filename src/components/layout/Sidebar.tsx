@@ -252,7 +252,7 @@ function UserFooter() {
           </Avatar>
 
           <Box style={{ overflow: "hidden" }}>
-            <Text size="sm" fw={500} truncate>
+            <Text size="sm" fw={500} truncate tt="capitalize">
               {user?.name || "User"}
             </Text>
 
