@@ -33,7 +33,7 @@ export default async function handler(
       return res.status(422).send("Leave not found.");
     }
 
-    if (leave.userId !== employee.id && employee.role !== "ADMIN") {
+    if (leave.userId !== employee.id) {
       return res.status(403).send("You can only cancel your own leaves.");
     }
 
