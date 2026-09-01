@@ -32,7 +32,8 @@ export const SIDEBAR_LINKS: SidebarLink[] = [
     hasChildren: true,
   },
   {
-    label: "Holidays",
+    // label: "Holidays",
+    label: "Leaves",
     href: "/holidays",
     iconName: "calender",
     section: "main",
