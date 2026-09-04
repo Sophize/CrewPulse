@@ -76,31 +76,6 @@ const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
   COMPLETED: 2,
 };
 
-const LEAVE_META: Record<
-  LeaveType,
-  {
-    label: string;
-    color: string;
-  }
-> = {
-  SICK: {
-    label: "Sick Leave",
-    color: "red",
-  },
-  CASUAL: {
-    label: "Casual Leave",
-    color: "yellow",
-  },
-  VACATION: {
-    label: "Vacation",
-    color: "blue",
-  },
-  OPTIONAL: {
-    label: "Optional Leave",
-    color: "grape",
-  },
-};
-
 export interface EmployeeRow {
   id: string;
   name: string;
@@ -396,82 +371,21 @@ export function EmployeesTable({
       header: "Leave",
       enableSorting: false,
 
-      cell: (info) => {
-        const leave = info.getValue();
-
-        if (!leave) {
-          return (
-            <Group gap="xs">
-              <Text size="sm" c="dimmed" fs="italic">
-                —
-              </Text>
-
-              <Tooltip label="View Leave History">
-                <ActionIcon
-                  variant="subtle"
-                  size="sm"
-                  onClick={() =>
-                    setSelectedEmployee({
-                      id: info.row.original.id,
-                      name: info.row.original.name,
-                    })
-                  }
-                >
-                  <IconHistory size={15} />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
-          );
-        }
-
-        const meta = LEAVE_META[leave.leaveType];
-
-        return (
-          <Group gap="xs">
-            <Tooltip
-              multiline
-              withArrow
-              label={
-                <>
-                  <Text size="sm">
-                    {formatDate(leave.fromDate)} - {formatDate(leave.toDate)}
-                  </Text>
-
-                  {leave.reason && (
-                    <Text size="xs">Reason: {leave.reason}</Text>
-                  )}
-                </>
-              }
-            >
-              <Badge
-                color={meta.color}
-                variant="light"
-                styles={{
-                  label: {
-                    textTransform: "none",
-                  },
-                }}
-              >
-                {meta.label}
-              </Badge>
-            </Tooltip>
-
-            <Tooltip label="View Leave History">
-              <ActionIcon
-                variant="subtle"
-                onClick={() =>
-                  setSelectedEmployee({
-                    id: info.row.original.id,
-                    name: info.row.original.name,
-                  })
-                }
-              >
-                <IconHistory size={15} />
-              </ActionIcon>
-            </Tooltip>
-          </Group>
-        );
-      },
+      cell: (info) => (
+        <Tooltip label="View Leave History">
+          <ActionIcon
+            variant="subtle"
+            onClick={() =>
+              setSelectedEmployee({
+                id: info.row.original.id,
+                name: info.row.original.name,
+              })
+            }
+          >
+            <IconHistory size={15} />
+          </ActionIcon>
+        </Tooltip>
+      ),
     }),
   ];
 

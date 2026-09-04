@@ -52,28 +52,12 @@ model User {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  timesheets     Timesheet[]
   activityEvents ActivityEvent[]
   leaves         Leave[]
 
   @@index([updatedAt])
 }
 
-model Timesheet {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  weekStart  DateTime
-  totalHours Float
-
-  categories Json @default("{}")
-
-  syncedAt DateTime @default(now())
-
-  @@unique([userId, weekStart])
-  @@index([weekStart])
-}
 
 model ActivityEvent {
   id String @id @default(uuid())
