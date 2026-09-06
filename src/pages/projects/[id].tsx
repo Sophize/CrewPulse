@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
+
 import {
   Box,
   Text,
@@ -15,6 +16,7 @@ import {
   Badge,
   Tooltip,
 } from "@mantine/core";
+
 import {
   IconTrash,
   IconPencil,
@@ -34,45 +36,19 @@ import {
   useDeleteProjectTask,
 } from "@/hooks/useProjectTasks";
 
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { MeetingSchedulesSection } from "@/components/projects/MeetingSchedulesSection";
 
-function statusColor(status: string) {
-  switch (status) {
-    case "COMPLETED":
-      return "green";
-    case "BLOCKED":
-      return "red";
-    case "IN_PROGRESS":
-    default:
-      return "blue";
-  }
-}
-
-function statusLabel(status: string) {
-  switch (status) {
-    case "COMPLETED":
-      return "Completed";
-    case "BLOCKED":
-      return "Blocked";
-    case "IN_PROGRESS":
-    default:
-      return "In Progress";
-  }
-}
+import { formatDate, statusColor, statusLabel } from "@/utils/meetingUtils";
 
 export default function ProjectPage() {
   const router = useRouter();
+
   const { id } = router.query;
+
   const projectId = String(id || "");
 
   const { data: projects = [], isLoading: isProjectsLoading } = useProjects();
+
   const currentProject = projects.find((p) => p.id === projectId);
 
   const {
@@ -82,18 +58,28 @@ export default function ProjectPage() {
   } = useProjectTasks(projectId);
 
   const createMutation = useCreateProjectTask(projectId);
+
   const updateMutation = useUpdateProjectTask(projectId);
+
   const deleteMutation = useDeleteProjectTask(projectId);
 
   const [newTaskText, setNewTaskText] = useState("");
+
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+
   const [editingText, setEditingText] = useState("");
+
   const [editingStatus, setEditingStatus] = useState<string>("");
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTaskText.trim()) return;
+
+    if (!newTaskText.trim()) {
+      return;
+    }
+
     await createMutation.mutateAsync(newTaskText.trim());
+
     setNewTaskText("");
   };
 
@@ -101,7 +87,7 @@ export default function ProjectPage() {
     await deleteMutation.mutateAsync(taskId);
   };
 
-  const handleStartEdit = (
+  const handleStartTaskEdit = (
     taskId: string,
     currentText: string,
     currentStatus: string,
@@ -111,12 +97,19 @@ export default function ProjectPage() {
     setEditingStatus(currentStatus);
   };
 
-  const handleSaveEdit = async (taskId: string) => {
-    if (!editingText.trim()) return;
+  const handleSaveTaskEdit = async (taskId: string) => {
+    if (!editingText.trim()) {
+      return;
+    }
+
     await updateMutation.mutateAsync({
       taskId,
-      updates: { taskDescription: editingText.trim(), status: editingStatus },
+      updates: {
+        taskDescription: editingText.trim(),
+        status: editingStatus,
+      },
     });
+
     setEditingTaskId(null);
     setEditingText("");
     setEditingStatus("");
@@ -127,8 +120,12 @@ export default function ProjectPage() {
       <DashboardLayout
         title={currentProject?.name || "Project Details"}
         breadcrumbs={[
-          { label: "Project Status" },
-          { label: currentProject?.name || "Project" },
+          {
+            label: "Project Status",
+          },
+          {
+            label: currentProject?.name || "Project",
+          },
         ]}
       >
         <PageHeader
@@ -159,10 +156,13 @@ export default function ProjectPage() {
               size="sm"
               c="dimmed"
               tt="uppercase"
-              style={{ letterSpacing: "0.05em" }}
+              style={{
+                letterSpacing: "0.05em",
+              }}
             >
               Task Description
             </Text>
+
             <Textarea
               placeholder="Enter task description..."
               value={newTaskText}
@@ -176,6 +176,7 @@ export default function ProjectPage() {
                 },
               }}
             />
+
             <Group>
               <Button
                 type="submit"
@@ -188,13 +189,23 @@ export default function ProjectPage() {
             </Group>
           </form>
         </Paper>
-
         {isTasksLoading || isProjectsLoading ? (
-          <Box style={{ textAlign: "center" }} py="xl">
+          <Box
+            style={{
+              textAlign: "center",
+            }}
+            py="xl"
+          >
             <Loader size="md" />
           </Box>
         ) : (
-          <Paper withBorder radius="md" style={{ overflow: "hidden" }}>
+          <Paper
+            withBorder
+            radius="md"
+            style={{
+              overflow: "hidden",
+            }}
+          >
             <Box
               px="md"
               py="sm"
@@ -206,17 +217,39 @@ export default function ProjectPage() {
                 Task List
               </Text>
             </Box>
+
             <Table highlightOnHover verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th style={{ width: 300 }}>DATE</Table.Th>
-                  <Table.Th style={{ width: 500 }}>TASK DESCRIPTION</Table.Th>
+                  <Table.Th
+                    style={{
+                      width: 300,
+                    }}
+                  >
+                    DATE
+                  </Table.Th>
+
+                  <Table.Th
+                    style={{
+                      width: 500,
+                    }}
+                  >
+                    TASK DESCRIPTION
+                  </Table.Th>
+
                   <Table.Th>STATUS</Table.Th>
-                  <Table.Th style={{ width: 100, textAlign: "right" }}>
+
+                  <Table.Th
+                    style={{
+                      width: 100,
+                      textAlign: "right",
+                    }}
+                  >
                     ACTIONS
                   </Table.Th>
                 </Table.Tr>
               </Table.Thead>
+
               <Table.Tbody>
                 {tasks.length === 0 ? (
                   <Table.Tr>
@@ -229,13 +262,11 @@ export default function ProjectPage() {
                 ) : (
                   tasks.map((task) => (
                     <Table.Tr key={task.id}>
-                      {/* Date */}
                       <Table.Td>
                         <Text size="sm" c="dimmed">
                           {formatDate(task.createdAt)}
                         </Text>
                       </Table.Td>
-
                       <Table.Td>
                         {editingTaskId === task.id ? (
                           <Textarea
@@ -249,25 +280,42 @@ export default function ProjectPage() {
                             autoFocus
                           />
                         ) : (
-                          <Text size="sm" style={{ whiteSpace: "pre-wrap" }}>
+                          <Text
+                            size="sm"
+                            style={{
+                              whiteSpace: "pre-wrap",
+                            }}
+                          >
                             {task.taskDescription}
                           </Text>
                         )}
                       </Table.Td>
 
-                      {/* Status */}
                       <Table.Td>
                         {editingTaskId === task.id ? (
                           <Select
                             size="xs"
                             value={editingStatus}
-                            onChange={(val) => val && setEditingStatus(val)}
+                            onChange={(value) =>
+                              value && setEditingStatus(value)
+                            }
                             data={[
-                              { value: "BLOCKED", label: "Blocked" },
-                              { value: "IN_PROGRESS", label: "In Progress" },
-                              { value: "COMPLETED", label: "Completed" },
+                              {
+                                value: "BLOCKED",
+                                label: "Blocked",
+                              },
+                              {
+                                value: "IN_PROGRESS",
+                                label: "In Progress",
+                              },
+                              {
+                                value: "COMPLETED",
+                                label: "Completed",
+                              },
                             ]}
-                            style={{ width: 140 }}
+                            style={{
+                              width: 140,
+                            }}
                           />
                         ) : (
                           <Tooltip
@@ -304,7 +352,7 @@ export default function ProjectPage() {
                             <ActionIcon
                               color="blue"
                               variant="subtle"
-                              onClick={() => handleSaveEdit(task.id)}
+                              onClick={() => handleSaveTaskEdit(task.id)}
                               loading={updateMutation.isPending}
                             >
                               <IconDeviceFloppy size={16} />
@@ -314,7 +362,7 @@ export default function ProjectPage() {
                               color="gray"
                               variant="subtle"
                               onClick={() =>
-                                handleStartEdit(
+                                handleStartTaskEdit(
                                   task.id,
                                   task.taskDescription,
                                   task.status,
@@ -324,6 +372,7 @@ export default function ProjectPage() {
                               <IconPencil size={16} />
                             </ActionIcon>
                           )}
+
                           <ActionIcon
                             color="red"
                             variant="subtle"
@@ -342,6 +391,10 @@ export default function ProjectPage() {
             </Table>
           </Paper>
         )}
+        <MeetingSchedulesSection
+          projectId={projectId}
+          projectName={currentProject?.name}
+        />
       </DashboardLayout>
     </AuthGuard>
   );

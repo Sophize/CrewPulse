@@ -6,4 +6,6 @@ export const queryKeys = {
   leaves: ["leaves"] as const,
   projects: ["projects"] as const,
   projectTasks: (projectId: string) => ["project-tasks", projectId] as const,
+  meetingSchedules: (projectId: string) =>
+    ["meeting-schedules", projectId] as const,
 };
