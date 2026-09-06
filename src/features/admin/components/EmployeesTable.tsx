@@ -88,7 +88,6 @@ export interface EmployeeRow {
   timesheetUrl: string | null;
   timesheetUpdatedAt: string | null;
   lastSeenAt: string | null;
-  updatedAt: string;
 
   leave: {
     leaveType: LeaveType;
@@ -165,11 +164,8 @@ export function EmployeesTable({
             {getInitials(info.getValue())}
           </Avatar>
           <Box style={{ minWidth: 0 }}>
-            <Text size="sm" fw={500} truncate>
+            <Text size="sm" fw={500} truncate tt="capitalize">
               {info.getValue()}
-            </Text>
-            <Text size="xs" c="dimmed" truncate>
-              {info.row.original.email}
             </Text>
           </Box>
         </Group>
@@ -177,26 +173,57 @@ export function EmployeesTable({
     }),
 
     col.accessor("taskStatus", {
-      header: "Status",
+      header: "Currently Working",
+
       cell: (info) => {
         const meta = TASK_STATUS_META[info.getValue()];
         const currentTask = info.row.original.currentTask;
         const statusElement = STATUS_ICON_MAP[meta.icon];
 
+        const shortTask = currentTask ? currentTask.trim() : "";
+
         return (
-          <Group gap={8} wrap="nowrap" align="center">
+          <Group
+            gap={2}
+            wrap="nowrap"
+            align="center"
+            justify={
+              info.getValue() === "BLOCKED" || !currentTask
+                ? "center"
+                : "flex-start"
+            }
+            w={150}
+          >
             {info.getValue() !== "BLOCKED" && currentTask ? (
-              <Tooltip multiline withArrow label={currentTask}>
-                <Box style={{ cursor: "help", display: "flex" }}>
-                  {statusElement}
-                </Box>
-              </Tooltip>
+              <>
+                <Text size="sm" truncate maw={120}>
+                  {shortTask}
+                </Text>
+
+                <Tooltip
+                  multiline
+                  withArrow
+                  label={currentTask}
+                  withinPortal
+                  zIndex={10000}
+                >
+                  <Box
+                    style={{
+                      cursor: "help",
+                      display: "flex",
+                    }}
+                  >
+                    {statusElement}
+                  </Box>
+                </Tooltip>
+              </>
             ) : (
               statusElement
             )}
           </Group>
         );
       },
+
       sortingFn: (a, b) =>
         TASK_STATUS_ORDER[a.original.taskStatus] -
         TASK_STATUS_ORDER[b.original.taskStatus],
@@ -268,10 +295,9 @@ export function EmployeesTable({
 
         if (!lastSeenAt) {
           return (
-            <Group gap={4}>
-              <IconSpy size={14} />
-              <Text size="sm">Never seen</Text>
-            </Group>
+            <Badge color="gray" variant="light" size="sm">
+              Never
+            </Badge>
           );
         }
 
@@ -306,10 +332,9 @@ export function EmployeesTable({
 
         if (!url) {
           return (
-            <Group gap={4}>
-              <IconSpy size={14} />
-              <Text size="sm">Never updated</Text>
-            </Group>
+            <Badge color="gray" variant="light">
+              Not Set
+            </Badge>
           );
         }
         if (updatedAt) {
@@ -350,23 +375,6 @@ export function EmployeesTable({
         );
       },
     }),
-
-    col.accessor("updatedAt", {
-      header: "Updated",
-      cell: (info) => (
-        <Text
-          size="xs"
-          c="dimmed"
-          style={{
-            whiteSpace: "nowrap",
-            width: 70,
-          }}
-        >
-          {formatDate(info.getValue())}
-        </Text>
-      ),
-    }),
-
     col.accessor("leave", {
       header: "Leave",
       enableSorting: false,
@@ -455,10 +463,10 @@ export function EmployeesTable({
 
           <Table.Tbody>
             {isLoading ? (
-              <LoadingRows cols={7} rows={5} />
+              <LoadingRows cols={6} rows={5} />
             ) : visibleRows.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
+                <Table.Td colSpan={6}>
                   <EmptyState
                     icon={IconSearch}
                     title="No employees found"
