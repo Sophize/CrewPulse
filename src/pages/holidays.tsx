@@ -54,6 +54,9 @@ export default function LeavesPage() {
       <Table.Td>{new Date(leave.toDate).toLocaleDateString()}</Table.Td>
       <Table.Td>{leave.isHalfDay ? "Yes" : "No"}</Table.Td>
       <Table.Td>{leave.reason || "-"}</Table.Td>
+      <Table.Td>
+        {leave.createdAt ? new Date(leave.createdAt).toLocaleDateString() : "-"}
+      </Table.Td>
     </Table.Tr>
   ));
 
@@ -106,6 +109,7 @@ export default function LeavesPage() {
                     <Table.Th>To Date</Table.Th>
                     <Table.Th>Half Day</Table.Th>
                     <Table.Th>Reason</Table.Th>
+                    <Table.Th>Applied On</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
 

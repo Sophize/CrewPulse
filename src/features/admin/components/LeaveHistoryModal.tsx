@@ -25,6 +25,7 @@ type Leave = {
   toDate: string;
   isHalfDay: boolean;
   reason: string | null;
+  createdAt?: string | null;
 };
 
 type Props = {

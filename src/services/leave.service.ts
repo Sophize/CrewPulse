@@ -41,6 +41,7 @@ export type UpcomingLeave = Prisma.LeaveGetPayload<{
     toDate: true;
     isHalfDay: true;
     reason: true;
+    createdAt: true;
     user: {
       select: {
         id: true;
