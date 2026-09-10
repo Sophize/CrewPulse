@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/layout";
 import { PageHeader } from "@/components/ui";
 
 import { EmployeesTable } from "@/features/admin/components/EmployeesTable";
+import { EmployeeLeavesTable } from "@/features/admin/components/EmployeeLeavesTable";
 import { ActivityFeed } from "@/features/dashboard/components/ActivityFeed";
 
 import { getErrorMessage } from "@/api/errors";
@@ -59,6 +60,10 @@ export default function AdminPage() {
         )}
 
         <Grid mb="lg">
+          <Grid.Col span={12}>
+            <EmployeeLeavesTable />
+          </Grid.Col>
+
           <Grid.Col span={12}>
             <Box>
               <Text fw={600} size="sm" mb="sm">
