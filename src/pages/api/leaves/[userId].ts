@@ -33,6 +33,7 @@ export default async function handler(
         toDate: true,
         isHalfDay: true,
         reason: true,
+        createdAt: true,
       },
     });
 
@@ -44,6 +45,7 @@ export default async function handler(
         toDate: leave.toDate.toISOString(),
         isHalfDay: leave.isHalfDay,
         reason: leave.reason,
+        createdAt: leave.createdAt ? leave.createdAt.toISOString() : null,
       })),
     });
   } catch (error) {
